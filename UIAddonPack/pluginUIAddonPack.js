@@ -1,5 +1,5 @@
 /*
-    UI Add-on Pack v1.0.0 by AAD
+    UI Add-on Pack v1.0.1 by AAD
     ----------------------------
     https://github.com/AmateurAudioDude/FM-DX-Webserver-Plugin-UI-Addon-Pack
 */
@@ -374,13 +374,16 @@ if (SIDEBAR_ADDITIONS) {
 // Function for side bar buttons
 function createAdditionalCheckbox({ checkboxId, labelText, tooltipText, localStorageKey, onChangeCallback }) {
     function insertHtmlAfterLastCheckbox() {
-        const checkboxes = document.querySelectorAll('.modal-panel-content .form-group.checkbox');
+        const checkboxes = document.querySelectorAll('.modal-panel-content .form-group');
         if (checkboxes.length > 0) {
             const newDiv = document.createElement('div');
-            newDiv.className = 'form-group checkbox';
+            newDiv.className = 'form-group';
             newDiv.innerHTML = `
-                <input type="checkbox" tabindex="0" id="${checkboxId}" aria-label="${labelText}">
-                <label for="${checkboxId}" class="tooltip" data-tooltip="${tooltipText}"><i class="fa-solid fa-toggle-off m-right-10"></i> ${labelText}</label>
+                <div class="switch flex-container flex-phone flex-phone-column flex-phone-center">
+                    <input type="checkbox" tabindex="0" id="${checkboxId}" aria-label="${labelText}">
+                    <label for="${checkboxId}" class="tooltip" data-tooltip="${tooltipText}"></label>
+                    <span class="text-smaller text-uppercase text-bold color-4 p-10">${labelText}</span>
+                </div>
             `;
             checkboxes[checkboxes.length - 1].insertAdjacentElement('afterend', newDiv);
         } else {
