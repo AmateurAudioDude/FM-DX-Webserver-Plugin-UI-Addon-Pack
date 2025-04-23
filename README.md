@@ -8,3 +8,11 @@ A collection of visual enhancements for FM-DX Webserver. Features may be added/r
 * Login to Adminstrator Panel and enable plugin
 
 #### Configuration options found in `pluginUIAddonPack.js`
+
+v1.0.1
+------
+* Fix for FM-DX Webserver v1.3.7 compatibility issues
+
+v1.0.0
+------
+* Initial release
