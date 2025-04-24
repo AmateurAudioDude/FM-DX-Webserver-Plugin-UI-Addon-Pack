@@ -463,8 +463,9 @@ createAdditionalCheckbox({
     tooltipText: "Enable to hide the background image.",
     localStorageKey: "bgImageHidden",
     onChangeCallback: function () {
-        if (localStorage.getItem('bgImage').length > 5 && localStorage.getItem('theme') !== 'theme9' && localStorage.getItem('bgImageHidden') !== 'true') {
-            document.body.style.background = `url(${localStorage.getItem('bgImage')}) top center / cover fixed no-repeat var(--color-main)`;
+        const bgImage = localStorage.getItem('bgImage');
+        if (bgImage && bgImage.length > 5 && localStorage.getItem('theme') !== 'theme9' && localStorage.getItem('bgImageHidden') !== 'true') {
+            document.body.style.background = `url(${bgImage}) top center / cover fixed no-repeat var(--color-main)`;
         } else {
             document.body.style.background = 'var(--color-main)';
         }
