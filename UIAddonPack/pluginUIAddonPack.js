@@ -237,6 +237,15 @@ if (INCREASE_TOP_RIGHT_ICON_SIZE) {
   .wrapper-outer #users-online-container .users-online {
     font-size: 18px;
   }
+
+  .wrapper-outer #users-online-container {
+    width: 56px;
+  }
+
+  .wrapper-outer #users-online-container .users-online {
+    min-width: 10px;
+    display: inline-block;
+  }
   `;
 }
 
@@ -904,6 +913,7 @@ setTimeout(function() {
 // #################### RDS FLAG INDICATOR #################### //
 if (RDS_FLAG_INDICATOR) {
 let lastProcessedTime = 0;
+let reconnectAttempts = 0;
 let executeFunction = false;
 let rt_flag;
 
@@ -913,7 +923,35 @@ window.onload = function() {
     executeFunction = true;
 };
 
-socket.addEventListener("message", (event) => {
+function connectWebSocket() {
+    if (socket.readyState === WebSocket.OPEN) {
+        reconnectAttempts = 0;
+    }
+
+    socket.addEventListener('message', (event) => {
+        handle_RDS_FLAG_INDICATOR(event);
+    });
+
+    socket.addEventListener('close', () => {
+        console.log('RDS_FLAG_INDICATOR: WebSocket closed. Attempting to reconnect...');
+        attemptReconnect();
+    });
+
+    socket.addEventListener('error', (err) => {
+        attemptReconnect();
+    });
+}
+
+function attemptReconnect() {
+    if (reconnectAttempts >= 500) return;
+
+    setTimeout(() => {
+        reconnectAttempts++;
+        connectWebSocket();
+    }, 10000);
+}
+
+function handle_RDS_FLAG_INDICATOR(event) {
     const now = Date.now();
 
     if (now - lastProcessedTime < TIMEOUT_DURATION) return;
@@ -945,7 +983,9 @@ socket.addEventListener("message", (event) => {
     }
 
     if (executeFunction) updateBulletPoint(rt_flag);
-});
+}
+
+connectWebSocket();
 }
 
 // #################### MULTIPATH INDICATOR #################### //
