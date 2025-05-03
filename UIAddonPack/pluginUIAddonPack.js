@@ -1,5 +1,5 @@
 /*
-    UI Add-on Pack v1.0.2 by AAD
+    UI Add-on Pack v1.0.3 by AAD
     ----------------------------
     https://github.com/AmateurAudioDude/FM-DX-Webserver-Plugin-UI-Addon-Pack
 */
@@ -22,6 +22,15 @@ const BUTTON_FM_LIST_MOD = false;
 
 // Minimum distance in km of radio station before FMLIST button becomes visible.
 const BUTTON_FM_LIST_MOD_MINIMUM_HIDE_DISTANCE = 200;
+
+// #################### NATIVE MOBILE TRAY #################### //
+
+// Moves the mobile tray to the top of page.
+// Do not enable if using MOBILE STATUS BAR.
+const MOVE_MOBILE_TRAY_TO_TOP = false;
+
+// Hide mobile tray.
+const HIDE_MOBILE_TRAY = false;
 
 // #################### MOBILE STATUS BAR #################### //
 
@@ -481,6 +490,59 @@ createAdditionalCheckbox({
     }
 });
 }
+}
+
+// #################### MOVE MOBILE TRAY #################### //
+
+if (MOVE_MOBILE_TRAY_TO_TOP) {
+function moveTray() {
+    document.addEventListener("DOMContentLoaded", function () {
+      const mobileTray = document.getElementById("mobileTray");
+      const playButton = mobileTray.querySelector(".playbutton");
+
+      if (mobileTray) {
+        document.body.insertBefore(mobileTray, document.body.firstChild);
+
+        Object.assign(mobileTray.style, {
+          position: "fixed",
+          top: "0",
+          left: "0",
+          width: "100%",
+          zIndex: "15",
+        });
+
+        if (playButton) {
+          Object.assign(playButton.style, {
+            position: "absolute",
+            top: "35px",
+            left: "50%",
+            transform: "translateX(-50%)",
+          });
+        }
+      }
+    });
+
+    const wrapper = document.querySelector('.wrapper-outer.dashboard-panel');
+
+    if (window.innerWidth < 720) {
+        wrapper.style.setProperty('padding-top', '110px');
+    } else {
+        wrapper.style.setProperty('padding-top', '20px', 'important');
+    }
+}
+
+moveTray();
+
+window.addEventListener('resize', moveTray);
+}
+
+if (HIDE_MOBILE_TRAY && !MOVE_MOBILE_TRAY_TO_TOP) {
+    document.addEventListener("DOMContentLoaded", function () {
+      const mobileTray = document.querySelector("div#mobileTray.hide-desktop");
+      if (mobileTray) {
+        mobileTray.style.display = "none";
+      }
+    });
 }
 
 // #################### STATUS BAR FOR DISPLAYS WITH LIMITED WIDTH #################### //
