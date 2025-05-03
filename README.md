@@ -9,6 +9,11 @@ A collection of visual enhancements for FM-DX Webserver. Features may be added/r
 
 #### Configuration options found in `pluginUIAddonPack.js`
 
+v1.0.3
+------
+* Added option `MOVE_MOBILE_TRAY_TO_TOP`
+* Added option `HIDE_MOBILE_TRAY`
+
 v1.0.2
 ------
 * Fix for FM-DX Webserver v1.3.8 compatibility issues
