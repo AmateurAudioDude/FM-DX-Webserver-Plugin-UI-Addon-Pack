@@ -310,7 +310,7 @@ setTimeout(() => {
 // #################### FMLIST BUTTON REPOSITION #################### //
 
 if (BUTTON_FM_LIST_MOD) {
-const buttonFMLIST = document.querySelector('.wrapper-outer #wrapper .flex-container .panel-100 button#log-fmlist');
+const buttonFMLIST = document.querySelector('.wrapper-outer #wrapper .flex-container .panel-100 button.log-fmlist');
 const targetContainer = document.querySelector('.wrapper-outer #wrapper .flex-container .panel-100.no-bg .flex-container.flex-phone.flex-phone-column .panel-33.hover-brighten.tooltip');
 
 if (buttonFMLIST && targetContainer) {
@@ -328,7 +328,7 @@ if (buttonFMLIST && targetContainer) {
 // CSS code
 let styleElement = document.createElement('style');
 styleElement.textContent = `
-.wrapper-outer #wrapper button#log-fmlist {
+.wrapper-outer #wrapper button.log-fmlist {
   display: none;
 }
 `;
@@ -344,7 +344,7 @@ function debounce(func, delay) {
 
 const updateDistance = () => {
   const distanceElement = document.querySelector('.wrapper-outer #wrapper #data-station-container #data-station-distance');
-  const FmListElement = document.querySelector('.wrapper-outer #wrapper button#log-fmlist');
+  const FmListElement = document.querySelector('.wrapper-outer #wrapper button.log-fmlist');
   const containerElement = document.querySelector('.wrapper-outer #wrapper #data-station-container');
   if (containerElement && getComputedStyle(containerElement).display === 'none') {
     if (FmListElement) FmListElement.style.display = 'none';
