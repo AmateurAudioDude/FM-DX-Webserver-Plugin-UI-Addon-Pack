@@ -507,7 +507,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 const streamSignalMeter = document.querySelector("#stream-signal-meter");
                 const usersOnlineContainer = document.querySelector(".users-online-container") || document.querySelector("#users-online-container");
                 const chatButton = document.querySelector(".chatbutton");
-                const settingsButton = document.querySelector(".settings");
+                const settingsButton = document.querySelector(".settings") || document.querySelector("#settings");
 
                 // Move buttons into new div in order from left to right
                 if (streamSignalMeter) buttonContainer.appendChild(streamSignalMeter);
