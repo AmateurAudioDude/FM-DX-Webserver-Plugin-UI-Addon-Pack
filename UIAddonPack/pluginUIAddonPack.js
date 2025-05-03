@@ -1,5 +1,5 @@
 /*
-    UI Add-on Pack v1.0.1 by AAD
+    UI Add-on Pack v1.0.2 by AAD
     ----------------------------
     https://github.com/AmateurAudioDude/FM-DX-Webserver-Plugin-UI-Addon-Pack
 */
@@ -232,17 +232,17 @@ if (INCREASE_TOP_RIGHT_ICON_SIZE) {
   styleElement.textContent += `
   /* Increase size of top-right side icons */
   .wrapper-outer button.chatbutton,
-  .wrapper-outer #settings .fa-solid.fa-gear,
-  .wrapper-outer #users-online-container .fa-solid.fa-user,
-  .wrapper-outer #users-online-container .users-online {
+  .wrapper-outer .settings,
+  .wrapper-outer .users-online-container .fa-solid.fa-user,
+  .wrapper-outer .users-online-container .users-online {
     font-size: 18px;
   }
 
-  .wrapper-outer #users-online-container {
+  .wrapper-outer .users-online-container {
     width: 56px;
   }
 
-  .wrapper-outer #users-online-container .users-online {
+  .wrapper-outer .users-online-container .users-online {
     min-width: 10px;
     display: inline-block;
   }
@@ -505,9 +505,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 // Get buttons
 
                 const streamSignalMeter = document.querySelector("#stream-signal-meter");
-                const usersOnlineContainer = document.querySelector("#users-online-container");
+                const usersOnlineContainer = document.querySelector(".users-online-container") || document.querySelector("#users-online-container");
                 const chatButton = document.querySelector(".chatbutton");
-                const settingsButton = document.querySelector("#settings");
+                const settingsButton = document.querySelector(".settings");
 
                 // Move buttons into new div in order from left to right
                 if (streamSignalMeter) buttonContainer.appendChild(streamSignalMeter);
@@ -557,9 +557,9 @@ document.addEventListener("DOMContentLoaded", function () {
             if (buttonContainer) {
                 // Move buttons back to original position
                 const streamSignalMeter = document.querySelector("#stream-signal-meter");
-                const usersOnlineContainer = document.querySelector("#users-online-container");
+                const usersOnlineContainer = document.querySelector(".users-online-container") || document.querySelector("#users-online-container");
                 const chatButton = document.querySelector(".chatbutton");
-                const settingsButton = document.querySelector("#settings");
+                const settingsButton = document.querySelector(".settings");
 
                 // Place after because of Weather plugin or others
                 if (pluginContent) {
@@ -636,7 +636,7 @@ if (/Mobi|Android/i.test(navigator.userAgent) && !window.matchMedia("(orientatio
 
     // Show online users on mobile
     if (window.innerWidth < 924) {
-        let element = document.getElementById('users-online-container');
+        let element = document.querySelector(".users-online-container") || document.getElementById('users-online-container');
         element.classList.replace('hide-phone', 'show-phone');
         element.style.display = 'block';
         element.style.position = 'fixed';
@@ -731,7 +731,7 @@ function mobileStatusBarConnection(force) {
     // Create and update stream signal meter
     function createSignalMeter(elapsedTimeConnectionWatchdog) {
         // Find the container to append the signal meter to
-        const userOnlineContainer = document.getElementById('users-online-container');
+        const userOnlineContainer = document.querySelector(".users-online-container") || document.getElementById('users-online-container');
 
         // Create a wrapper for the signal meter
         const meterWrapper = document.createElement('div');
@@ -896,7 +896,7 @@ mobileStatusBarConnection();
 
 if (MULTIPLE_USERS_NOTICE) {
 let intervalIdUsersOnline = setInterval(function() {
-    const usersOnlineElement = document.getElementById('users-online-container');
+    const usersOnlineElement = document.querySelector('.users-online-container') || document.getElementById('users-online-container');
     if (usersOnlineElement) {
         const usersOnline = parseInt(usersOnlineElement.textContent.trim());
         if (usersOnline >= 2) {
