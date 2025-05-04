@@ -145,7 +145,7 @@ const HIDE_CONSOLE_LOGS = false;
 
 
 
-if (ENABLE_PLUGIN) {
+if (ENABLE_PLUGIN && window.location.pathname !== '/setup') {
 
 // #################### GENERAL SETTINGS #################### //
 
