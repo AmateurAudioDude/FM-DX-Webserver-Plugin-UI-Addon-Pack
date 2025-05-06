@@ -260,6 +260,7 @@ if (INCREASE_TOP_RIGHT_ICON_SIZE) {
 
   .wrapper-outer .users-online-container .users-online {
     min-width: 10px;
+    margin-bottom: 1px;
     display: inline-block;
   }
   `;
