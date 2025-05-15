@@ -1,12 +1,12 @@
 /*
-    UI Add-on Pack v1.0.3 by AAD
+    UI Add-on Pack v1.0.4 by AAD
     ----------------------------
     https://github.com/AmateurAudioDude/FM-DX-Webserver-Plugin-UI-Addon-Pack
 */
 
 (() => {
 
-const pluginVersion = '1.0.3';
+const pluginVersion = '1.0.4';
 const pluginName = "UI Add-on Pack";
 const pluginHomepageUrl = "https://github.com/AmateurAudioDude/FM-DX-Webserver-Plugin-UI-Addon-Pack";
 const pluginUpdateUrl = "https://raw.githubusercontent.com/AmateurAudioDude/FM-DX-Webserver-Plugin-UI-Addon-Pack/refs/heads/main/UIAddonPack/pluginUIAddonPack.js";
@@ -82,7 +82,7 @@ const MULTIPATH_INDICATOR = false;
 
 // #################### NEW USER TUNING DELAY #################### //
 
-// Sets a 2-second delay before a new user can begin tuning.
+// Sets a 2-second delay before a new user can begin tuning, admins excluded.
 const TUNE_DELAY = false;
 
 // #################### VOLUME TOAST NOTIFICATION #################### //
@@ -151,6 +151,26 @@ if (ENABLE_PLUGIN && window.location.pathname !== '/setup') {
 
 // Suppress all console logs
 if (HIDE_CONSOLE_LOGS) console.log = function() {};
+
+// Check if administrator code
+var isTuneAuthenticated = false;
+var isTunerLocked = false;
+var isTuningAllowed = false;
+
+document.addEventListener('DOMContentLoaded', () => {
+    checkAdminMode();
+});
+
+// Is the user administrator?
+function checkAdminMode() {
+    const bodyText = document.body.textContent || document.body.innerText;
+    isTunerLocked = !!document.querySelector('.fa-solid.fa-key.pointer.tooltip') || !!document.querySelector('.fa-solid.fa-lock.pointer.tooltip');
+    isTuneAuthenticated = bodyText.includes("You are logged in as an administrator.") || bodyText.includes("You are logged in as an adminstrator.") || bodyText.includes("You are logged in and can control the receiver.");
+    if (isTuneAuthenticated || (isTunerLocked && isTuneAuthenticated) || (!isTunerLocked && !isTuneAuthenticated)) isTuningAllowed = true;
+    if (isTuneAuthenticated) {
+        console.log(`[${pluginName}] Logged in as administrator`);
+    }
+}
 
 // #################### ADDITIONAL CSS STYLES #################### //
 
@@ -329,6 +349,7 @@ setTimeout(() => {
 if (BUTTON_FM_LIST_MOD) {
 const buttonFMLIST = document.querySelector('.wrapper-outer #wrapper .flex-container .panel-100 button.log-fmlist');
 const targetContainer = document.querySelector('.wrapper-outer #wrapper .flex-container .panel-100.no-bg .flex-container.flex-phone.flex-phone-column .panel-33.hover-brighten.tooltip');
+const miniPopup = document.querySelector('.wrapper-outer #wrapper .flex-container .panel-100 button.tooltip .mini-popup-content');
 
 if (buttonFMLIST && targetContainer) {
   targetContainer.appendChild(buttonFMLIST);
@@ -339,6 +360,12 @@ if (buttonFMLIST && targetContainer) {
   buttonFMLIST.style.margin = '6px';
   buttonFMLIST.style.transform = 'scale(0.5)';
   buttonFMLIST.style.transformOrigin = 'top right';
+}
+
+if (miniPopup) {
+  miniPopup.style.transform = 'scale(1.75)';
+  miniPopup.style.left = '-60px';
+  miniPopup.style.top = '80px';
 }
 
 // Hide button when distance is close
@@ -1178,6 +1205,7 @@ const showIcon = false;
 let lockTuning;
 
 window.addEventListener('DOMContentLoaded', (event) => {
+  if (isTuneAuthenticated) return;
   // Lock
   lockTuning = true;
   // Select the elements with IDs 'scanner-down' and 'scanner-up'

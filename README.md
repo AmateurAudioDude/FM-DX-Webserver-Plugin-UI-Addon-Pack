@@ -9,6 +9,11 @@ A collection of visual enhancements for FM-DX Webserver. Features may be added/r
 
 #### Configuration options found in `pluginUIAddonPack.js`
 
+v1.0.4
+------
+* Admins excluded from tune delay (`TUNE_DELAY`)
+* Resized DX type popup for FMLIST button mod (`BUTTON_FM_LIST_MOD`)
+
 v1.0.3
 ------
 * Added option `MOVE_MOBILE_TRAY_TO_TOP`
