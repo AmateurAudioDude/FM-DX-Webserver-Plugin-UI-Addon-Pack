@@ -1,12 +1,12 @@
 /*
-    UI Add-on Pack v1.0.4 by AAD
+    UI Add-on Pack v1.0.5 by AAD
     ----------------------------
     https://github.com/AmateurAudioDude/FM-DX-Webserver-Plugin-UI-Addon-Pack
 */
 
 (() => {
 
-const pluginVersion = '1.0.4';
+const pluginVersion = '1.0.5';
 const pluginName = "UI Add-on Pack";
 const pluginHomepageUrl = "https://github.com/AmateurAudioDude/FM-DX-Webserver-Plugin-UI-Addon-Pack";
 const pluginUpdateUrl = "https://raw.githubusercontent.com/AmateurAudioDude/FM-DX-Webserver-Plugin-UI-Addon-Pack/refs/heads/main/UIAddonPack/pluginUIAddonPack.js";
@@ -82,8 +82,16 @@ const MULTIPATH_INDICATOR = false;
 
 // #################### NEW USER TUNING DELAY #################### //
 
-// Sets a 2-second delay before a new user can begin tuning, admins excluded.
-const TUNE_DELAY = false;
+// Enables new user tune delay, admins excluded.
+const TUNE_DELAY_ENABLE = false;
+
+// Sets a delay in seconds before a new user can begin tuning, admins excluded.
+// NOTE: Set to 0 to disable.
+const TUNE_DELAY = 2;
+
+// Sets a delay in seconds, with an on screen timer, before a new user can begin tuning if at least one user is already online.
+// NOTE: Set to 0 to disable.
+const TUNE_DELAY_IF_MORE_THAN_ONE_USER = 45;
 
 // #################### VOLUME TOAST NOTIFICATION #################### //
 
@@ -1198,73 +1206,227 @@ addRandomIcon(false);
 
 // #################### TUNE DELAY #################### //
 
-if (TUNE_DELAY) {
-const tuneDelay = 2000;
-const showIcon = false;
-
+if (TUNE_DELAY_ENABLE) {
+if (TUNE_DELAY || TUNE_DELAY_IF_MORE_THAN_ONE_USER) {
+const tuneDelay = TUNE_DELAY * 1000;
+let onScreenTimerDelay = TUNE_DELAY_IF_MORE_THAN_ONE_USER;
+let showIcon = !!onScreenTimerDelay;
 let lockTuning;
 
 window.addEventListener('DOMContentLoaded', (event) => {
-  if (isTuneAuthenticated) return;
-  // Lock
-  lockTuning = true;
-  // Select the elements with IDs 'scanner-down' and 'scanner-up'
-  const elementScannerDown = document.getElementById('scanner-down');
-  const elementScannerUp = document.getElementById('scanner-up');
-  const elementSearchDown = document.getElementById('search-down');
-  const elementSearchUp = document.getElementById('search-up');
-  if (elementScannerDown && elementScannerUp) {
-    elementScannerDown.disabled = true;
-    elementScannerUp.disabled = true;
-  } else if (elementSearchDown && elementSearchUp) {
-    elementSearchDown.disabled = true;
-    elementSearchUp.disabled = true;
-  }
+    if (isTuneAuthenticated) return;
 
-  const originalSend = socket.send;
-  // 'freq-down' and 'freq-up' buttons
-  socket.send = function (message) {
-    if (lockTuning) {
-      return;
-    }
-    return originalSend.apply(this, arguments);
-  };
-  if (showIcon) {
-      // Hide icon
-      const tunerName = document.querySelector('h1#tuner-name');
-      const lockIcon = tunerName.querySelector('.user-requests-lock');
-      if (lockIcon) {
-          tunerName.removeChild(lockIcon);
+    function userLockTuning() {
+      // Lock
+      lockTuning = true;
+      // Select the elements with IDs 'scanner-down' and 'scanner-up'
+      const elementScannerDown = document.getElementById('scanner-down');
+      const elementScannerUp = document.getElementById('scanner-up');
+      const elementSearchDown = document.getElementById('search-down');
+      const elementSearchUp = document.getElementById('search-up');
+      if (elementScannerDown && elementScannerUp) {
+        elementScannerDown.disabled = true;
+        elementScannerUp.disabled = true;
+      } else if (elementSearchDown && elementSearchUp) {
+        elementSearchDown.disabled = true;
+        elementSearchUp.disabled = true;
       }
-      // Show icon
-      const lockIconHTML = '<i style="padding-left: 16px; font-size: 20px;" class="fa-solid fa-lock pointer user-requests-lock" aria-label="Tuner is currently locked."></i>';
-      tunerName.insertAdjacentHTML('beforeend', lockIconHTML);
-  }
 
-  // Unlock
-  setTimeout(() => {
-    lockTuning = false;
-    const elementScannerDown = document.getElementById('scanner-down');
-    const elementScannerUp = document.getElementById('scanner-up');
-    const elementSearchDown = document.getElementById('search-down');
-    const elementSearchUp = document.getElementById('search-up');
-    if (elementScannerDown && elementScannerUp) {
-      elementScannerDown.disabled = false;
-      elementScannerUp.disabled = false;
-    } else if (elementSearchDown && elementSearchUp) {
-      elementSearchDown.disabled = false;
-      elementSearchUp.disabled = false;
+      const originalSend = socket.send;
+      // 'freq-down' and 'freq-up' buttons
+      socket.send = function (message) {
+        if (lockTuning) {
+          return;
+        }
+        return originalSend.apply(this, arguments);
+      };
     }
-    if (showIcon) {
-        // Hide icon
-        const tunerName = document.querySelector('h1#tuner-name');
-        const lockIcon = tunerName.querySelector('.user-requests-lock');
-        if (lockIcon) {
-            tunerName.removeChild(lockIcon);
+
+    function lockIconStatus() {
+      if (showIcon) {
+          // Hide icon
+          const tunerName = document.querySelector('.dashboard-panel-plugin-content');
+          const lockIcon = tunerName.querySelector('.user-requests-lock');
+          if (lockIcon) {
+              tunerName.removeChild(lockIcon);
+          }
+          // Show icon
+          const lockIconHTML = '<i style="padding: 10px 2px 12px 6px; font-size: 18px; color: var(--color-4);" class="fa-solid fa-lock pointer user-requests-lock" aria-label="Tuner is currently locked."></i>';
+          tunerName.insertAdjacentHTML('beforeend', lockIconHTML);
+
+          const isMobilePortrait = window.innerWidth <= 768 && window.innerHeight > window.innerWidth;
+
+          if (isMobilePortrait) {
+          const lockIcon = tunerName.querySelector('.user-requests-lock');
+          if (lockIcon) {
+            lockIcon.style.position = 'absolute';
+            lockIcon.style.bottom = '10px';
+            lockIcon.style.right = '12px';          
+          }
+        }
+      }
+    }
+
+    userLockTuning();
+
+    function userUnlockTuning(tuneDelay) {
+      // Unlock
+      setTimeout(() => {
+        lockTuning = false;
+        document.getElementById("tune-buttons").style.pointerEvents = "auto";
+        document.querySelectorAll(".dashboard-panel-plugin-list").forEach(el => {
+            el.style.pointerEvents = "auto";
+        });
+        const elementScannerDown = document.getElementById('scanner-down');
+        const elementScannerUp = document.getElementById('scanner-up');
+        const elementSearchDown = document.getElementById('search-down');
+        const elementSearchUp = document.getElementById('search-up');
+        if (elementScannerDown && elementScannerUp) {
+          elementScannerDown.disabled = false;
+          elementScannerUp.disabled = false;
+        } else if (elementSearchDown && elementSearchUp) {
+          elementSearchDown.disabled = false;
+          elementSearchUp.disabled = false;
+        }
+        if (showIcon) {
+            // Hide icon
+            const tunerName = document.querySelector('.dashboard-panel-plugin-content');
+            const lockIcon = tunerName.querySelector('.user-requests-lock');
+            if (lockIcon) {
+                tunerName.removeChild(lockIcon);
+            }
+        }
+      }, tuneDelay);
+    }
+
+    if (TUNE_DELAY_IF_MORE_THAN_ONE_USER && TUNE_DELAY_IF_MORE_THAN_ONE_USER < TUNE_DELAY) onScreenTimerDelay = TUNE_DELAY;
+    if (TUNE_DELAY > TUNE_DELAY_IF_MORE_THAN_ONE_USER) userUnlockTuning(tuneDelay);
+
+    let userOnlineCount = 0;
+    let lastProcessedTime = 0;
+    let isFirstTimeRun = true;
+
+    const TIMEOUT_DURATION = 500;
+
+    // Define the handler as a named function
+    function handleMessage(event) {
+        if (isFirstTimeRun) {
+            isFirstTimeRun = false;
+            return;
+        }
+
+        const now = Date.now();
+        if (now - lastProcessedTime < TIMEOUT_DURATION) return;
+        lastProcessedTime = now;
+
+        const { users } = JSON.parse(event.data);
+
+        if (users > -1) {
+            userOnlineCount = Number(users);
+
+            if (userOnlineCount >= 2 && onScreenTimerDelay && !isCountdownTimerRunning) {
+                lockIconStatus();
+                userCountdownTimer();
+                document.getElementById("tune-buttons").style.pointerEvents = "none";
+                document.querySelectorAll(".dashboard-panel-plugin-list").forEach(el => {
+                    el.style.pointerEvents = "none";
+                });
+            }
+
+            if (userOnlineCount <= 1) {
+                if (!isCountdownTimerRunning) {
+                    userUnlockTuning(tuneDelay);
+                } else {
+                    userUnlockTuning(0);
+                }
+                document.getElementById("ui-addon-countdown-wrapper")?.remove();
+                socket.removeEventListener("message", handleMessage);
+            }
+
+            if (userOnlineCount === 0) userUnlockTuning(0);
         }
     }
-  }, tuneDelay);
+
+    socket.addEventListener("message", handleMessage);
+
+    let isCountdownTimerRunning = false;
+    
+    function userCountdownTimer() {
+        isCountdownTimerRunning = true;
+        // Set countdown time in seconds
+        let countdownTime = onScreenTimerDelay;
+
+        // Function for end of countdown
+        function onCountdownEnd() {
+            document.getElementById("ui-addon-countdown-wrapper")?.remove();
+            userUnlockTuning(0);
+        }
+
+        function createTimer() {
+            const wrapper = document.createElement('div');
+            wrapper.id = "ui-addon-countdown-wrapper";
+            wrapper.style.position = 'fixed';
+            wrapper.style.top = '29%';
+            wrapper.style.left = '50%';
+            wrapper.style.transform = 'translate(-50%, -50%)';
+            wrapper.style.zIndex = '99';
+            wrapper.style.fontFamily = "'Titillium Web', sans-serif";
+            wrapper.style.fontSize = '48px';
+            wrapper.style.color = 'var(--color-1)';
+            wrapper.style.backgroundColor = 'var(--color-4)';
+            wrapper.style.padding = '10px 24px 0px 24px';
+            wrapper.style.borderRadius = '14px';
+            wrapper.style.boxShadow = '0 0 14px var(--color-2)';
+            wrapper.style.opacity = '0.9';
+
+            const timerText = document.createElement('div');
+            timerText.id = 'timer';
+            wrapper.appendChild(timerText);
+
+            document.body.appendChild(wrapper);
+        }
+
+        // Update timer display
+        function updateDisplay(seconds) {
+            const timerElement = document.getElementById("timer");
+            if (timerElement) {
+                timerElement.innerHTML = `
+                  <div style="text-align: center;">
+                    <div style="font-size: 24px; text-transform: uppercase; margin-bottom: 0;">
+                      Tuner in use
+                    </div>
+                    <div style="font-size: 20px; text-transform: uppercase; margin-bottom: -12px;">
+                      Time remaining before tuning is unlocked
+                    </div>
+                    <div style="font-size: 40px;">${seconds}</div>
+                  </div>
+                `;
+            }
+        }
+
+        // Start countdown
+        function startCountdown(duration, callback) {
+            let remaining = duration;
+            updateDisplay(remaining);
+
+            const intervalId = setInterval(() => {
+                remaining--;
+                if (remaining >= 0) {
+                    updateDisplay(remaining);
+                }
+
+                if (remaining < 0) {
+                    clearInterval(intervalId);
+                    callback();
+                }
+            }, 1000);
+        }
+
+        createTimer();
+        startCountdown(countdownTime, onCountdownEnd);
+    }
 });
+}
 }
 
 // #################### VOLUME PERCENTAGE #################### //
