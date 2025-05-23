@@ -1,12 +1,12 @@
 /*
-    UI Add-on Pack v1.0.5 by AAD
+    UI Add-on Pack v1.0.6 by AAD
     ----------------------------
     https://github.com/AmateurAudioDude/FM-DX-Webserver-Plugin-UI-Addon-Pack
 */
 
 (() => {
 
-const pluginVersion = '1.0.5';
+const pluginVersion = '1.0.6';
 const pluginName = "UI Add-on Pack";
 const pluginHomepageUrl = "https://github.com/AmateurAudioDude/FM-DX-Webserver-Plugin-UI-Addon-Pack";
 const pluginUpdateUrl = "https://raw.githubusercontent.com/AmateurAudioDude/FM-DX-Webserver-Plugin-UI-Addon-Pack/refs/heads/main/UIAddonPack/pluginUIAddonPack.js";
@@ -123,6 +123,9 @@ const REDUCE_SIDEBAR_BLUR = false;
 
 // Increases frequency font weight.
 const INCREASE_FREQUENCY_FONT_WEIGHT = false;
+
+// Adds a gradient effect to the buttons
+const GRADIENT_BUTTONS = false;
 
 // Dims the PI CODE font for incomplete PI decodes.
 const DIM_INCOMPLETE_PI_CODE = false;
@@ -309,6 +312,41 @@ if (INCREASE_FREQUENCY_FONT_WEIGHT) {
   /* Frequency font weight */
   #data-frequency {
     font-weight: 600;
+  }
+  `;
+}
+
+// Gradient buttons
+if (GRADIENT_BUTTONS) {
+  styleElement.textContent += `
+  /* Gradient buttons */
+  .playbutton, .data-eq, #data-ant input, #data-bw input, .data-ims, #freq-down, #scanner-down, #freq-up, #scanner-up, #Scan-on-off, #button-presets-bank-dropdown input {
+    background-image: linear-gradient(var(--color-5), var(--color-3));
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+  }
+  .playbutton:hover, .data-eq:hover, #data-ant input:hover, #data-bw input:hover, .data-ims:hover, #freq-down:hover, #scanner-down:hover, #freq-up:hover, #scanner-up:hover, #Scan-on-off:hover, #button-presets-bank-dropdown input:hover {
+    background-image: linear-gradient(var(--color-3), var(--color-5));
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
+    transform: translateY(0.1px);
+  }
+  html body div.wrapper-outer.main-content div#wrapper div.flex-container div.panel-100.no-bg div.flex-container div.panel-33.hide-phone.no-bg div.flex-container span.panel-100-real.m-0 {
+    filter: brightness(117.5%);
+    position: relative;
+    z-index: 0;
+    border-radius: 14px;
+  }
+  html body div.wrapper-outer.main-content div#wrapper div.flex-container div.panel-100.no-bg div.flex-container div.panel-33.hide-phone.no-bg div.flex-container span.panel-100-real.m-0::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.4) 100%);
+    pointer-events: none;
+    z-index: 1;
+    border-radius: inherit;
   }
   `;
 }
