@@ -1024,9 +1024,9 @@ let rt_flag;
 
 const TIMEOUT_DURATION = 75;
 
-window.onload = function() {
+window.addEventListener('DOMContentLoaded', (event) => {
     executeFunction = true;
-};
+});
 
 function connectWebSocket() {
     if (socket.readyState === WebSocket.OPEN) {
