@@ -320,7 +320,7 @@ if (INCREASE_FREQUENCY_FONT_WEIGHT) {
 if (GRADIENT_BUTTONS) {
   styleElement.textContent += `
   /* Gradient buttons */
-  .playbutton, .data-eq, #data-ant input, #data-bw input, .data-ims, #freq-down, #scanner-down, #freq-up, #scanner-up, #Scan-on-off, #button-presets-bank-dropdown input {
+  .playbutton, .data-eq, #data-ant input, #data-bw input, .data-ims, #freq-down, #scanner-down, #freq-up, #scanner-up, #button-presets-bank-dropdown input {
     background-image: linear-gradient(var(--color-5), var(--color-3));
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease;
@@ -330,13 +330,13 @@ if (GRADIENT_BUTTONS) {
     box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
     transform: translateY(0.1px);
   }
-  html body div.wrapper-outer.main-content div#wrapper div.flex-container div.panel-100.no-bg div.flex-container div.panel-33.hide-phone.no-bg div.flex-container span.panel-100-real.m-0 {
+  html body div.wrapper-outer.main-content div#wrapper div.flex-container div.panel-100.no-bg div.flex-container div.panel-33.hide-phone.no-bg div.flex-container span.panel-100-real.m-0, #Scan-on-off {
     filter: brightness(117.5%);
     position: relative;
     z-index: 0;
     border-radius: 14px;
   }
-  html body div.wrapper-outer.main-content div#wrapper div.flex-container div.panel-100.no-bg div.flex-container div.panel-33.hide-phone.no-bg div.flex-container span.panel-100-real.m-0::before {
+  html body div.wrapper-outer.main-content div#wrapper div.flex-container div.panel-100.no-bg div.flex-container div.panel-33.hide-phone.no-bg div.flex-container span.panel-100-real.m-0::before, #Scan-on-off::before {
     content: '';
     position: absolute;
     top: 0;
