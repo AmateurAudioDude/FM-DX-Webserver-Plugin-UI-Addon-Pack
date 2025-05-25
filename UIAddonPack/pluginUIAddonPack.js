@@ -1,12 +1,12 @@
 /*
-    UI Add-on Pack v1.0.6 by AAD
+    UI Add-on Pack v1.0.7 by AAD
     ----------------------------
     https://github.com/AmateurAudioDude/FM-DX-Webserver-Plugin-UI-Addon-Pack
 */
 
 (() => {
 
-const pluginVersion = '1.0.6';
+const pluginVersion = '1.0.7';
 const pluginName = "UI Add-on Pack";
 const pluginHomepageUrl = "https://github.com/AmateurAudioDude/FM-DX-Webserver-Plugin-UI-Addon-Pack";
 const pluginUpdateUrl = "https://raw.githubusercontent.com/AmateurAudioDude/FM-DX-Webserver-Plugin-UI-Addon-Pack/refs/heads/main/UIAddonPack/pluginUIAddonPack.js";
@@ -320,12 +320,12 @@ if (INCREASE_FREQUENCY_FONT_WEIGHT) {
 if (GRADIENT_BUTTONS) {
   styleElement.textContent += `
   /* Gradient buttons */
-  .playbutton, .data-eq, #data-ant input, #data-bw input, .data-ims, #freq-down, #scanner-down, #freq-up, #scanner-up, #button-presets-bank-dropdown input {
+  .playbutton, .data-eq, #data-ant input, #data-bw input, .data-ims, #freq-down, #search-down, #scanner-down, #freq-up, #search-up, #scanner-up, #button-presets-bank-dropdown input {
     background-image: linear-gradient(var(--color-5), var(--color-3));
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease;
   }
-  .playbutton:hover, .data-eq:hover, #data-ant input:hover, #data-bw input:hover, .data-ims:hover, #freq-down:hover, #scanner-down:hover, #freq-up:hover, #scanner-up:hover, #Scan-on-off:hover, #button-presets-bank-dropdown input:hover {
+  .playbutton:hover, .data-eq:hover, #data-ant input:hover, #data-bw input:hover, .data-ims:hover, #freq-down:hover, #search-down:hover, #scanner-down:hover, #freq-up:hover, #search-up:hover, #scanner-up:hover, #Scan-on-off:hover, #button-presets-bank-dropdown input:hover {
     background-image: linear-gradient(var(--color-3), var(--color-5));
     box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
     transform: translateY(0.1px);
@@ -1042,15 +1042,22 @@ let intervalIdUsersOnline = setInterval(function() {
     const usersOnlineElement = document.querySelector('.users-online-container') || document.getElementById('users-online-container');
     if (usersOnlineElement) {
         const usersOnline = parseInt(usersOnlineElement.textContent.trim());
-        if (usersOnline >= 2) {
-            alert(`<div class="popup-plugin-content">${MULTIPLE_USERS_NOTICE_MESSAGE}</div>`, `OK`); }
+        if (document.body.textContent.includes("You are logged in as an administrator.") || document.body.textContent.includes("You are logged in as an adminstrator.") || document.body.textContent.includes("You are logged in and can control the receiver.")) return;
+        if (usersOnline >= 2) alert(`<div class="popup-plugin-content">${MULTIPLE_USERS_NOTICE_MESSAGE}</div>`, `OK`);
         clearInterval(intervalIdUsersOnline);
     }
-}, 3000);
+}, 2000);
 // Stop checking after 15 seconds
 setTimeout(function() {
     clearInterval(intervalIdUsersOnline);
 }, 15000);
+
+/*
+    Themed Popups v1.1.3 by AAD
+    https://github.com/AmateurAudioDude/FM-DX-Webserver-Plugin-Themed-Popups
+*/
+
+document.addEventListener('DOMContentLoaded',()=>{if(!window.hasCustomPopup){let styleElement=document.createElement("style"),cssCodeThemedPopups=".popup-plugin{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background-color:var(--color-2);color:var(--color-main-bright);padding:20px;border-radius:10px;box-shadow:0 4px 8px rgba(0,0,0,.4);opacity:0;transition:opacity .3s ease-in;z-index:9999;max-width:90vw;max-height:90vh;overflow:auto}@media (max-width:400px){.popup-plugin{padding:10px}}.popup-plugin-content{text-align:center}.popup-plugin button{margin-top:10px}.popup-plugin.open{opacity:.99}";styleElement.appendChild(document.createTextNode(cssCodeThemedPopups)),document.head.appendChild(styleElement)}});const isClickedOutsidePopup=!0;function alert(e,t){"undefined"==typeof t&&(t="OK"),popupOpened||(popup=document.createElement("div"),popup.classList.add("popup-plugin"),popup.innerHTML=`<div class="popup-plugin-content">${e.replace(/\n/g,"<br>")}<button id="popup-plugin-close">${t}</button></div>`,document.body.appendChild(popup),popup.querySelector("#popup-plugin-close").addEventListener("click",closePopup),popup.addEventListener("click",function(e){e.stopPropagation()}),setTimeout(function(){popup.classList.add("open"),popupOpened=!0,blurBackground(!0)},10))}function blurBackground(e){idModal&&(e?(idModal.style.display="block",setTimeout(function(){idModal.style.opacity="1"},40)):(setTimeout(function(){idModal.style.display="none"},400),idModal.style.opacity="0"))}let popupOpened=!1,popup,popupPromptOpened=!1,idModal=document.getElementById("myModal");function closePopup(e){e.stopPropagation(),popupOpened=!1,popup.classList.remove("open"),setTimeout(function(){popup.remove(),blurBackground(!1)},300);console.log(`[${pluginName}] Popup closed, user active.`);}document.addEventListener("keydown",function(e){popupOpened&&("Escape"===e.key||"Enter"===e.key)&&(closePopup(e),blurBackground(!1))}),isClickedOutsidePopup&&document.addEventListener("click",function(e){popupOpened&&!popup.contains(e.target)&&(closePopup(e),blurBackground(!1))});
 }
 
 // #################### RDS FLAG INDICATOR #################### //

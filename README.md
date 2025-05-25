@@ -9,6 +9,10 @@ A collection of visual enhancements for FM-DX Webserver. Features may be added/r
 
 #### Configuration options found in `pluginUIAddonPack.js`
 
+v1.0.7
+------
+* Minor fixes
+
 v1.0.6
 ------
 * Added option `GRADIENT_BUTTONS`
