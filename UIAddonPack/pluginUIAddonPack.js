@@ -64,8 +64,8 @@ const SIDEBAR_ADDITIONS_HIDE_BACKGROUND = false;
 
 // #################### MULTIPLE USERS POPUP #################### //
 
-// Displays a popup if 2 or more users are connected.
-// Use only if the 'Themed Popups' plugin is installed: https://github.com/AmateurAudioDude/FM-DX-Webserver-Plugin-Themed-Popups
+// Displays a popup if 2 or more users are connected, admins excluded.
+// Recommended that 'Themed Popups' plugin is installed: https://github.com/AmateurAudioDude/FM-DX-Webserver-Plugin-Themed-Popups
 const MULTIPLE_USERS_NOTICE = false;
 const MULTIPLE_USERS_NOTICE_MESSAGE = `This receiver is currently in use.<br><br>Please be considerate and mindful of other users before tuning.<br><br>`;
 
