@@ -1296,8 +1296,8 @@ window.addEventListener('DOMContentLoaded', (event) => {
               tunerName.removeChild(lockIcon);
           }
           // Show icon
-          const lockIconHTML = '<i style="padding: 10px 2px 12px 6px; font-size: 18px; color: var(--color-4);" class="fa-solid fa-lock pointer user-requests-lock" aria-label="Tuner is currently locked."></i>';
-          tunerName.insertAdjacentHTML('beforeend', lockIconHTML);
+          const lockIconHTML = '<i style="padding: 10px 6px 12px 6px; font-size: 18px; color: var(--color-4);" class="fa-solid fa-lock pointer user-requests-lock" aria-label="Tuner is currently locked."></i>';
+          tunerName.insertAdjacentHTML('afterend', lockIconHTML);
 
           const isMobilePortrait = window.innerWidth <= 768 && window.innerHeight > window.innerWidth;
 
