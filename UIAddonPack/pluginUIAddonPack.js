@@ -154,7 +154,28 @@ const HIDE_CONSOLE_LOGS = false;
 
 
 
+if (ENABLE_PLUGIN) {
 
+let styleFixesElement = document.createElement('style');
+styleFixesElement.textContent = `
+/*** BUG FIXES & REGRESSIONS ***/
+
+/* Invisible text cursor for input with Firefox */
+input[readonly] {
+    caret-color: transparent;
+    user-select: none;
+}
+
+/* Admin panel (User Management) */
+.wrapper-outer #wrapper.setup-wrapper.admin-wrapper.panel-full .panel-full #users.panel-full input#banlist-add-ip.input-text.w-100,
+.wrapper-outer #wrapper.setup-wrapper.admin-wrapper.panel-full .panel-full #users.panel-full input#banlist-add-reason.input-text.w-150 {
+    width: 100% !important;
+}
+`;
+
+document.head.appendChild(styleFixesElement);
+
+}
 
 if (ENABLE_PLUGIN && window.location.pathname !== '/setup') {
 
@@ -187,19 +208,6 @@ function checkAdminMode() {
 
 let styleElement = document.createElement('style');
 styleElement.textContent = `
-/*** BUG FIXES & REGRESSIONS ***/
-
-/* Invisible text cursor for input with Firefox */
-input[readonly] {
-    caret-color: transparent;
-    user-select: none;
-}
-
-/* Admin panel (User Management) */
-.wrapper-outer #wrapper.setup-wrapper.admin-wrapper.panel-full .panel-full #users.panel-full input#banlist-add-ip.input-text.w-100,
-.wrapper-outer #wrapper.setup-wrapper.admin-wrapper.panel-full .panel-full #users.panel-full input#banlist-add-reason.input-text.w-150 {
-    width: 100% !important;
-}
 `;
 
 if (DISPLAY_CANVAS_IN_LANDSCAPE_MODE) {
@@ -1557,8 +1565,10 @@ if (VOLUME_PERCENTAGE_TOAST) {
 }
 
 // Function for update notification in /setup
-function checkUpdate(setupOnly, pluginVersion, pluginName, urlUpdateLink, urlFetchLink) {
+function checkUpdate(setupOnly, pluginName, urlUpdateLink, urlFetchLink) {
     if (setupOnly && window.location.pathname !== '/setup') return;
+
+    let pluginVersionCheck = typeof pluginVersion !== 'undefined' ? pluginVersion : typeof plugin_version !== 'undefined' ? plugin_version : typeof PLUGIN_VERSION !== 'undefined' ? PLUGIN_VERSION : 'Unknown';
 
     // Function to check for updates
     async function fetchFirstLine() {
@@ -1576,9 +1586,9 @@ function checkUpdate(setupOnly, pluginVersion, pluginName, urlUpdateLink, urlFet
             let version;
 
             if (lines.length > 2) {
-                const versionLine = lines.find(line => line.includes("const pluginVersion =") || line.includes("const plugin_version ="));
+                const versionLine = lines.find(line => line.includes("const pluginVersion =") || line.includes("const plugin_version =") || line.includes("const PLUGIN_VERSION ="));
                 if (versionLine) {
-                    const match = versionLine.match(/const\s+plugin[_vV]ersion\s*=\s*['"]([^'"]+)['"]/);
+                    const match = versionLine.match(/const\s+(?:pluginVersion|plugin_version|PLUGIN_VERSION)\s*=\s*['"]([^'"]+)['"]/);
                     if (match) {
                         version = match[1];
                     }
@@ -1600,22 +1610,22 @@ function checkUpdate(setupOnly, pluginVersion, pluginName, urlUpdateLink, urlFet
     // Check for updates
     fetchFirstLine().then(newVersion => {
         if (newVersion) {
-            if (newVersion !== pluginVersion) {
+            if (newVersion !== pluginVersionCheck) {
                 let updateConsoleText = "There is a new version of this plugin available";
                 // Any custom code here
                 
                 console.log(`[${pluginName}] ${updateConsoleText}`);
-                setupNotify(pluginVersion, newVersion, pluginName, urlUpdateLink);
+                setupNotify(pluginVersionCheck, newVersion, pluginName, urlUpdateLink);
             }
         }
     });
 
-    function setupNotify(pluginVersion, newVersion, pluginName, urlUpdateLink) {
+    function setupNotify(pluginVersionCheck, newVersion, pluginName, urlUpdateLink) {
         if (window.location.pathname === '/setup') {
           const pluginSettings = document.getElementById('plugin-settings');
           if (pluginSettings) {
             const currentText = pluginSettings.textContent.trim();
-            const newText = `<a href="${urlUpdateLink}" target="_blank">[${pluginName}] Update available: ${pluginVersion} --> ${newVersion}</a><br>`;
+            const newText = `<a href="${urlUpdateLink}" target="_blank">[${pluginName}] Update available: ${pluginVersionCheck} --> ${newVersion}</a><br>`;
 
             if (currentText === 'No plugin settings are available.') {
               pluginSettings.innerHTML = newText;
@@ -1640,6 +1650,6 @@ function checkUpdate(setupOnly, pluginVersion, pluginName, urlUpdateLink, urlFet
     }
 }
 
-if (CHECK_FOR_UPDATES) checkUpdate(pluginSetupOnlyNotify, pluginVersion, pluginName, pluginHomepageUrl, pluginUpdateUrl);
+if (CHECK_FOR_UPDATES) checkUpdate(pluginSetupOnlyNotify, pluginName, pluginHomepageUrl, pluginUpdateUrl);
 
 })();
