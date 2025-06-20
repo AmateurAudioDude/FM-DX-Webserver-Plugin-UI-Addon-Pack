@@ -4,6 +4,8 @@
     https://github.com/AmateurAudioDude/FM-DX-Webserver-Plugin-UI-Addon-Pack
 */
 
+'use strict';
+
 (() => {
 
 const pluginVersion = '1.0.7';
