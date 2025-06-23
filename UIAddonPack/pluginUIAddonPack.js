@@ -133,6 +133,7 @@ const GRADIENT_BUTTONS = false;
 const LED_GLOW_EFFECT_ICONS = false; // Enables glow effect for RDS icons, such as the Stereo/Mono icon.
 const LED_GLOW_EFFECT_LARGE = false; // Enables glow effect for large text/digits, which might annoy users.
 const LED_GLOW_EFFECT_SMALL = false; // Enables glow effect for small text/digits, which might annoy users.
+const LED_GLOW_EFFECT_RDSPS = false; // Enables glow effect for RDS PS text, which might annoy users.
 const LED_GLOW_EFFECT_FREQ = false;  // Enables glow effect for frequency digits, which might annoy users.
 
 // Dims the PI CODE font for incomplete PI decodes.
@@ -367,7 +368,7 @@ if (GRADIENT_BUTTONS) {
   `;
 }
 
-if (LED_GLOW_EFFECT_LARGE || LED_GLOW_EFFECT_SMALL || LED_GLOW_EFFECT_ICONS || LED_GLOW_EFFECT_FREQ) {
+if (LED_GLOW_EFFECT_LARGE || LED_GLOW_EFFECT_SMALL || LED_GLOW_EFFECT_ICONS || LED_GLOW_EFFECT_FREQ || LED_GLOW_EFFECT_RDSPS) {
   styleElement.textContent += `
     :root {
       --glow-alpha-1: 0.4;
@@ -402,7 +403,13 @@ if (LED_GLOW_EFFECT_FREQ) {
   `;
 }
 
-if (LED_GLOW_EFFECT_LARGE || LED_GLOW_EFFECT_SMALL || LED_GLOW_EFFECT_ICONS || LED_GLOW_EFFECT_FREQ) {
+if (LED_GLOW_EFFECT_RDSPS) {
+  styleElement.textContent += `
+    #data-ps,
+  `;
+}
+
+if (LED_GLOW_EFFECT_LARGE || LED_GLOW_EFFECT_SMALL || LED_GLOW_EFFECT_ICONS || LED_GLOW_EFFECT_FREQ || LED_GLOW_EFFECT_RDSPS) {
   styleElement.textContent += `
     #placeholder-dummy {
       color: var(--text-color-default);
