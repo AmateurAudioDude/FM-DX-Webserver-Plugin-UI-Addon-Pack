@@ -1,5 +1,5 @@
 /*
-    UI Add-on Pack v1.0.7 by AAD
+    UI Add-on Pack v1.0.8 by AAD
     ----------------------------
     https://github.com/AmateurAudioDude/FM-DX-Webserver-Plugin-UI-Addon-Pack
 */
@@ -8,7 +8,7 @@
 
 (() => {
 
-const pluginVersion = '1.0.7';
+const pluginVersion = '1.0.8';
 const pluginName = "UI Add-on Pack";
 const pluginHomepageUrl = "https://github.com/AmateurAudioDude/FM-DX-Webserver-Plugin-UI-Addon-Pack";
 const pluginUpdateUrl = "https://raw.githubusercontent.com/AmateurAudioDude/FM-DX-Webserver-Plugin-UI-Addon-Pack/refs/heads/main/UIAddonPack/pluginUIAddonPack.js";
@@ -128,6 +128,12 @@ const INCREASE_FREQUENCY_FONT_WEIGHT = false;
 
 // Adds a gradient effect to the buttons
 const GRADIENT_BUTTONS = false;
+
+// Adds a glowing effect.
+const LED_GLOW_EFFECT_ICONS = false; // Enables glow effect for RDS icons, such as the Stereo/Mono icon.
+const LED_GLOW_EFFECT_LARGE = false; // Enables glow effect for large text/digits, which might annoy users.
+const LED_GLOW_EFFECT_SMALL = false; // Enables glow effect for small text/digits, which might annoy users.
+const LED_GLOW_EFFECT_FREQ = false;  // Enables glow effect for frequency digits, which might annoy users.
 
 // Dims the PI CODE font for incomplete PI decodes.
 const DIM_INCOMPLETE_PI_CODE = false;
@@ -358,6 +364,88 @@ if (GRADIENT_BUTTONS) {
     z-index: 1;
     border-radius: inherit;
   }
+  `;
+}
+
+if (LED_GLOW_EFFECT_LARGE || LED_GLOW_EFFECT_SMALL || LED_GLOW_EFFECT_ICONS || LED_GLOW_EFFECT_FREQ) {
+  styleElement.textContent += `
+    :root {
+      --glow-alpha-1: 0.4;
+      --glow-alpha-2: 0.3;
+      --glow-alpha-3: 0.2;
+      --glow-alpha-4: 0.1;
+    }
+  `;
+}
+
+if (LED_GLOW_EFFECT_LARGE) {
+  styleElement.textContent += `
+    .text-big, .text-small.text-gray.highest-signal-container,
+  `;
+}
+
+if (LED_GLOW_EFFECT_SMALL) {
+  styleElement.textContent += `
+     .text-small, #data-rt0, #data-rt1, #data-station-city,
+  `;
+}
+
+if (LED_GLOW_EFFECT_ICONS) {
+  styleElement.textContent += `
+    .wrapper-outer #wrapper #flags-container-desktop.panel-33.user-select-none h3 .opacity-full,
+  `;
+}
+
+if (LED_GLOW_EFFECT_FREQ) {
+  styleElement.textContent += `
+    #data-frequency,
+  `;
+}
+
+if (LED_GLOW_EFFECT_LARGE || LED_GLOW_EFFECT_SMALL || LED_GLOW_EFFECT_ICONS || LED_GLOW_EFFECT_FREQ) {
+  styleElement.textContent += `
+    #placeholder-dummy {
+      color: var(--text-color-default);
+      text-shadow:
+        0 0 5px rgba(255, 255, 255, var(--glow-alpha-1)),
+        0 0 10px rgba(255, 255, 255, var(--glow-alpha-2)),
+        0 0 20px rgba(238, 238, 238, var(--glow-alpha-3)),
+        0 0 30px rgba(204, 204, 204, var(--glow-alpha-4));
+    }
+  `;
+}
+
+if (LED_GLOW_EFFECT_ICONS) {
+  styleElement.textContent += `
+    .wrapper-outer #wrapper #flags-container-desktop.panel-33.user-select-none h3 .opacity-half {
+      color: inherit;
+      text-shadow: none;
+    }
+
+    .wrapper-outer #wrapper #flags-container-desktop.panel-33.user-select-none h3 .data-tp:not(:has(.opacity-half)),
+    .wrapper-outer #wrapper #flags-container-desktop.panel-33.user-select-none h3 .data-ta:not(:has(.opacity-half)),
+    .wrapper-outer #wrapper #flags-container-desktop.panel-33.user-select-none h3 span.data-ms:not(:has(.opacity-half)) {
+      color: var(--text-color-default);
+      text-shadow:
+        0 0 5px rgba(255, 255, 255, var(--glow-alpha-1)),
+        0 0 10px rgba(255, 255, 255, var(--glow-alpha-2)),
+        0 0 20px rgba(238, 238, 238, var(--glow-alpha-3)),
+        0 0 30px rgba(204, 204, 204, var(--glow-alpha-4));
+    }
+
+    .wrapper-outer #wrapper #flags-container-desktop.panel-33.user-select-none h3 .circle-container .circle {
+      background-color: rgba(255, 255, 255, var(--glow-alpha-3));
+      box-shadow:
+        0 0 6px rgba(255, 255, 255, var(--glow-alpha-1)),
+        0 0 12px rgba(238, 238, 238, var(--glow-alpha-2)),
+        0 0 18px rgba(204, 204, 204, var(--glow-alpha-3)),
+        0 0 24px rgba(170, 170, 170, var(--glow-alpha-4));
+    }
+
+    .wrapper-outer #wrapper #flags-container-desktop.panel-33.user-select-none h3 .circle-container.opacity-half .circle {
+      background-color: inherit;
+      box-shadow: none;
+    }
   `;
 }
 

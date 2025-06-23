@@ -9,6 +9,10 @@ A collection of visual enhancements for FM-DX Webserver. Features may be added/r
 
 #### Configuration options found in `pluginUIAddonPack.js`
 
+v1.0.8
+------
+* Added LED glow effect option
+
 v1.0.7
 ------
 * Minor fixes
