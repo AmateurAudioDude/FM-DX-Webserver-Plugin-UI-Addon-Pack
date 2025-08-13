@@ -1179,20 +1179,20 @@ window.addEventListener('DOMContentLoaded', (event) => {
 });
 
 function connectWebSocket() {
-    if (socket.readyState === WebSocket.OPEN) {
+    if (window.socket.readyState === WebSocket.OPEN) {
         reconnectAttempts = 0;
     }
 
-    socket.addEventListener('message', (event) => {
+    window.socket.addEventListener('message', (event) => {
         handle_RDS_FLAG_INDICATOR(event);
     });
 
-    socket.addEventListener('close', () => {
+    window.socket.addEventListener('close', () => {
         console.log('RDS_FLAG_INDICATOR: WebSocket closed. Attempting to reconnect...');
         attemptReconnect();
     });
 
-    socket.addEventListener('error', (err) => {
+    window.socket.addEventListener('error', (err) => {
         attemptReconnect();
     });
 }
@@ -1300,7 +1300,90 @@ socket.addEventListener("message", (event) => {
         addRandomIcon(false);
     }
 
-    if (typeof initTooltips === 'function') initTooltips();
+    function initTooltipsMultipath(target = null) {
+        // Define scope: all tooltips or specific one if target is provided
+        const tooltips = target ? $(target) : $('.tooltip');
+        
+        // Unbind existing event handlers before rebinding to avoid duplication
+        tooltips.off('mouseenter mouseleave');
+        
+        tooltips.hover(function () {
+            if ($(this).closest('.popup-content').length) {
+                return;
+            }
+            
+            var tooltipText = $(this).data('tooltip');
+            var placement = $(this).data('tooltip-placement') || 'top'; // Default to 'top'
+            
+            // Clear existing timeouts
+            $(this).data('timeout', setTimeout(() => {
+                //$('.tooltip-wrapper').remove();
+                
+                var tooltip = $(`
+                    <div class="tooltip-wrapper">
+                        <div class="tooltiptext">${tooltipText}</div>
+                    </div>
+                `);
+                    $('body').append(tooltip);
+                    
+                    var tooltipEl = $('.tooltiptext');
+                    var tooltipWidth = tooltipEl.outerWidth();
+                    var tooltipHeight = tooltipEl.outerHeight();
+                    var targetEl = $(this);
+                    var targetOffset = targetEl.offset();
+                    var targetWidth = targetEl.outerWidth();
+                    var targetHeight = targetEl.outerHeight();
+                    
+                    // Compute position
+                    var posX, posY;
+                    switch (placement) {
+                        case 'bottom':
+                        posX = targetOffset.left + targetWidth / 2 - tooltipWidth / 2;
+                        posY = targetOffset.top + targetHeight + 10;
+                        break;
+                        case 'left':
+                        posX = targetOffset.left - tooltipWidth - 10;
+                        posY = targetOffset.top + targetHeight / 2 - tooltipHeight / 2;
+                        break;
+                        case 'right':
+                        posX = targetOffset.left + targetWidth + 10;
+                        posY = targetOffset.top + targetHeight / 2 - tooltipHeight / 2;
+                        break;
+                        case 'top':
+                        default:
+                        posX = targetOffset.left + targetWidth / 2 - tooltipWidth / 2;
+                        posY = targetOffset.top - tooltipHeight - 10;
+                        break;
+                    }
+                    
+                    // Apply positioning
+                    tooltipEl.css({ top: posY, left: posX, opacity: 1 });
+
+                    // For touchscreen devices
+                    if ((/Mobi|Android|iPhone|iPad|iPod|Opera Mini/i.test(navigator.userAgent)) && ('ontouchstart' in window || navigator.maxTouchPoints)) {
+                        setTimeout(() => { $('.tooltiptext').remove(); }, 5000);
+                    }
+                    
+                }, 300));
+            }, function () {
+                clearTimeout($(this).data('timeout'));
+                
+                setTimeout(() => {
+                    $('.tooltip-wrapper').fadeOut(300, function () {
+                        $(this).remove(); 
+                    });
+                }, 100); 
+            });
+            
+            $('.popup-content').off('mouseenter').on('mouseenter', function () {
+                clearTimeout($('.tooltip').data('timeout'));
+                $('.tooltip-wrapper').fadeOut(300, function () {
+                    $(this).remove(); 
+                });
+            });
+    }
+
+    if (typeof initTooltipsMultipath === 'function') initTooltipsMultipath();
 });
 
 function addRandomIcon(result) {
