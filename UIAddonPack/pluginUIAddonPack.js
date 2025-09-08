@@ -325,10 +325,12 @@ if (REDUCE_SIDEBAR_BLUR) {
 }
 
 if (INCREASE_FREQUENCY_FONT_WEIGHT) {
+  const isChrome = /Chrome/.test(navigator.userAgent) && !/Edg|OPR|Brave/.test(navigator.userAgent);
+
   styleElement.textContent += `
   /* Frequency font weight */
   #data-frequency {
-    font-weight: 600;
+  font-weight: ${isChrome ? 599 : 600};
   }
   `;
 }
