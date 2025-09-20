@@ -9,6 +9,10 @@ A collection of visual enhancements for FM-DX Webserver. Features may be added/r
 
 #### Configuration options found in `pluginUIAddonPack.js`
 
+v1.1.0
+------
+* 'Expand Canvas' setting now allows resizing via mouse dragging
+
 v1.0.9
 ------
 * Prevent multipath indicator tooltip flickering

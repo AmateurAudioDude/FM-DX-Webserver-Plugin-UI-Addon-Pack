@@ -1,5 +1,5 @@
 /*
-    UI Add-on Pack v1.0.9 by AAD
+    UI Add-on Pack v1.1.0 by AAD
     ----------------------------
     https://github.com/AmateurAudioDude/FM-DX-Webserver-Plugin-UI-Addon-Pack
 */
@@ -8,7 +8,7 @@
 
 (() => {
 
-const pluginVersion = '1.0.9';
+const pluginVersion = '1.1.0';
 const pluginName = "UI Add-on Pack";
 const pluginHomepageUrl = "https://github.com/AmateurAudioDude/FM-DX-Webserver-Plugin-UI-Addon-Pack";
 const pluginUpdateUrl = "https://raw.githubusercontent.com/AmateurAudioDude/FM-DX-Webserver-Plugin-UI-Addon-Pack/refs/heads/main/UIAddonPack/pluginUIAddonPack.js";
@@ -631,36 +631,261 @@ function createAdditionalCheckbox({ checkboxId, labelText, tooltipText, localSto
 }
 
 if (SIDEBAR_ADDITIONS_EXPAND_CANVAS) {
-// SIDE BAR MENU BUTTON "EXPAND CANVAS"
-createAdditionalCheckbox({
-    checkboxId: "expand-canvas-height",
-    labelText: "Expand Canvas",
-    tooltipText: "Enable to expand plugin canvas height.",
-    localStorageKey: "expandCanvasHeight",
-    onChangeCallback: function () {
-        // style code also below
-        expandCanvasHeight();
-    }
-});
-
-function expandCanvasHeight() {
-    const style = document.createElement('style');
-    style.id = "expandCanvasStyle";
-    style.innerHTML = `
-        .canvas-container { height: 172px; }
-        @media only screen and (min-width: 769px) and (max-height: 720px) {
-            .canvas-container { height: 120px; }
+    // SIDE BAR MENU BUTTON "EXPAND CANVAS"
+    createAdditionalCheckbox({
+        checkboxId: "expand-canvas-height",
+        labelText: "Expand Canvas",
+        tooltipText: "Enable to expand plugin canvas height.",
+        localStorageKey: "expandCanvasHeight",
+        onChangeCallback: function () {
+            // style code also below
+            expandCanvasHeight();
         }
-    `;
-    if (document.getElementById("expandCanvasStyle")) {
-        document.getElementById("expandCanvasStyle").remove();
-    }
-    if (localStorage.getItem("expandCanvasHeight") === "true") {
-        document.head.appendChild(style);
-    }
-}
+    });
 
-expandCanvasHeight();
+    function expandCanvasHeight() {
+        const style = document.createElement('style');
+        style.id = "expandCanvasStyle";
+        style.innerHTML = `
+            .canvas-container { height: 172px; }
+            @media only screen and (min-width: 769px) and (max-height: 720px) {
+                .canvas-container { height: 120px; }
+            }
+        `;
+        
+        // Remove previous styles to avoid conflicts
+        const existingStyle = document.getElementById("expandCanvasStyle");
+        if (existingStyle) {
+            existingStyle.remove();
+        }
+
+        const canvasContainer = document.querySelector('.canvas-container');
+        
+        disableHeightAdjustment();
+
+        // Check if "expandCanvasHeight" is set to "true"
+        if (localStorage.getItem("expandCanvasHeight") === "true") {
+            // Apply fixed height when enabled
+            document.head.appendChild(style);
+            if (canvasContainer) {
+                const savedHeight = localStorage.getItem('canvasHeight');
+                if (savedHeight && !isNaN(savedHeight)) {
+                    const height = parseInt(savedHeight, 10);
+                    const clampedHeight = Math.max(minHeight, Math.min(height, maxHeight)); // minHeight to maxHeight
+                    canvasContainer.style.height = `${clampedHeight}px`;
+                } else {
+                    // Use default expanded height if no saved height
+                    canvasContainer.style.height = "172px";
+                }
+            }
+            enableHeightAdjustment(); // Enable mouse dragging to adjust height
+        } else {
+            if (canvasContainer) {
+                canvasContainer.style.height = "140px"; // Set to default height when disabled
+            }
+        }
+    }
+
+    // Function to enable height adjustment via mouse dragging
+    let isDragging = false;
+    let canvasContainer;
+    const resizeEdge = 20;   // Draggable area size
+    const minHeight = 140;   // Minimum height in px
+    const maxHeight = 200;   // Maximum height in px
+    let heightDisplayBox;
+    let hideTimeout;
+    let isDoubleClickProcessing = false;  // Flag to prevent double execution
+
+    let handleMouseMove, handleMouseDown, handleDoubleClick;
+
+    // Floating box to show height
+    function createHeightDisplayBox() {
+        heightDisplayBox = document.createElement('div');
+        heightDisplayBox.style.position = 'fixed';
+        heightDisplayBox.style.top = '10px';
+        heightDisplayBox.style.right = '10px';
+        heightDisplayBox.style.backgroundColor = 'var(--color-5-transparent)';
+        heightDisplayBox.style.color = 'var(--color-1)';
+        heightDisplayBox.style.padding = '5px 10px';
+        heightDisplayBox.style.fontSize = '12px';
+        heightDisplayBox.style.borderRadius = '4px';
+        heightDisplayBox.style.boxShadow = '0 0 5px rgba(0, 0, 0, 0.2)';
+        heightDisplayBox.style.display = 'none';
+        heightDisplayBox.style.zIndex = '10';
+        document.body.appendChild(heightDisplayBox);
+    }
+
+    function updateHeightDisplayBox(height) {
+        if (heightDisplayBox) {
+            heightDisplayBox.textContent = `${height} px`;
+        }
+    }
+
+    function enableHeightAdjustment() {
+        canvasContainer = document.querySelector('.canvas-container');
+        if (!canvasContainer) return;
+
+        createHeightDisplayBox();
+
+        handleMouseMove = function (e) {
+            const rect = canvasContainer.getBoundingClientRect();
+            const isNearBottomEdge = e.clientY > rect.bottom - resizeEdge;
+
+            if (isNearBottomEdge && !isDragging) {
+                canvasContainer.style.cursor = 'ns-resize'; // Change cursor to vertical resize
+            } else if (!isDragging) {
+                canvasContainer.style.cursor = 'default'; // Reset cursor
+            }
+        };
+
+        canvasContainer.addEventListener('mousemove', handleMouseMove);
+
+        // Define mousedown handler
+        handleMouseDown = function (e) {
+            if (e.button !== 0) return;  // Only allow left mouse button
+
+            const rect = canvasContainer.getBoundingClientRect();
+            if (e.clientY > rect.bottom - resizeEdge) {
+                isDragging = true;
+
+                clearTimeout(hideTimeout);
+
+                // Disable text selection during dragging
+                document.body.style.userSelect = 'none';
+
+                // Temporary CSS rule to force ns-resize cursor globally
+                const dragCursorStyle = document.createElement('style');
+                dragCursorStyle.id = 'canvas-drag-cursor-override';
+                dragCursorStyle.innerHTML = `
+                    *, *:hover, *:active, *:focus {
+                        cursor: ns-resize !important;
+                    }
+                `;
+                document.head.appendChild(dragCursorStyle);
+
+                const startY = e.clientY;
+                const startHeight = canvasContainer.offsetHeight;
+
+                heightDisplayBox.style.display = 'block';
+                updateHeightDisplayBox(startHeight);
+
+                // Mouse move event to adjust the height
+                function onMouseMove(moveEvent) {
+                    if (isDragging) {
+                        const diffY = moveEvent.clientY - startY;
+                        let newHeight = startHeight + diffY;
+
+                        // Clamp the new height within specified range
+                        newHeight = Math.max(minHeight, Math.min(newHeight, maxHeight));
+
+                        canvasContainer.style.height = newHeight + 'px';
+                        updateHeightDisplayBox(newHeight); // Update the height value in the box
+                    }
+                }
+
+                // Mouse up event to stop dragging
+                function onMouseUp() {
+                    isDragging = false;
+
+                    document.body.style.userSelect = 'auto';
+
+                    // Remove temporary cursor override CSS
+                    const dragCursorStyle = document.getElementById('canvas-drag-cursor-override');
+                    if (dragCursorStyle) {
+                        dragCursorStyle.remove();
+                    }
+
+                    canvasContainer.style.cursor = 'default';
+
+                    clearTimeout(hideTimeout);
+                    hideTimeout = setTimeout(() => {
+                        heightDisplayBox.style.display = 'none';
+                    }, 1000);
+
+                    document.removeEventListener('mousemove', onMouseMove);
+                    document.removeEventListener('mouseup', onMouseUp);
+
+                    localStorage.setItem('canvasHeight', canvasContainer.offsetHeight);
+                }
+
+                document.addEventListener('mousemove', onMouseMove);
+                document.addEventListener('mouseup', onMouseUp);
+            }
+        };
+
+        canvasContainer.addEventListener('mousedown', handleMouseDown);
+
+        handleDoubleClick = function (e) {
+            if (localStorage.getItem("expandCanvasHeight") !== "true") {
+                return;
+            }
+
+            // Prevent double execution
+            if (isDoubleClickProcessing) {
+                return;
+            }
+
+            isDoubleClickProcessing = true;
+            setTimeout(() => {
+                isDoubleClickProcessing = false;
+            }, 300);
+
+            // Prevent event bubbling
+            e.preventDefault();
+            e.stopPropagation();
+
+            const currentHeight = canvasContainer.offsetHeight;
+
+            if (currentHeight === maxHeight) {
+                const newHeight = localStorage.getItem("expandCanvasHeight") === "true" ? 172 : 140;
+                canvasContainer.style.height = `${newHeight}px`;
+            } else {
+                canvasContainer.style.height = `${maxHeight}px`;
+            }
+
+            clearTimeout(hideTimeout);
+            updateHeightDisplayBox(canvasContainer.offsetHeight);
+            heightDisplayBox.style.display = 'block';
+
+            hideTimeout = setTimeout(() => {
+                heightDisplayBox.style.display = 'none';
+            }, 1000);
+        };
+
+        canvasContainer.addEventListener('dblclick', handleDoubleClick);
+    }
+
+    // Function to disable height adjustment
+    function disableHeightAdjustment() {
+        if (canvasContainer) {
+            canvasContainer.style.cursor = 'default';
+        }
+
+        isDragging = false;
+
+        // Remove all mouse events related to dragging
+        if (canvasContainer) {
+            if (handleMouseMove) {
+                canvasContainer.removeEventListener('mousemove', handleMouseMove);
+            }
+            if (handleMouseDown) {
+                canvasContainer.removeEventListener('mousedown', handleMouseDown);
+            }
+            if (handleDoubleClick) {
+                canvasContainer.removeEventListener('dblclick', handleDoubleClick);
+            }
+        }
+
+        if (heightDisplayBox) {
+            heightDisplayBox.style.display = 'none';
+        }
+
+        handleMouseMove = null;
+        handleMouseDown = null;
+        handleDoubleClick = null;
+    }
+
+    expandCanvasHeight();
 }
 
 if (SIDEBAR_ADDITIONS_HIDE_BACKGROUND) {
