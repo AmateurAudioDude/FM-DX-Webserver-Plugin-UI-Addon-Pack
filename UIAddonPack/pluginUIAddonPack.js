@@ -1,5 +1,5 @@
 /*
-    UI Add-on Pack v1.0.8 by AAD
+    UI Add-on Pack v1.0.9 by AAD
     ----------------------------
     https://github.com/AmateurAudioDude/FM-DX-Webserver-Plugin-UI-Addon-Pack
 */
@@ -8,7 +8,7 @@
 
 (() => {
 
-const pluginVersion = '1.0.8';
+const pluginVersion = '1.0.9';
 const pluginName = "UI Add-on Pack";
 const pluginHomepageUrl = "https://github.com/AmateurAudioDude/FM-DX-Webserver-Plugin-UI-Addon-Pack";
 const pluginUpdateUrl = "https://raw.githubusercontent.com/AmateurAudioDude/FM-DX-Webserver-Plugin-UI-Addon-Pack/refs/heads/main/UIAddonPack/pluginUIAddonPack.js";
@@ -35,10 +35,9 @@ const BUTTON_FM_LIST_MOD_MINIMUM_HIDE_DISTANCE = 200;
 // #################### NATIVE MOBILE TRAY #################### //
 
 // Moves the mobile tray to the top of page.
-// Do not enable if using MOBILE STATUS BAR.
 const MOVE_MOBILE_TRAY_TO_TOP = false;
 
-// Hide mobile tray.
+// Hide mobile tray except play button.
 const HIDE_MOBILE_TRAY = false;
 
 // #################### MOBILE STATUS BAR #################### //
@@ -69,7 +68,9 @@ const SIDEBAR_ADDITIONS_HIDE_BACKGROUND = false;
 // Displays a popup if 2 or more users are connected, admins excluded.
 // Recommended that 'Themed Popups' plugin is installed: https://github.com/AmateurAudioDude/FM-DX-Webserver-Plugin-Themed-Popups
 const MULTIPLE_USERS_NOTICE = false;
-const MULTIPLE_USERS_NOTICE_MESSAGE = `This receiver is currently in use.<br><br>Please be considerate and mindful of other users before tuning.<br><br>`;
+const MULTIPLE_USERS_NOTICE_NATIVE_POPUP = false;
+const MULTIPLE_USERS_NOTICE_MESSAGE_1 = `This receiver is currently in use.`
+const MULTIPLE_USERS_NOTICE_MESSAGE_2 = `Please be considerate and mindful of other users before tuning.`;
 
 // #################### RDS FLAG BULLET POINT #################### //
 
@@ -79,8 +80,9 @@ const RDS_FLAG_INDICATOR = false;
 // #################### MULTIPATH ICON #################### //
 
 // Adds a multipath icon alongside the stereo/mono icon.
-// NOTE: This has only been tested/configured with a TEF module and therefore shouldn't be used with a TEF radio.
 const MULTIPATH_INDICATOR = false;
+// Set to true if using a TEF radio or false if using a TEF module. Based on the assumption TEF radio MP peaks around 40%.
+const IS_TEF_RADIO = false;
 
 // #################### NEW USER TUNING DELAY #################### //
 
@@ -683,53 +685,97 @@ createAdditionalCheckbox({
 // #################### MOVE MOBILE TRAY #################### //
 
 if (MOVE_MOBILE_TRAY_TO_TOP) {
-function moveTray() {
-    document.addEventListener("DOMContentLoaded", function () {
-      const mobileTray = document.getElementById("mobileTray");
-      const playButton = mobileTray.querySelector(".playbutton");
+    function moveTray() {
+        document.addEventListener("DOMContentLoaded", function () {
+            const mobileTray = document.getElementById("mobileTray");
+            const playButton = mobileTray?.querySelector(".playbutton");
 
-      if (mobileTray) {
-        document.body.insertBefore(mobileTray, document.body.firstChild);
+            if (mobileTray) {
+                // Move tray to top
+                document.body.insertBefore(mobileTray, document.body.firstChild);
 
-        Object.assign(mobileTray.style, {
-          position: "fixed",
-          top: "0",
-          left: "0",
-          width: "100%",
-          zIndex: "15",
+                // Position tray at top
+                Object.assign(mobileTray.style, {
+                    position: "fixed",
+                    top: "0",
+                    left: "0",
+                    width: "100%",
+                    zIndex: "15",
+                });
+
+                if (HIDE_MOBILE_TRAY) {
+                    mobileTray.style.display = "block";
+                    mobileTray.style.background = "none";
+                    mobileTray.style.backdropFilter = "none";
+                    mobileTray.style.border = "none";
+                    mobileTray.style.boxShadow = "none";
+                    mobileTray.style.padding = "0";
+
+                    // Hide all except play button
+                    const children = Array.from(mobileTray.children);
+                    children.forEach(child => {
+                        if (!child.classList.contains("playbutton")) {
+                            child.style.display = "none";
+                        } else {
+                            child.style.display = "block";
+                            child.style.position = "absolute";
+                            child.style.top = "35px";
+                            child.style.left = "50%";
+                            child.style.transform = "translateX(-50%)";
+                        }
+                    });
+                }
+
+                else if (playButton) {
+                    Object.assign(playButton.style, {
+                        position: "absolute",
+                        top: "35px",
+                        left: "50%",
+                        transform: "translateX(-50%)",
+                    });
+                }
+            }
+
+            // Adjust content padding
+            const wrapper = document.querySelector('.wrapper-outer.dashboard-panel');
+            if (wrapper) {
+                if (window.innerWidth < 720) {
+                    wrapper.style.setProperty('padding-top', '110px');
+                } else {
+                    wrapper.style.setProperty('padding-top', '20px', 'important');
+                }
+            }
         });
-
-        if (playButton) {
-          Object.assign(playButton.style, {
-            position: "absolute",
-            top: "35px",
-            left: "50%",
-            transform: "translateX(-50%)",
-          });
-        }
-      }
-    });
-
-    const wrapper = document.querySelector('.wrapper-outer.dashboard-panel');
-
-    if (window.innerWidth < 720) {
-        wrapper.style.setProperty('padding-top', '110px');
-    } else {
-        wrapper.style.setProperty('padding-top', '20px', 'important');
     }
-}
 
-moveTray();
+    moveTray();
 
-window.addEventListener('resize', moveTray);
+    window.addEventListener('resize', moveTray);
 }
 
 if (HIDE_MOBILE_TRAY && !MOVE_MOBILE_TRAY_TO_TOP) {
     document.addEventListener("DOMContentLoaded", function () {
-      const mobileTray = document.querySelector("div#mobileTray.hide-desktop");
-      if (mobileTray) {
-        mobileTray.style.display = "none";
-      }
+        const mobileTray = document.querySelector("div#mobileTray.hide-desktop");
+
+        if (mobileTray) {
+            // Hide all except .playbutton
+            const children = Array.from(mobileTray.children);
+            children.forEach(child => {
+                if (!child.classList.contains("playbutton")) {
+                    child.style.display = "none";
+                } else {
+                    child.style.display = "block";
+                    child.style.position = "absolute";
+                }
+            });
+
+            mobileTray.style.display = "block";
+            mobileTray.style.background = "none";
+            mobileTray.style.backdropFilter = "none";
+            mobileTray.style.border = "none";
+            mobileTray.style.boxShadow = "none";
+            mobileTray.style.padding = "0";
+        }
     });
 }
 
@@ -910,7 +956,7 @@ function mobileStatusBarConnection(force) {
     const WebserverPORT = currentURL.port || (currentURL.protocol === 'https:' ? '443' : '80');
     const protocol = currentURL.protocol === 'https:' ? 'wss:' : 'ws:';
     const WEBSOCKET_URL = `${protocol}//${WebserverURL}:${WebserverPORT}${WebserverPath}data_plugins`;
-    let wsSendSocket;
+    let wsSendSocket, elapsedTimeExtra, endTimeConnectionWatchdogTemp;
     let platform = 'unspecified'; // linux, win32, unspecified
 
     if (platform === 'win32') elapsedTimeExtra = 200; else if (platform === 'unspecified') elapsedTimeExtra = 100; else elapsedTimeExtra = 0;
@@ -1145,12 +1191,33 @@ mobileStatusBarConnection();
 // #################### USER NOTICE FOR MULTIPLE USERS ONLINE #################### //
 
 if (MULTIPLE_USERS_NOTICE) {
+// Popup using togglePopup from modal.js
+const popupId = "#popup-panel-mobile-settings";
+function popupMethod(selector, title, contentHtml) {
+    const $popup = $(selector);
+    const $header = $popup.find(".popup-header");
+    const $title = $header.find("p.color-4");
+    if ($title.length && !$title.hasClass("popup-title")) $title.addClass("popup-title");
+    $popup.find(".popup-title").text(title);
+    $popup.find(".popup-content").html(`<p style="text-align: center;">${contentHtml}</p>`);
+    setTimeout(() => {
+        togglePopup(selector);
+    }, 100);
+}
+
 let intervalIdUsersOnline = setInterval(function() {
     const usersOnlineElement = document.querySelector('.users-online-container') || document.getElementById('users-online-container');
     if (usersOnlineElement) {
         const usersOnline = parseInt(usersOnlineElement.textContent.trim());
         if (document.body.textContent.includes("You are logged in as an administrator.") || document.body.textContent.includes("You are logged in as an adminstrator.") || document.body.textContent.includes("You are logged in and can control the receiver.")) return;
-        if (usersOnline >= 2) alert(`<div class="popup-plugin-content">${MULTIPLE_USERS_NOTICE_MESSAGE}</div>`, `OK`);
+        if (usersOnline >= 2) {
+            if (MULTIPLE_USERS_NOTICE_NATIVE_POPUP) {
+                popupMethod(popupId, MULTIPLE_USERS_NOTICE_MESSAGE_1, `${MULTIPLE_USERS_NOTICE_MESSAGE_2}<br><br>`);
+            } else {
+                if (usersOnline >= 2) alert(`<div class="popup-plugin-content">${MULTIPLE_USERS_NOTICE_MESSAGE_1}<br><br>${MULTIPLE_USERS_NOTICE_MESSAGE_2}<br><br></div>`, `OK`);
+            }
+        }
+            
         clearInterval(intervalIdUsersOnline);
     }
 }, 2000);
@@ -1259,6 +1326,7 @@ let dataFreq = 0;
 let prevFreq = 0;
 let sig = 0;
 let sigRawMultipath = 0;
+let tooltipMultipath = 0;
 let tooltipSigRawMultipath = 0;
 let lastProcessedTime = 0;
 
@@ -1278,8 +1346,28 @@ socket.addEventListener("message", (event) => {
         const sigRawValues = sigRaw.split(',');
         if (sigRawValues.length >= 2) {
             sig = parseInt(sigRawValues[0].slice(2));
+
+            function smoothInterpolation(sigRawValue) {
+                if (sigRawValue <= 3) {
+                  return 0;
+                } else if (sigRawValue >= 40) {
+                  return 100;
+                }
+
+                const normValue = (sigRawValue - 3) / (40 - 3);
+                const smoothValue = Math.pow(normValue, 1);
+                const scaledValue = smoothValue * 100;
+                return parseInt(scaledValue);
+            }
+
             sigRawMultipath = sigRawValues[1];
-            tooltipSigRawMultipath = (sig > SIGNAL_THRESHOLD) ? sigRawMultipath + '%' : '-';
+
+            if (!IS_TEF_RADIO) {
+                tooltipMultipath = sigRawMultipath;
+            } else {
+                tooltipMultipath = smoothInterpolation(sigRawMultipath);
+            }
+            tooltipSigRawMultipath = (sig > SIGNAL_THRESHOLD) ? tooltipMultipath + '%' : '-';
         } else {
             console.error('Multipath indicator sigRaw data format invalid');
         }
@@ -1290,13 +1378,14 @@ socket.addEventListener("message", (event) => {
         if (freq !== 0 && prevFreq !== dataFreq) {
             prevFreq = dataFreq;
             sigRawMultipath = 0;
+            tooltipMultipath = 0;
             addRandomIcon(false);
             return;
         }
         prevFreq = dataFreq;
     }
 
-    if (sig > SIGNAL_THRESHOLD && sigRawMultipath > MULTIPATH_THRESHOLD) {
+    if (sig > SIGNAL_THRESHOLD && tooltipMultipath > MULTIPATH_THRESHOLD) {
         addRandomIcon(true);
     } else {
         addRandomIcon(false);

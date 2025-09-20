@@ -9,6 +9,13 @@ A collection of visual enhancements for FM-DX Webserver. Features may be added/r
 
 #### Configuration options found in `pluginUIAddonPack.js`
 
+v1.0.9
+------
+* Prevent multipath indicator tooltip flickering
+* Improved TEF radio support for multipath indicator
+* Improved font weight setting for custom fonts in Chrome (e.g. retrofont plugin)
+* Minor fixes
+
 v1.0.8
 ------
 * Added LED glow effect option
