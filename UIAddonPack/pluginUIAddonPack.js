@@ -689,7 +689,7 @@ if (SIDEBAR_ADDITIONS_EXPAND_CANVAS) {
     // Function to enable height adjustment via mouse dragging
     let isDragging = false;
     let canvasContainer;
-    const resizeEdge = 20;   // Draggable area size
+    const resizeEdge = 22;   // Draggable area size
     const minHeight = 140;   // Minimum height in px
     const maxHeight = 200;   // Maximum height in px
     let heightDisplayBox;
