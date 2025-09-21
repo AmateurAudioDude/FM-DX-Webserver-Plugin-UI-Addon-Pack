@@ -825,6 +825,13 @@ if (SIDEBAR_ADDITIONS_EXPAND_CANVAS) {
                 return;
             }
 
+            // Double-click in the draggable area only
+            const rect = canvasContainer.getBoundingClientRect();
+            const isInDraggableArea = e.clientY > rect.bottom - resizeEdge;
+            if (!isInDraggableArea) {
+                return;
+            }
+
             isDoubleClickProcessing = true;
             setTimeout(() => {
                 isDoubleClickProcessing = false;
