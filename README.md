@@ -2,15 +2,15 @@
 
 A collection of visual enhancements for FM-DX Webserver. Features may be added/removed in future. By default, all options are disabled.
 
+> [!TIP]
+> To keep a record of changed settings in a text file, run `node changes` from the `UIAddonPack` folder before transfering the latest `pluginUIAddonPack.js`. Changes are still required to be manually entered after each update.
+
 * [Download the latest zip file](https://github.com/AmateurAudioDude/FM-DX-Webserver-Plugin-UI-Addon-Pack/archive/refs/heads/main.zip)
 * Transfer `UIAddonPack` folder, and `-UIAddonPack.js` to FM-DX-Webserver `plugins` folder
 * Restart FM-DX Webserver if required
 * Login to Adminstrator Panel and enable plugin
 
 #### Configuration options found in `pluginUIAddonPack.js`
-
-> [!TIP]
-> To keep a record of changed settings, run `node changes` from the `UIAddonPack` folder before transfering the latest `pluginUIAddonPack.js`.
 
 v1.1.1
 ------
