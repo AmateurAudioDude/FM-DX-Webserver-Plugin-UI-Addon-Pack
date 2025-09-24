@@ -9,6 +9,14 @@ A collection of visual enhancements for FM-DX Webserver. Features may be added/r
 
 #### Configuration options found in `pluginUIAddonPack.js`
 
+> [!TIP]
+> To keep a record of changed settings, run `node changes` from the `UIAddonPack` folder before transfering the latest `pluginUIAddonPack.js`.
+
+v1.1.1
+------
+* Added option to set default signal unit for first time visitors
+* Included file `changes.js` which outputs changed settings to file.
+
 v1.1.0
 ------
 * 'Expand Canvas' setting now allows resizing via mouse dragging

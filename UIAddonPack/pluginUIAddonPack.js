@@ -1,5 +1,5 @@
 /*
-    UI Add-on Pack v1.1.0 by AAD
+    UI Add-on Pack v1.1.1 by AAD
     ----------------------------
     https://github.com/AmateurAudioDude/FM-DX-Webserver-Plugin-UI-Addon-Pack
 */
@@ -8,7 +8,7 @@
 
 (() => {
 
-const pluginVersion = '1.1.0';
+const pluginVersion = '1.1.1';
 const pluginName = "UI Add-on Pack";
 const pluginHomepageUrl = "https://github.com/AmateurAudioDude/FM-DX-Webserver-Plugin-UI-Addon-Pack";
 const pluginUpdateUrl = "https://raw.githubusercontent.com/AmateurAudioDude/FM-DX-Webserver-Plugin-UI-Addon-Pack/refs/heads/main/UIAddonPack/pluginUIAddonPack.js";
@@ -66,10 +66,9 @@ const SIDEBAR_ADDITIONS_HIDE_BACKGROUND = false;
 // #################### MULTIPLE USERS POPUP #################### //
 
 // Displays a popup if 2 or more users are connected, admins excluded.
-// Recommended that 'Themed Popups' plugin is installed: https://github.com/AmateurAudioDude/FM-DX-Webserver-Plugin-Themed-Popups
 const MULTIPLE_USERS_NOTICE = false;
 const MULTIPLE_USERS_NOTICE_NATIVE_POPUP = false;
-const MULTIPLE_USERS_NOTICE_MESSAGE_1 = `This receiver is currently in use.`
+const MULTIPLE_USERS_NOTICE_MESSAGE_1 = `This receiver is currently in use.`;
 const MULTIPLE_USERS_NOTICE_MESSAGE_2 = `Please be considerate and mindful of other users before tuning.`;
 
 // #################### RDS FLAG BULLET POINT #################### //
@@ -96,6 +95,12 @@ const TUNE_DELAY = 2;
 // Sets a delay in seconds, with an on screen timer, before a new user can begin tuning if at least one user is already online.
 // NOTE: Set to 0 to disable.
 const TUNE_DELAY_IF_MORE_THAN_ONE_USER = 45;
+
+// #################### NEW USER DEFAULTS #################### //
+
+// Default signal unit for new users.
+// 0 = default, 1 = dbf, 2 = dbuv, 3 = dbm
+const DEFAULT_SIGNAL_UNIT = 0;
 
 // #################### VOLUME TOAST NOTIFICATION #################### //
 
@@ -820,15 +825,15 @@ if (SIDEBAR_ADDITIONS_EXPAND_CANVAS) {
                 return;
             }
 
-            // Prevent double execution
-            if (isDoubleClickProcessing) {
-                return;
-            }
-
             // Double-click in the draggable area only
             const rect = canvasContainer.getBoundingClientRect();
             const isInDraggableArea = e.clientY > rect.bottom - resizeEdge;
             if (!isInDraggableArea) {
+                return;
+            }
+
+            // Prevent double execution
+            if (isDoubleClickProcessing) {
                 return;
             }
 
@@ -1982,6 +1987,26 @@ window.addEventListener('DOMContentLoaded', (event) => {
         startCountdown(countdownTime, onCountdownEnd);
     }
 });
+}
+}
+
+// #################### DEFAULT SIGNAL UNIT #################### //
+
+if (DEFAULT_SIGNAL_UNIT) {
+if (!localStorage.getItem('signalUnit')) {
+  switch (DEFAULT_SIGNAL_UNIT) {
+    case 1:
+      localStorage.setItem('signalUnit', 'dbf');
+      break;
+    case 2:
+      localStorage.setItem('signalUnit', 'dbuv');
+      break;
+    case 3:
+      localStorage.setItem('signalUnit', 'dbm');
+      break;
+    default:
+      // Ignore
+  }
 }
 }
 
