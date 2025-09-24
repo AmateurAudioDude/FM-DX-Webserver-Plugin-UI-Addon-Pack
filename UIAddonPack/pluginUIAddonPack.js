@@ -135,6 +135,7 @@ const INCREASE_FREQUENCY_FONT_WEIGHT = false;
 
 // Adds a gradient effect to the buttons
 const GRADIENT_BUTTONS = false;
+const INCLUDE_SCANNER_BUTTONS = false;
 
 // Adds a glowing effect.
 const LED_GLOW_EFFECT_ICONS = false; // Enables glow effect for RDS icons, such as the Stereo/Mono icon.
@@ -344,36 +345,72 @@ if (INCREASE_FREQUENCY_FONT_WEIGHT) {
 
 // Gradient buttons
 if (GRADIENT_BUTTONS) {
+  if (INCLUDE_SCANNER_BUTTONS) {
+    styleElement.textContent += `
+      #scanner-controls .dropdown:nth-of-type(1) input {
+        border-radius: 14px 0 0 14px;
+      }
+      #scanner-controls .dropdown:nth-of-type(2) input {
+        border-radius: 0;
+      }
+      #scanner-controls .dropdown:nth-of-type(3) input {
+        border-radius: 0 14px 14px 0;
+      }
+
+      #scanner-controls .dropdown input {
+        background-image: linear-gradient(var(--color-5), var(--color-3));
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+      }
+
+      #scanner-controls .dropdown input:hover {
+        background-image: linear-gradient(var(--color-3), var(--color-5));
+        box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
+        transform: translateY(0.1px);
+      }
+    `;
+  }
+
   styleElement.textContent += `
-  /* Gradient buttons */
-  .playbutton, .data-eq, #data-ant input, #data-bw input, .data-ims, #freq-down, #search-down, #scanner-down, #freq-up, #search-up, #scanner-up, #button-presets-bank-dropdown input {
-    background-image: linear-gradient(var(--color-5), var(--color-3));
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
-  }
-  .playbutton:hover, .data-eq:hover, #data-ant input:hover, #data-bw input:hover, .data-ims:hover, #freq-down:hover, #search-down:hover, #scanner-down:hover, #freq-up:hover, #search-up:hover, #scanner-up:hover, #Scan-on-off:hover, #button-presets-bank-dropdown input:hover {
-    background-image: linear-gradient(var(--color-3), var(--color-5));
-    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
-    transform: translateY(0.1px);
-  }
-  html body div.wrapper-outer.main-content div#wrapper div.flex-container div.panel-100.no-bg div.flex-container div.panel-33.hide-phone.no-bg div.flex-container span.panel-100-real.m-0, #Scan-on-off {
-    filter: brightness(117.5%);
-    position: relative;
-    z-index: 0;
-    border-radius: 14px;
-  }
-  html body div.wrapper-outer.main-content div#wrapper div.flex-container div.panel-100.no-bg div.flex-container div.panel-33.hide-phone.no-bg div.flex-container span.panel-100-real.m-0::before, #Scan-on-off::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.4) 100%);
-    pointer-events: none;
-    z-index: 1;
-    border-radius: inherit;
-  }
+    .playbutton, .data-eq, #data-ant input, #data-bw input, .data-ims,
+    #freq-down, #search-down, #scanner-down,
+    #freq-up, #search-up, #scanner-up,
+    #button-presets-bank-dropdown input {
+      background-image: linear-gradient(var(--color-5), var(--color-3));
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+    }
+
+    .playbutton:hover, .data-eq:hover, #data-ant input:hover, #data-bw input:hover, .data-ims:hover,
+    #freq-down:hover, #search-down:hover, #scanner-down:hover,
+    #freq-up:hover, #search-up:hover, #scanner-up:hover,
+    #Scan-on-off:hover, #button-presets-bank-dropdown input:hover {
+      background-image: linear-gradient(var(--color-3), var(--color-5));
+      box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
+      transform: translateY(0.1px);
+    }
+
+    html body div.wrapper-outer.main-content div#wrapper div.flex-container div.panel-100.no-bg div.flex-container div.panel-33.hide-phone.no-bg div.flex-container span.panel-100-real.m-0,
+    #Scan-on-off {
+      filter: brightness(117.5%);
+      position: relative;
+      z-index: 0;
+      border-radius: 14px;
+    }
+
+    html body div.wrapper-outer.main-content div#wrapper div.flex-container div.panel-100.no-bg div.flex-container div.panel-33.hide-phone.no-bg div.flex-container span.panel-100-real.m-0::before,
+    #Scan-on-off::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.4) 100%);
+      pointer-events: none;
+      z-index: 1;
+      border-radius: inherit;
+    }
   `;
 }
 
