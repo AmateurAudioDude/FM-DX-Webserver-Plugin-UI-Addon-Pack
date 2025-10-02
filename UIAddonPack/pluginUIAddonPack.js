@@ -1903,13 +1903,19 @@ window.addEventListener('DOMContentLoaded', (event) => {
     let userOnlineCount = 0;
     let lastProcessedTime = 0;
     let isFirstTimeRun = true;
+    let timeoutScheduled = false;
 
     const TIMEOUT_DURATION = 500;
 
     // Define the handler as a named function
     function handleMessage(event) {
         if (isFirstTimeRun) {
-            isFirstTimeRun = false;
+            if (!timeoutScheduled) {
+                timeoutScheduled = true;
+                setTimeout(() => {
+                    isFirstTimeRun = false;
+                }, 500);
+            }
             return;
         }
 
