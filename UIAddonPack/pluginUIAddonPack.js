@@ -1592,8 +1592,8 @@ if (MULTIPATH_INDICATOR) {
 // PTY padding
 const flagsContainer = document.querySelector('#flags-container-desktop.panel-33.user-select-none');
 if (flagsContainer) {
-  flagsContainer.style.paddingLeft = '12px';
-  flagsContainer.style.paddingRight = '12px';
+  flagsContainer.style.paddingLeft = '2px';
+  flagsContainer.style.paddingRight = '2px';
 }
 
 let dataFreq = 0;
