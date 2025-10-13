@@ -147,6 +147,10 @@ const LED_GLOW_EFFECT_FREQ = false;  // Enables glow effect for frequency digits
 // Dims the PI CODE font for incomplete PI decodes.
 const DIM_INCOMPLETE_PI_CODE = false;
 
+// Sets the hex color code for stereo icon.
+// Use a 6-digit hex color, e.g. "FF0000" for bright red.
+const STEREO_ICON_COLOR = "default";
+
 // #################### PLUGIN BUTTON ORDER #################### //
 
 const SORT_PLUGIN_BUTTONS = false;
@@ -528,6 +532,89 @@ if (LED_GLOW_EFFECT_ICONS) {
 }
 
 document.head.appendChild(styleElement);
+
+if (STEREO_ICON_COLOR !== "default") {
+    document.head.appendChild(Object.assign(document.createElement("style"),{textContent:`.circle.data-st{border:2px solid ${STEREO_ICON_COLOR}}`}));
+
+    function clamp(num, min, max) {
+      return Math.min(Math.max(num, min), max);
+    }
+
+    function multiplyRgb(rgb, factors) {
+      return {
+        r: clamp(Math.round(rgb.r * factors[0]), 0, 255),
+        g: clamp(Math.round(rgb.g * factors[1]), 0, 255),
+        b: clamp(Math.round(rgb.b * factors[2]), 0, 255),
+      };
+    }
+
+    function rgbaString(rgb, alpha) {
+      return `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${alpha})`;
+    }
+
+    function hexToRgb(hex) {
+      const hexClean = hex.replace('#', '');
+      const bigint = parseInt(hexClean, 16);
+      return {
+        r: (bigint >> 16) & 255,
+        g: (bigint >> 8) & 255,
+        b: bigint & 255
+      };
+    }
+
+    // Slightly lighten multipliers by +0.05 capped at 1.0
+    function lightenMultiplier(m) {
+      return m.map(x => Math.min(x + 0.05, 1));
+    }
+
+    // Read alpha CSS vars and boost by 10%
+    const style = getComputedStyle(document.documentElement);
+    const alphaBoost = 1.1;
+
+    const alphas = [
+      (parseFloat(style.getPropertyValue('--glow-alpha-1')) || 0.6) * alphaBoost,
+      (parseFloat(style.getPropertyValue('--glow-alpha-2')) || 0.4) * alphaBoost,
+      (parseFloat(style.getPropertyValue('--glow-alpha-3')) || 0.3) * alphaBoost,
+      (parseFloat(style.getPropertyValue('--glow-alpha-4')) || 0.2) * alphaBoost,
+    ].map(a => Math.min(a, 1)); // clamp max at 1
+
+    const backgroundAlpha = alphas[2]; // glow-alpha-3
+
+    document.querySelectorAll('.wrapper-outer #wrapper #flags-container-desktop.panel-33.user-select-none h3 .circle-container .circle.data-st').forEach(el => {
+      const borderColor = getComputedStyle(el).borderColor;
+      let baseRgb;
+
+      if (borderColor.startsWith('rgb')) {
+        const [r, g, b] = borderColor.match(/\d+/g).map(Number);
+        baseRgb = {r, g, b};
+      } else if (borderColor.startsWith('#')) {
+        baseRgb = hexToRgb(borderColor);
+      } else {
+        baseRgb = {r: 255, g: 255, b: 255}; // fallback white
+      }
+
+      const baseMultipliers = [
+        [1.0, 1.0, 1.0],    // background-color
+        [0.93, 1.12, 0.92], // 6px glow
+        [0.8, 0.8, 0.8],    // 12px glow
+        [0.65, 0.8, 0.8],   // 18px glow
+        [0.53, 0.68, 0.68]  // 24px glow
+      ];
+
+      // Lighten multipliers
+      const multipliers = baseMultipliers.map(lightenMultiplier);
+
+      const glowColors = multipliers.slice(1).map((m, i) => rgbaString(multiplyRgb(baseRgb, m), alphas[i]));
+
+      el.style.backgroundColor = rgbaString(multiplyRgb(baseRgb, multipliers[0]), backgroundAlpha);
+      el.style.boxShadow = `
+        0 0 6px ${glowColors[0]},
+        0 0 12px ${glowColors[1]},
+        0 0 18px ${glowColors[2]},
+        0 0 24px ${glowColors[3]}
+      `;
+    });
+}
 
 // Function to check if the span contains ? and add opacity
 function checkPiForQuestionMark() {

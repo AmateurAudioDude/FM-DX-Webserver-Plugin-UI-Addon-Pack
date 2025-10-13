@@ -13,6 +13,7 @@ const ignoredVariables = {
     'TUNE_DELAY_IF_MORE_THAN_ONE_USER': '45',
     'DEFAULT_SIGNAL_UNIT': '0',
     'PLUGINS_USER_ORDER': '"1"',
+    'STEREO_ICON_COLOR': '"default"',
 };
 
 fs.readFile(filePath, 'utf8', (err, data) => {
