@@ -150,6 +150,7 @@ const DIM_INCOMPLETE_PI_CODE = false;
 // Sets the hex color code for stereo icon.
 // Use a 6-digit hex color, e.g. "FF0000" for bright red.
 const STEREO_ICON_COLOR = "default";
+const STEREO_ICON_COLOR_OFF = "#808080";
 
 // #################### PLUGIN BUTTON ORDER #################### //
 
@@ -535,7 +536,7 @@ document.head.appendChild(styleElement);
 
 if (STEREO_ICON_COLOR !== "default") {
     document.head.appendChild(Object.assign(document.createElement("style"), {
-        textContent: `.circle.data-st{border:2px solid #${STEREO_ICON_COLOR}}`
+        textContent: `.circle.data-st{border:2px solid ${STEREO_ICON_COLOR}}`
     }));
 
     function clamp(num, min, max) {
@@ -588,8 +589,29 @@ if (STEREO_ICON_COLOR !== "default") {
         if (el.classList.contains('opacity-half') || el.closest('.opacity-half')) {
           el.style.backgroundColor = 'inherit';
           el.style.boxShadow = 'none';
+
+          const styleId = "custom-circle-style";
+          let existingStyle = document.getElementById(styleId);
+          if (!existingStyle) {
+            existingStyle = document.createElement("style");
+            existingStyle.id = styleId;
+            document.head.appendChild(existingStyle);
+          }
+          existingStyle.textContent = `.circle.data-st { border: 2px solid ${STEREO_ICON_COLOR_OFF} }`;
+
           return;
         }
+
+        const styleId = "custom-circle-style";
+        let existingStyle = document.getElementById(styleId);
+        if (!existingStyle) {
+          existingStyle = document.createElement("style");
+          existingStyle.id = styleId;
+          document.head.appendChild(existingStyle);
+        }
+        existingStyle.textContent = `.circle.data-st { border: 2px solid ${STEREO_ICON_COLOR} }`;
+
+        if (!LED_GLOW_EFFECT_ICONS) return;
 
         const borderColor = getComputedStyle(el).borderColor;
         let baseRgb;
@@ -625,22 +647,20 @@ if (STEREO_ICON_COLOR !== "default") {
       });
     }
 
-    if (LED_GLOW_EFFECT_ICONS) {
-        applyGlow();
+    applyGlow();
 
-        // MutationObserver
-        const targetNode = document.querySelector('#flags-container-desktop');
-        const observer = new MutationObserver(mutations => {
-          for(const mutation of mutations) {
-            if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
-              applyGlow();
-            }
-          }
-        });
-
-        if (targetNode) {
-          observer.observe(targetNode, { attributes: true, subtree: true, attributeFilter: ['class'] });
+    // MutationObserver
+    const targetNode = document.querySelector('#flags-container-desktop');
+    const observer = new MutationObserver(mutations => {
+      for(const mutation of mutations) {
+        if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+          applyGlow();
         }
+      }
+    });
+
+    if (targetNode) {
+      observer.observe(targetNode, { attributes: true, subtree: true, attributeFilter: ['class'] });
     }
 }
 
