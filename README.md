@@ -12,6 +12,10 @@ A collection of visual enhancements for FM-DX Webserver. Features may be added/r
 
 #### Configuration options found in `pluginUIAddonPack.js`
 
+v1.1.2
+------
+* Added option to sort order of plugin buttons
+
 v1.1.1
 ------
 * Added option to set default signal unit for first time visitors

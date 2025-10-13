@@ -1,5 +1,5 @@
 /*
-    UI Add-on Pack v1.1.1 by AAD
+    UI Add-on Pack v1.1.2 by AAD
     ----------------------------
     https://github.com/AmateurAudioDude/FM-DX-Webserver-Plugin-UI-Addon-Pack
 */
@@ -8,7 +8,7 @@
 
 (() => {
 
-const pluginVersion = '1.1.1';
+const pluginVersion = '1.1.2';
 const pluginName = "UI Add-on Pack";
 const pluginHomepageUrl = "https://github.com/AmateurAudioDude/FM-DX-Webserver-Plugin-UI-Addon-Pack";
 const pluginUpdateUrl = "https://raw.githubusercontent.com/AmateurAudioDude/FM-DX-Webserver-Plugin-UI-Addon-Pack/refs/heads/main/UIAddonPack/pluginUIAddonPack.js";
@@ -146,6 +146,31 @@ const LED_GLOW_EFFECT_FREQ = false;  // Enables glow effect for frequency digits
 
 // Dims the PI CODE font for incomplete PI decodes.
 const DIM_INCOMPLETE_PI_CODE = false;
+
+// #################### PLUGIN BUTTON ORDER #################### //
+
+const SORT_PLUGIN_BUTTONS = false;
+
+// Set the plugin order by specifying the corresponding numbers from below.
+// Example format: "1, 2, 11, 4" - this defines the display order.
+const PLUGINS_USER_ORDER = "1";
+
+// Mapping of plugin IDs to their corresponding button element IDs.
+// Use these numbers in 'PLUGINS_USER_ORDER' to control which plugins appear and in what order.
+//
+//    1:       Spectrum
+//    2:       Record
+//    3:       RDS Logger
+//    4:       More info
+//    5:       Livemap
+//    6:       Screenshot
+//    7:       ES Alert
+//    8:       ES Follow
+//    9:       GPS
+//   10:       URDS
+//   11:       DX Alert
+//   12:       STREAM
+//
 
 // #################### CONSOLE LOG SETTINGS #################### //
 
@@ -2131,6 +2156,57 @@ if (VOLUME_PERCENTAGE_TOAST) {
   slider.addEventListener('mousedown', showToast);
   slider.addEventListener('input', showToast);
 })();
+}
+
+// #################### SORT PLUGIN BUTTON ORDER #################### //
+
+if (SORT_PLUGIN_BUTTONS) {
+  // Mapping of plugin IDs to their corresponding button element IDs.
+  // Use these numbers in 'PLUGINS_USER_ORDER' to control which plugins appear and in what order.
+  const SORT_PLUGIN_BUTTONS_MAP = {
+    1: 'spectrum-graph-button',      // Spectrum
+    2: 'audio-record-button',        // Record
+    3: 'Log-on-off',                 // RDS Logger
+    4: 'extended-desc-button',       // More info
+    5: 'LIVEMAP-on-off',             // Livemap
+    6: 'Screenshot',                 // Screenshot
+    7: 'ES-ALERT-on-off',            // ES Alert
+    8: 'ES-FOLLOW-on-off',           // ES Follow
+    9: 'GPS-on-off',                 // GPS
+   10: 'URDSupload-on-off',          // URDS
+   11: 'DX-Alert-on-off',            // DX Alert
+   12: 'Stream-on-off',              // STREAM
+  };
+
+  const orderArray = PLUGINS_USER_ORDER
+    .split(',')
+    .map(num => parseInt(num.trim()))
+    .filter(Boolean);
+
+  let cssRulesSortPlugins = '';
+
+  const orderedSet = new Set(orderArray);
+
+  // Set explicit order user-defined buttons
+  orderArray.forEach((num, index) => {
+    const buttonId = SORT_PLUGIN_BUTTONS_MAP[num];
+    if (buttonId) {
+      cssRulesSortPlugins += `#${buttonId} { order: ${index + 1}; }\n`;
+    }
+  });
+
+  // Assign high order to all other buttons
+  Object.entries(SORT_PLUGIN_BUTTONS_MAP).forEach(([num, buttonId]) => {
+    if (!orderedSet.has(parseInt(num))) {
+      cssRulesSortPlugins += `#${buttonId} { order: 999; }\n`;
+    }
+  });
+
+  if (cssRulesSortPlugins) {
+    const style = document.createElement('style');
+    style.textContent = cssRulesSortPlugins;
+    document.head.appendChild(style);
+  }
 }
 
 }
