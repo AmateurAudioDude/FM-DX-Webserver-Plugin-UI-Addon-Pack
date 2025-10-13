@@ -14,7 +14,7 @@ const ignoredVariables = {
     'DEFAULT_SIGNAL_UNIT': '0',
     'PLUGINS_USER_ORDER': '"1"',
     'STEREO_ICON_COLOR': '"default"',
-    'STEREO_ICON_COLOR_OFF': '"#808080"',
+    'STEREO_ICON_COLOR_OFF': '""',
 };
 
 fs.readFile(filePath, 'utf8', (err, data) => {

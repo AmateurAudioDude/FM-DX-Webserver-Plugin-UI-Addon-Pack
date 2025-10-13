@@ -148,9 +148,9 @@ const LED_GLOW_EFFECT_FREQ = false;  // Enables glow effect for frequency digits
 const DIM_INCOMPLETE_PI_CODE = false;
 
 // Sets the hex color code for stereo icon.
-// Use a 6-digit hex color, e.g. "FF0000" for bright red.
+// Use a 6-digit hex color, e.g. "#FF0000" for bright red.
 const STEREO_ICON_COLOR = "default";
-const STEREO_ICON_COLOR_OFF = "#808080";
+const STEREO_ICON_COLOR_OFF = "";
 
 // #################### PLUGIN BUTTON ORDER #################### //
 
@@ -535,9 +535,14 @@ if (LED_GLOW_EFFECT_ICONS) {
 document.head.appendChild(styleElement);
 
 if (STEREO_ICON_COLOR !== "default") {
-    document.head.appendChild(Object.assign(document.createElement("style"), {
-        textContent: `.circle.data-st{border:2px solid ${STEREO_ICON_COLOR}}`
-    }));
+    const styleId = "custom-circle-style";
+    let existingStyle = document.getElementById(styleId);
+    if (!existingStyle) {
+      existingStyle = document.createElement("style");
+      existingStyle.id = styleId;
+      document.head.appendChild(existingStyle);
+    }
+    existingStyle.textContent = `.circle.data-st { border: 2px solid ${STEREO_ICON_COLOR} }`;
 
     function clamp(num, min, max) {
       return Math.min(Math.max(num, min), max);
@@ -584,31 +589,26 @@ if (STEREO_ICON_COLOR !== "default") {
     const backgroundAlpha = alphas[2]; // glow-alpha-3
 
     function applyGlow() {
-      document.querySelectorAll('.wrapper-outer #wrapper #flags-container-desktop.panel-33.user-select-none h3 .circle-container .circle.data-st').forEach(el => {
-        // Adjust this depending on where .opacity-half applies
+      const styleId = "custom-circle-style";
+      let existingStyle = document.getElementById(styleId);
+      if (!existingStyle) {
+        existingStyle = document.createElement("style");
+        existingStyle.id = styleId;
+        document.head.appendChild(existingStyle);
+      }
+
+      const circles = document.querySelectorAll('.wrapper-outer #wrapper #flags-container-desktop.panel-33.user-select-none h3 .circle-container .circle.data-st');
+
+      circles.forEach(el => {
         if (el.classList.contains('opacity-half') || el.closest('.opacity-half')) {
           el.style.backgroundColor = 'inherit';
           el.style.boxShadow = 'none';
 
-          const styleId = "custom-circle-style";
-          let existingStyle = document.getElementById(styleId);
-          if (!existingStyle) {
-            existingStyle = document.createElement("style");
-            existingStyle.id = styleId;
-            document.head.appendChild(existingStyle);
-          }
           existingStyle.textContent = `.circle.data-st { border: 2px solid ${STEREO_ICON_COLOR_OFF} }`;
 
           return;
         }
 
-        const styleId = "custom-circle-style";
-        let existingStyle = document.getElementById(styleId);
-        if (!existingStyle) {
-          existingStyle = document.createElement("style");
-          existingStyle.id = styleId;
-          document.head.appendChild(existingStyle);
-        }
         existingStyle.textContent = `.circle.data-st { border: 2px solid ${STEREO_ICON_COLOR} }`;
 
         if (!LED_GLOW_EFFECT_ICONS) return;
@@ -618,11 +618,11 @@ if (STEREO_ICON_COLOR !== "default") {
 
         if (borderColor.startsWith('rgb')) {
           const [r, g, b] = borderColor.match(/\d+/g).map(Number);
-          baseRgb = {r, g, b};
+          baseRgb = { r, g, b };
         } else if (borderColor.startsWith('#')) {
           baseRgb = hexToRgb(borderColor);
         } else {
-          baseRgb = {r: 255, g: 255, b: 255};
+          baseRgb = { r: 255, g: 255, b: 255 };
         }
 
         const baseMultipliers = [
@@ -635,7 +635,9 @@ if (STEREO_ICON_COLOR !== "default") {
 
         const multipliers = baseMultipliers.map(lightenMultiplier);
 
-        const glowColors = multipliers.slice(1).map((m, i) => rgbaString(multiplyRgb(baseRgb, m), alphas[i]));
+        const glowColors = multipliers.slice(1).map((m, i) =>
+          rgbaString(multiplyRgb(baseRgb, m), alphas[i])
+        );
 
         el.style.backgroundColor = rgbaString(multiplyRgb(baseRgb, multipliers[0]), backgroundAlpha);
         el.style.boxShadow = `
@@ -797,7 +799,7 @@ function createAdditionalCheckbox({ checkboxId, labelText, tooltipText, localSto
             `;
             checkboxes[checkboxes.length - 1].insertAdjacentElement('afterend', newDiv);
         } else {
-            console.warn('No checkboxes found to insert after.');
+            console.warn(`[${pluginName}] No checkboxes found to insert after.`);
         }
     }
     
@@ -1691,7 +1693,7 @@ function connectWebSocket() {
     });
 
     window.socket.addEventListener('close', () => {
-        console.log('RDS_FLAG_INDICATOR: WebSocket closed. Attempting to reconnect...');
+        console.log(`[${pluginName}] RDS_FLAG_INDICATOR: WebSocket closed. Attempting to reconnect...`);
         attemptReconnect();
     });
 
@@ -2221,7 +2223,7 @@ if (VOLUME_PERCENTAGE_TOAST) {
 
   const slider = document.getElementById('volumeSlider');
   if (!slider) {
-    console.warn('Missing #volumeSlider');
+    console.warn(`[${pluginName}] Missing #volumeSlider`);
     return;
   }
 
