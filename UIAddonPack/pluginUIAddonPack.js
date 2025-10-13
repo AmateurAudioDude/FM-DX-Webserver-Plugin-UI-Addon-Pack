@@ -534,7 +534,9 @@ if (LED_GLOW_EFFECT_ICONS) {
 document.head.appendChild(styleElement);
 
 if (STEREO_ICON_COLOR !== "default") {
-    document.head.appendChild(Object.assign(document.createElement("style"),{textContent:`.circle.data-st{border:2px solid ${STEREO_ICON_COLOR}}`}));
+    document.head.appendChild(Object.assign(document.createElement("style"), {
+        textContent: `.circle.data-st{border:2px solid #${STEREO_ICON_COLOR}}`
+    }));
 
     function clamp(num, min, max) {
       return Math.min(Math.max(num, min), max);
@@ -580,40 +582,66 @@ if (STEREO_ICON_COLOR !== "default") {
 
     const backgroundAlpha = alphas[2]; // glow-alpha-3
 
-    document.querySelectorAll('.wrapper-outer #wrapper #flags-container-desktop.panel-33.user-select-none h3 .circle-container .circle.data-st').forEach(el => {
-      const borderColor = getComputedStyle(el).borderColor;
-      let baseRgb;
+    function applyGlow() {
+      document.querySelectorAll('.wrapper-outer #wrapper #flags-container-desktop.panel-33.user-select-none h3 .circle-container .circle.data-st').forEach(el => {
+        // Adjust this depending on where .opacity-half applies
+        if (el.classList.contains('opacity-half') || el.closest('.opacity-half')) {
+          el.style.backgroundColor = 'inherit';
+          el.style.boxShadow = 'none';
+          return;
+        }
 
-      if (borderColor.startsWith('rgb')) {
-        const [r, g, b] = borderColor.match(/\d+/g).map(Number);
-        baseRgb = {r, g, b};
-      } else if (borderColor.startsWith('#')) {
-        baseRgb = hexToRgb(borderColor);
-      } else {
-        baseRgb = {r: 255, g: 255, b: 255}; // fallback white
-      }
+        const borderColor = getComputedStyle(el).borderColor;
+        let baseRgb;
 
-      const baseMultipliers = [
-        [1.0, 1.0, 1.0],    // background-color
-        [0.93, 1.12, 0.92], // 6px glow
-        [0.8, 0.8, 0.8],    // 12px glow
-        [0.65, 0.8, 0.8],   // 18px glow
-        [0.53, 0.68, 0.68]  // 24px glow
-      ];
+        if (borderColor.startsWith('rgb')) {
+          const [r, g, b] = borderColor.match(/\d+/g).map(Number);
+          baseRgb = {r, g, b};
+        } else if (borderColor.startsWith('#')) {
+          baseRgb = hexToRgb(borderColor);
+        } else {
+          baseRgb = {r: 255, g: 255, b: 255};
+        }
 
-      // Lighten multipliers
-      const multipliers = baseMultipliers.map(lightenMultiplier);
+        const baseMultipliers = [
+          [1.0, 1.0, 1.0],
+          [0.93, 1.12, 0.92],
+          [0.8, 0.8, 0.8],
+          [0.65, 0.8, 0.8],
+          [0.53, 0.68, 0.68]
+        ];
 
-      const glowColors = multipliers.slice(1).map((m, i) => rgbaString(multiplyRgb(baseRgb, m), alphas[i]));
+        const multipliers = baseMultipliers.map(lightenMultiplier);
 
-      el.style.backgroundColor = rgbaString(multiplyRgb(baseRgb, multipliers[0]), backgroundAlpha);
-      el.style.boxShadow = `
-        0 0 6px ${glowColors[0]},
-        0 0 12px ${glowColors[1]},
-        0 0 18px ${glowColors[2]},
-        0 0 24px ${glowColors[3]}
-      `;
-    });
+        const glowColors = multipliers.slice(1).map((m, i) => rgbaString(multiplyRgb(baseRgb, m), alphas[i]));
+
+        el.style.backgroundColor = rgbaString(multiplyRgb(baseRgb, multipliers[0]), backgroundAlpha);
+        el.style.boxShadow = `
+          0 0 6px ${glowColors[0]},
+          0 0 12px ${glowColors[1]},
+          0 0 18px ${glowColors[2]},
+          0 0 24px ${glowColors[3]}
+        `;
+      });
+    }
+
+    if (LED_GLOW_EFFECT_ICONS) {
+        applyGlow();
+
+        // MutationObserver
+        const targetNode = document.querySelector('#flags-container-desktop');
+        const observer = new MutationObserver(mutations => {
+          for(const mutation of mutations) {
+            if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+              applyGlow();
+            }
+          }
+        });
+
+        if (targetNode) {
+          observer.observe(targetNode, { attributes: true, subtree: true, attributeFilter: ['class'] });
+        }
+    }
 }
 
 // Function to check if the span contains ? and add opacity
