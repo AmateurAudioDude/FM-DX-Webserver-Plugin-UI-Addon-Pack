@@ -2007,9 +2007,10 @@ window.addEventListener('DOMContentLoaded', (event) => {
       if (showIcon) {
           // Hide icon
           const tunerName = document.querySelector('.dashboard-panel-plugin-content');
-          const lockIcon = tunerName.querySelector('.user-requests-lock');
+          const panel = document.querySelector('.dashboard-panel .panel-100-real');
+          const lockIcon = panel?.querySelector('.user-requests-lock');
           if (lockIcon) {
-              tunerName.removeChild(lockIcon);
+              panel.removeChild(lockIcon);
           }
           // Show icon
           const lockIconHTML = '<i style="padding: 10px 6px 12px 6px; font-size: 18px; color: var(--color-4);" class="fa-solid fa-lock pointer user-requests-lock" aria-label="Tuner is currently locked."></i>';
@@ -2018,7 +2019,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
           const isMobilePortrait = window.innerWidth <= 768 && window.innerHeight > window.innerWidth;
 
           if (isMobilePortrait) {
-          const lockIcon = tunerName.querySelector('.user-requests-lock');
+          const lockIcon = panel?.querySelector('.user-requests-lock');
           if (lockIcon) {
             lockIcon.style.position = 'absolute';
             lockIcon.style.bottom = '10px';
