@@ -2051,10 +2051,11 @@ window.addEventListener('DOMContentLoaded', (event) => {
         }
         if (showIcon) {
             // Hide icon
-            const tunerName = document.querySelector('.dashboard-panel-plugin-content');
-            const lockIcon = tunerName.querySelector('.user-requests-lock');
+            const tunerName = document.querySelector('.dashboard-panel .panel-100-real');
+            const lockIcon = tunerName?.querySelector('.user-requests-lock');
             if (lockIcon) {
-                tunerName.removeChild(lockIcon);
+                const panel = lockIcon.closest('.panel-100-real');
+                panel?.removeChild(lockIcon);
             }
         }
       }, tuneDelay);
