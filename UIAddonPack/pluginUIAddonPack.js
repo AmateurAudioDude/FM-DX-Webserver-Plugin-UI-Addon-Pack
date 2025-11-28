@@ -2619,7 +2619,7 @@ const ta_on_webp   = 'data:image/webp;base64,UklGRtgBAABXRUJQVlA4TMwBAAAvEgEqEA8
 const tp_off_webp  = 'data:image/webp;base64,UklGRogBAABXRUJQVlA4THsBAAAvEgEqEA8waZM2afMf8JBb21bcbJdFQKgSKIXSpNIoRSUo9MDiBJI/+75/HoKI/k+A1LFWnW8eLjAXSZurStpdTdLNhaRhS9K0ZQl70eZb1H1Vu69dLPo8sOqAJmN/URyaoBskyw00WGXdIQ2ap18sHkGeFNM8ZdOIUSCZbieZjyira4/QKbQfw0ah/mKIwnLReZ00AdIH9i9kcW6e7YJk6VclQnWUF2sEQuQIJcISoUZohhxqjcBbPVbqUDSB9M550iTpYo+wAdmlEDPCgGK7RTh+HHuQ5des/DwcP44b5O/BiDAh2QiwReiAXEeADVhNlyFahBph+U6UCDlCCrAqQIuwRCgRFKBFKAGabEVf/f9D/Q5sbwzqaYP8uU4+aTR97sPfk+bq35HVtVPgO3BQJunbu5En2TROxTTJg8UEaVA9G6Qbq6eDbuA5QAdky2A9VccGq3YgGwY0dexVm2+RfEWatiwNW5JuNkmHa5XUXVWSXOU0TOm0e5okAA==';
 const tp_on_webp   = 'data:image/webp;base64,UklGRogBAABXRUJQVlA4THsBAAAvEgEqEA8w//M///Mf8JBb21bcbJdFQKgSKIXSpNIoRSUo9MDiBJI/+75/HoKI/k+A1LFWnW8eLjAXSZurStpdTdLNhaRhS9K0ZQl70eZb1H1Vu69dLPo8sOqAJmN/URyaoBskyw00WGXdIQ2ap18sHkGeFNM8ZdOIUSCZbieZjyira4/QKbQfw0ah/mKIwnLReZ00AdIH9i9kcW6e7YJk6VclQnWUF2sEQuQIJcISoUZohhxqjcBbPVbqUDSB9M550iTpYo+wAdmlEDPCgGK7RTh+HHuQ5des/DwcP44b5O/BiDAh2QiwReiAXEeADVhNlyFahBph+U6UCDlCCrAqQIuwRCgRFKBFKAGabEVf/f9D/Q5sbwzqaYP8uU4+aTR97sPfk+bq35HVtVPgO3BQJunbu5En2TROxTTJg8UEaVA9G6Qbq6eDbuA5QAdky2A9VccGq3YgGwY0dexVm2+RfEWatiwNW5JuNkmHa5XUXVWSXOU0TOm0e5okAA==';
 
-const off_opacity = REDUCE_HALF_OPACITY === true ? '0.5' : '0.9';
+const off_opacity = REDUCE_HALF_OPACITY === true ? '0.6' : '0.9';
 
 async function setupTextSocket() {
   if (TextSocket && TextSocket.readyState !== WebSocket.CLOSED) {
