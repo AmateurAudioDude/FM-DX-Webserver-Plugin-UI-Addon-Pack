@@ -2619,6 +2619,8 @@ const ta_on_webp   = 'data:image/webp;base64,UklGRtgBAABXRUJQVlA4TMwBAAAvEgEqEA8
 const tp_off_webp  = 'data:image/webp;base64,UklGRogBAABXRUJQVlA4THsBAAAvEgEqEA8waZM2afMf8JBb21bcbJdFQKgSKIXSpNIoRSUo9MDiBJI/+75/HoKI/k+A1LFWnW8eLjAXSZurStpdTdLNhaRhS9K0ZQl70eZb1H1Vu69dLPo8sOqAJmN/URyaoBskyw00WGXdIQ2ap18sHkGeFNM8ZdOIUSCZbieZjyira4/QKbQfw0ah/mKIwnLReZ00AdIH9i9kcW6e7YJk6VclQnWUF2sEQuQIJcISoUZohhxqjcBbPVbqUDSB9M550iTpYo+wAdmlEDPCgGK7RTh+HHuQ5des/DwcP44b5O/BiDAh2QiwReiAXEeADVhNlyFahBph+U6UCDlCCrAqQIuwRCgRFKBFKAGabEVf/f9D/Q5sbwzqaYP8uU4+aTR97sPfk+bq35HVtVPgO3BQJunbu5En2TROxTTJg8UEaVA9G6Qbq6eDbuA5QAdky2A9VccGq3YgGwY0dexVm2+RfEWatiwNW5JuNkmHa5XUXVWSXOU0TOm0e5okAA==';
 const tp_on_webp   = 'data:image/webp;base64,UklGRogBAABXRUJQVlA4THsBAAAvEgEqEA8w//M///Mf8JBb21bcbJdFQKgSKIXSpNIoRSUo9MDiBJI/+75/HoKI/k+A1LFWnW8eLjAXSZurStpdTdLNhaRhS9K0ZQl70eZb1H1Vu69dLPo8sOqAJmN/URyaoBskyw00WGXdIQ2ap18sHkGeFNM8ZdOIUSCZbieZjyira4/QKbQfw0ah/mKIwnLReZ00AdIH9i9kcW6e7YJk6VclQnWUF2sEQuQIJcISoUZohhxqjcBbPVbqUDSB9M550iTpYo+wAdmlEDPCgGK7RTh+HHuQ5des/DwcP44b5O/BiDAh2QiwReiAXEeADVhNlyFahBph+U6UCDlCCrAqQIuwRCgRFKBFKAGabEVf/f9D/Q5sbwzqaYP8uU4+aTR97sPfk+bq35HVtVPgO3BQJunbu5En2TROxTTJg8UEaVA9G6Qbq6eDbuA5QAdky2A9VccGq3YgGwY0dexVm2+RfEWatiwNW5JuNkmHa5XUXVWSXOU0TOm0e5okAA==';
 
+const off_opacity = REDUCE_HALF_OPACITY === true ? '0.5' : '0.9';
+
 async function setupTextSocket() {
   if (TextSocket && TextSocket.readyState !== WebSocket.CLOSED) {
     return;
@@ -2671,10 +2673,12 @@ function handleTextSocketMessage(message) {
         ptyLabel.style.color = "#696969";
         ptyLabel.style.borderColor = "#696969";
         ptyLabel.style.fontWeight = "bold";
+        if (REDUCE_HALF_OPACITY) ptyLabel.style.opacity = off_opacity;
       } else {
         ptyLabel.style.color = "#fff";
         ptyLabel.style.borderColor = "#fff";
         ptyLabel.style.fontWeight = "600";
+        if (REDUCE_HALF_OPACITY) ptyLabel.style.opacity = '1';
       }
     }
 
@@ -2711,6 +2715,7 @@ function handleTextSocketMessage(message) {
       noEcc.style.alignItems = 'center';
       noEcc.style.height = '17px';
       noEcc.style.paddingBottom = /firefox/i.test(navigator.userAgent) ? '1px' : '0'; // Firefox
+      if (REDUCE_HALF_OPACITY) noEcc.style.opacity = off_opacity;
       eccWrapper.appendChild(noEcc);
     } else {
       // ECC present ? try to reuse existing ECC flag (if available)
@@ -2747,9 +2752,11 @@ function handleTextSocketMessage(message) {
   if (rdsIcon) {
     if (message.rds === true) {
       rdsIcon.src = rds_on_webp;
+      if (REDUCE_HALF_OPACITY) rdsIcon.style.opacity = '0.9';
       if (LED_GLOW_EFFECT_ICONS) rdsIcon.classList.add('icon-glow-on');
     } else {
       rdsIcon.src = rds_off_webp;
+      if (REDUCE_HALF_OPACITY) rdsIcon.style.opacity = off_opacity;
       rdsIcon.classList.remove('icon-glow-on');
     }
   }
@@ -2761,8 +2768,10 @@ function handleTextSocketMessage(message) {
     tpIcon.src = tpOn ? tp_on_webp : tp_off_webp;
     if (LED_GLOW_EFFECT_ICONS && tpOn) {
       tpIcon.classList.add('icon-glow-on');
+      if (REDUCE_HALF_OPACITY) tpIcon.style.opacity = '0.9';
     } else {
       tpIcon.classList.remove('icon-glow-on');
+      if (REDUCE_HALF_OPACITY) tpIcon.style.opacity = off_opacity;
     }
   }
 
@@ -2773,8 +2782,10 @@ function handleTextSocketMessage(message) {
     taIcon.src = taOn ? ta_on_webp : ta_off_webp;
     if (LED_GLOW_EFFECT_ICONS && taOn) {
       taIcon.classList.add('icon-glow-on');
+      if (REDUCE_HALF_OPACITY) taIcon.style.opacity = '0.9';
     } else {
       taIcon.classList.remove('icon-glow-on');
+      if (REDUCE_HALF_OPACITY) taIcon.style.opacity = off_opacity;
     }
   }
 }
@@ -2841,6 +2852,7 @@ function insertSignalPanel() {
   ptyLabel.style.justifyContent = 'center';
   ptyLabel.style.paddingBottom = '1px';
   ptyLabel.style.height = '20px';
+  if (REDUCE_HALF_OPACITY) ptyLabel.style.opacity = off_opacity;
   ptyRow.appendChild(ptyLabel);
 
   /* -----------------------------------------
