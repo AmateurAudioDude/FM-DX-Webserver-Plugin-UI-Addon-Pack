@@ -12,6 +12,10 @@ A collection of visual enhancements for FM-DX Webserver. Features may be added/r
 
 #### Configuration options found in `pluginUIAddonPack.js`
 
+v1.1.3
+------
+* Added options `RDS_ICON_STYLE`, `RDS_ICON_STYLE_MOBILE`, `LED_GLOW_EFFECT_ICONS_METRICS_MONITOR_PLUGIN`
+
 v1.1.2
 ------
 * Added option to sort order of plugin buttons
@@ -19,7 +23,7 @@ v1.1.2
 v1.1.1
 ------
 * Added option to set default signal unit for first time visitors
-* Included file `changes.js` which outputs changed settings to file.
+* Included file `changes.js` which outputs changed settings to file
 
 v1.1.0
 ------

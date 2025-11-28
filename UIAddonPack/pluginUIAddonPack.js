@@ -1,5 +1,5 @@
 /*
-    UI Add-on Pack v1.1.2 by AAD
+    UI Add-on Pack v1.1.3 by AAD
     ----------------------------
     https://github.com/AmateurAudioDude/FM-DX-Webserver-Plugin-UI-Addon-Pack
 */
@@ -8,7 +8,7 @@
 
 (() => {
 
-const pluginVersion = '1.1.2';
+const pluginVersion = '1.1.3';
 const pluginName = "UI Add-on Pack";
 const pluginHomepageUrl = "https://github.com/AmateurAudioDude/FM-DX-Webserver-Plugin-UI-Addon-Pack";
 const pluginUpdateUrl = "https://raw.githubusercontent.com/AmateurAudioDude/FM-DX-Webserver-Plugin-UI-Addon-Pack/refs/heads/main/UIAddonPack/pluginUIAddonPack.js";
@@ -151,6 +151,12 @@ const DIM_INCOMPLETE_PI_CODE = false;
 // Use a 6-digit hex color, e.g. "#FF0000" for bright red.
 const STEREO_ICON_COLOR = "default";
 const STEREO_ICON_COLOR_OFF = "";
+
+// RDS icon styling (Highpoint)
+const RDS_ICON_STYLE = false;
+const RDS_ICON_STYLE_MOBILE = false;
+const RDS_ICON_STYLE_REMOVE_RDS_ICON = false;
+const LED_GLOW_EFFECT_ICONS_METRICS_MONITOR_PLUGIN = false;
 
 // #################### PLUGIN BUTTON ORDER #################### //
 
@@ -517,7 +523,8 @@ if (LED_GLOW_EFFECT_ICONS) {
         0 0 30px rgba(204, 204, 204, var(--glow-alpha-4));
     }
 
-    .wrapper-outer #wrapper #flags-container-desktop.panel-33.user-select-none h3 .circle-container .circle {
+    .wrapper-outer #wrapper #flags-container-desktop.panel-33.user-select-none h3 .circle-container .circle,
+    .wrapper-outer #wrapper .user-select-none .circle-container .circle {
       background-color: rgba(255, 255, 255, var(--glow-alpha-3));
       box-shadow:
         0 0 6px rgba(255, 255, 255, var(--glow-alpha-1)),
@@ -526,7 +533,8 @@ if (LED_GLOW_EFFECT_ICONS) {
         0 0 24px rgba(170, 170, 170, var(--glow-alpha-4));
     }
 
-    .wrapper-outer #wrapper #flags-container-desktop.panel-33.user-select-none h3 .circle-container.opacity-half .circle {
+    .wrapper-outer #wrapper #flags-container-desktop.panel-33.user-select-none h3 .circle-container.opacity-half .circle,
+    .wrapper-outer #wrapper .user-select-none .circle-container.opacity-half .circle {
       background-color: inherit;
       box-shadow: none;
     }
@@ -1824,6 +1832,8 @@ socket.addEventListener("message", (event) => {
 
     if (sig > SIGNAL_THRESHOLD && tooltipMultipath > MULTIPATH_THRESHOLD) {
         addRandomIcon(true);
+    } else if (sig > (SIGNAL_THRESHOLD * 1.333) && tooltipMultipath > (MULTIPATH_THRESHOLD / 1.333)) {
+        addRandomIcon('half');
     } else {
         addRandomIcon(false);
     }
@@ -1915,7 +1925,12 @@ socket.addEventListener("message", (event) => {
 });
 
 function addRandomIcon(result) {
-  const targetSpan = document.querySelector('.wrapper-outer #wrapper .flex-container .flex-container #flags-container-desktop.panel-33.user-select-none span.pointer.stereo-container');
+    // Check if RDS_ICON_STYLE mode is active
+    const isRdsStyleMode = !!document.querySelector('#signalPanel #signal-icons');
+
+    const targetSpan = isRdsStyleMode
+        ? document.querySelector('#signalPanel #signal-icons #stereoIcon')
+        : document.querySelector('.wrapper-outer #wrapper .flex-container .flex-container #flags-container-desktop.panel-33.user-select-none span.pointer.stereo-container');
 
   if (targetSpan) {
     const existingIcon = targetSpan.parentNode.querySelector('span.multipath-container');
@@ -1925,9 +1940,9 @@ function addRandomIcon(result) {
 
     const iconSpan = document.createElement('span');
     iconSpan.classList.add('multipath-container');
-    iconSpan.style.marginLeft = '8px';
+    iconSpan.style.marginLeft = `${RDS_ICON_STYLE || isRdsStyleMode ? -8 : 8}px`;
     iconSpan.style.verticalAlign = 'middle';
-    iconSpan.style.marginTop = '2px';
+    iconSpan.style.marginTop = `${RDS_ICON_STYLE || isRdsStyleMode ? 0 : 2}px`;
     iconSpan.style.fontSize = '16px';
     iconSpan.style.position = 'relative';
 
@@ -1936,6 +1951,11 @@ function addRandomIcon(result) {
       iconSpan.classList.add('opacity-half');
       iconSpan.style.color = 'var(--color-text)';
     } else {
+      if (result === 'half') {
+          iconSpan.style.opacity = '0.55';
+      } else {
+          iconSpan.style.opacity = '1';
+      }
       iconSpan.style.color = 'var(--color-text)';
       iconSpan.classList.remove('opacity-half');
       iconSpan.classList.add('opacity-full');
@@ -1949,14 +1969,21 @@ function addRandomIcon(result) {
     //iconElement.className = 'fa-solid fa-building-shield';
     //iconElement.className = 'fa-solid fa-mountain';
 
-    const tooltipSpan = document.createElement('span');
-    tooltipSpan.classList.add('overlay', 'tooltip');
-    tooltipSpan.setAttribute('data-tooltip', `Multipath/Co-channel indicator. <br><strong>Signal: ${sig} dBf, Multipath: ${tooltipSigRawMultipath}`);
-
-    iconSpan.appendChild(iconElement);
-    iconElement.appendChild(tooltipSpan);
+    if (isRdsStyleMode) {
+      iconSpan.classList.add('tooltip');
+      iconSpan.setAttribute('data-tooltip', `Multipath/Co-channel indicator. <br><strong>Signal: ${sig} dBf, Multipath: ${tooltipSigRawMultipath}`);
+      iconSpan.appendChild(iconElement);
+    } else {
+      const tooltipSpan = document.createElement('span');
+      tooltipSpan.classList.add('overlay', 'tooltip');
+      tooltipSpan.setAttribute('data-tooltip', `Multipath/Co-channel indicator. <br><strong>Signal: ${sig} dBf, Multipath: ${tooltipSigRawMultipath}`);
+      iconSpan.appendChild(iconElement);
+      iconElement.appendChild(tooltipSpan);
+    }
 
     targetSpan.parentNode.insertBefore(iconSpan, targetSpan.nextSibling);
+
+    if (typeof initTooltipsMultipath === 'function') initTooltipsMultipath();
   } else {
     console.error('Multipath indicator target span not found!');
   }
@@ -2348,6 +2375,548 @@ if (SORT_PLUGIN_BUTTONS) {
     style.textContent = cssRulesSortPlugins;
     document.head.appendChild(style);
   }
+}
+
+if (RDS_ICON_STYLE || LED_GLOW_EFFECT_ICONS_METRICS_MONITOR_PLUGIN || RDS_ICON_STYLE_REMOVE_RDS_ICON) {
+
+/////////////////////////////////////////////////////////////////
+///                                                           ///
+///  METRICSMONITOR CLIENT SCRIPT FOR FM-DX-WEBSERVER (V1.0a) ///
+///                                                           ///
+///  by Highpoint               last update: 27.11.2025       ///
+///                                                           ///
+///  https://github.com/Highpoint2000/metricsmonitor          ///
+///                                                           ///
+/////////////////////////////////////////////////////////////////
+
+//
+// --------------------------------------------------------------
+//  CSS
+// --------------------------------------------------------------
+//
+const style = document.createElement('style');
+style.innerHTML = `
+${RDS_ICON_STYLE_REMOVE_RDS_ICON === true ?
+`
+#rdsIcon {
+  display: none !important;
+}
+
+.multipath-container {
+  margin-left: 0 !important;
+}
+
+#eccWrapper {
+  margin-left: 24px !important;
+}
+
+`: ""}
+@media (max-width: 768px) {
+  #signalPanel {
+    margin-top: 0px !important;
+    transform: none !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box;
+    padding-left: 8px;
+    padding-right: 8px;
+    ${RDS_ICON_STYLE_MOBILE === false ? "display: none !important;" : ""}
+  }
+
+  #signal-icons {
+    justify-content: center;
+    gap: 6px;
+  }
+}
+
+#signalPanel {
+  display: flex;
+  justify-content: flex-start;
+  flex-direction: column;
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+#signal-icons {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: flex-start;
+  height: 18px;
+  margin: 4px 10px 0 0;
+  position: relative;
+}
+
+#signal-icons img.status-icon {
+  height: 14px;
+  width: auto;
+  display: block;
+  opacity: 0.9;
+  user-select: none;
+  pointer-events: none;
+}
+
+${LED_GLOW_EFFECT_ICONS && (RDS_ICON_STYLE || LED_GLOW_EFFECT_ICONS_METRICS_MONITOR_PLUGIN) ? `
+/* Glow effect for RDS_ICON_STYLE */
+#signal-icons img.status-icon.icon-glow-on {
+  filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.6))
+          drop-shadow(0 0 6px rgba(255, 255, 255, 0.4))
+          drop-shadow(0 0 9px rgba(238, 238, 238, 0.3));
+}
+
+/* Multipath icon glow effect */
+#signal-icons .multipath-container.opacity-full .fa-mountain-sun {
+  filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.6))
+          drop-shadow(0 0 6px rgba(255, 255, 255, 0.4))
+          drop-shadow(0 0 9px rgba(238, 238, 238, 0.3));
+}
+` : ''}
+
+#signal-icons .multipath-container {
+  position: relative;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+#signalPanel.compact-meters #signal-icons img.status-icon {
+  height: 10px;
+}
+
+#signal-icons #stereoIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 0;
+  margin-right: 1px;
+  transform: translateY(-1px);
+}
+
+#signal-icons #stereoIcon .circle-container {
+  display: flex;
+  gap: 2px;
+}
+
+${LED_GLOW_EFFECT_ICONS && (RDS_ICON_STYLE || LED_GLOW_EFFECT_ICONS_METRICS_MONITOR_PLUGIN) ? `
+/* Stereo icon glow effect for RDS_ICON_STYLE */
+#signal-icons #stereoIcon.stereo-on .circle-container .circle {
+  background-color: rgba(255, 255, 255, 0.2);
+  box-shadow:
+    0 0 6px rgba(255, 255, 255, 0.4),
+    0 0 12px rgba(238, 238, 238, 0.3),
+    0 0 18px rgba(204, 204, 204, 0.2),
+    0 0 24px rgba(170, 170, 170, 0.1);
+}
+` : ''}
+
+#signal-icons #stereoIcon.stereo-off .circle-container .circle,
+#signal-icons #stereoIcon.stereo-off .circle-container {
+  opacity: 0.9;
+  box-shadow: none;
+  background-color: inherit;
+}
+
+#signal-icons .tooltip {
+  position: relative;
+  cursor: pointer;
+}
+
+#signal-icons #stereoIcon.tooltip::after,
+#signal-icons .multipath-container.tooltip::after {
+  display: none !important;
+}
+
+/* TP / TA / RDS */
+#tpIcon {
+  margin-left: 2px;
+  margin-right: -8px;
+  height: 17px !important;
+}
+
+#taIcon {
+  margin-right: -4px;
+  height: 17px !important;
+}
+
+#rdsIcon {
+  margin-left: 8px;
+  height: 13px !important;
+  width: auto !important;
+}
+
+/* PTY Label */
+#ptyLabel {
+  font-size: 13px;
+  color: #fff;
+  text-align: center;
+  min-width: 96px;
+  position: relative;
+  border: 1px solid #fff;
+  border-radius: 3px;
+  padding: 0 4px;
+  box-sizing: border-box;
+  margin: 0 auto;
+}
+
+/* ECC Wrapper */
+#eccWrapper {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  opacity: 0.9;
+}
+`;
+document.head.appendChild(style);
+
+//
+// --------------------------------------------------------------
+//  Logging helpers
+// --------------------------------------------------------------
+//
+function logInfo(...msg) {
+  console.log("[MetricsMonitor]", ...msg);
+}
+
+function logError(...msg) {
+  console.error("[MetricsMonitor]", ...msg);
+}
+
+//
+// --------------------------------------------------------------
+//  WebSocket URLs
+// --------------------------------------------------------------
+//
+const currentURL     = window.location;
+const WebserverPORT  = currentURL.port || (currentURL.protocol === 'https:' ? '443' : '80');
+const protocol       = currentURL.protocol === 'https:' ? 'wss:' : 'ws:';
+const WebserverURL   = currentURL.hostname;
+const WebserverPath  = '';
+
+const WEBSOCKET_URL  = `${protocol}//${WebserverURL}:${WebserverPORT}${WebserverPath}/data_plugins`;
+
+//
+// --------------------------------------------------------------
+//  TextSocket (RDS / PTY / ECC / TP / TA / RDS) – über /text
+// --------------------------------------------------------------
+//
+let TextSocket;
+let levels = { hf: 0 };
+
+const PTY_TABLE = [
+  "PTY", "News", "Current Affairs", "Info",
+  "Sport", "Education", "Drama", "Culture", "Science", "Varied",
+  "Pop Music", "Rock Music", "Easy Listening", "Light Classical",
+  "Serious Classical", "Other Music", "Weather", "Finance",
+  "Children's Programmes", "Social Affairs", "Religion", "Phone-in",
+  "Travel", "Leisure", "Jazz Music", "Country Music", "National Music",
+  "Oldies Music", "Folk Music", "Documentary"
+];
+
+// webp images
+const rds_off_webp = 'data:image/webp;base64,UklGRlQEAABXRUJQVlA4TEgEAAAv/kEoEA8wbdM2bfMf8JDb2FZgMRchmZASKIXSIHNbm7kNSiAkWPEC4L7HfjmP6P8E4HenZPx0F5H4U7L+UtvEnRyLZso+moxN0UhUyNlZyN5rxCoZPIekCkZi0A9Fla2C7j2IA1AZoSqTdPMUVN5IVFXOSRWsvKYRRZWsgqZfyFZJMxQPVZiHKppJZJVYiUbIpHNWnqtXvFXgHibqglXkGhMANKvGJa4zXhetMjeuJKvCvYz7jHCTAYDOZTNnVK50hafkSjELTGXyhyLzMOlD6cbghBh2jYkfykxnwocKMxj/IfmO+8C7yY+IuOW1ejVO5TFE8BtzKUCVwnjMW16TAExF+46sAcDIm7mrNg79EDQeQEuMA6ZmLgCmqm4cgEfzWvVd1ABAjYphVVXPUhb8UXQrzE1S5M1ebpTl/QaAppFT17Qlfapt8gces+djMKiarqpWdckLNuVSuTN/7v25oRiXip3YPUsG0BTPkjbdIv9fmkWxyx94F2Haqds9G6dwmmTQlnghmKXPJIthV03Kz4k/9dO7REW4ERURwDxMkQh0iy5SiGIVviNBJwcRCQoYZVXd+FuZEbcbh6YZi1cMTaAC0DfuS1nzUv4bopEtbiXOc21TgPqhuHkXj6l6F6d4N4NIzDl/q1iknfuIfAxLBDrjl8lF4DGodsEgEHOBYm4aEw38Dl9JBu5aAB4mG+ALVSV0AdCYQpUTmKLLjFjIbhKiS7uieTTvjXjPAxiMU4UbmeiKyjkAfVOXbPQwXoVd1rRdPdQL+QMOACYRNOlKYoZdsOqqxj2UW8bmWZIVzDIOySTiIcYpKqLZYLB9rHAnUJhMI5Lda9CvvCIRaEu0qx+bi0cTKQe8JvlT7VuyOkUl+vJvKQbhAuaFKRKAztQNNEPxd5EvZKJ/6VkK0LlnEw5h46zapbF4aj8Wz2Roq4m36jbQzCVYjSX90ms0F39w7xKt5hLtXqt3cRtZw62xJKP6c8/GGzlFNmq35oJ+o2/cJwo1F6xjA9LtZMWpLWI0l0JU/zlRBZtn40yeTSaeuKknEZFiVZa+SUTLTFF5Rk7vJjJl82jqBVF12bQlq4JF2wViiDOB3bvzxCth6Ye65EMk6qHK3lFxGUti5pIM5gHklLzMT7CFEZFF1qjKdpmoIuKBR5GA91JSJGBsAvBwhXg0kXhERBxENy4Foi1nrxI7T3TOMf2Su9CWeHJmIAcHnT81RWFeqlDtTmbmpWAVrTL13AmM0AlAX8IpWnmicpGqmq5wxHMrGRVYhc9kpnGewiYbRaZzDsBY/KmcBheYwYGbN5xVsRCbAvalsuK9kM0S4QhnEqlOheW1eilPNcorxsabgK4UvpI5MEXTN8EiKl4ibeYCIlo4xSDinUkUKBvhNW2TDKKmEvgK1POQVc8m65JuHOJORKRcgf45OFXdlIMcvQF2Gb/bN+GH6ga/PEQk/hSmJJwB';
+const rds_on_webp  = 'data:image/webp;base64,UklGRlwEAABXRUJQVlA4TFAEAAAv/UEoEA8w//M///Mf8KDbSFZo21oIA5MQCIXQ4OklhvQSQfoJYGKgvYwFsxacH0BE/yeAfpc50U9PZg6/VJmZyy8NwWFT+Zg1fAwma5M1HLB6YovKe6cpVtGgH6KGvVExmIesSkbsdd+BRUMK1JCo47PXsDMqqgZElTdipxlAVkUrr5kXklXULEWHMtKhrGEwqYpVUVQkqtiKHdauOCuPdSTovFXABuKJaFgNLGITcbpglbB1JVpl7EPomYIxWMTEkhVb5StT4ZB6J5t5pCHpoYB0JD4UbyysAMtuIOGhhEzEP5SRhbiHyjP8wrdJnZlJflafgnWOFheE6HuHZSZqnLF+y2kiEWnqM3XjiWilDTNzIaLPhGgevMYR0YiKpWFmLkSkaxsioq6ZVnMXFEW0oBhWTdVFFuTfoF1UpM22ikxE3SKL70cqMDVDRJNmNjbph/pbxaJppqqJZNBEEnWTf4h+7/u5pVg28ZTtil236iJupkUy6f9fwyLbpQc+UZAhwp0uWMEmQzFEuODN4jPxqWaSLeZb7E5T+FNQ+BvBYB2YORBNi8mcgWzwCf8Oe7PKzF5RjZKOpbuVED4s4YiqZgmnWBqv6Rt6KWkG5N4omiXKtQixQ4iIZSZqD4XNt+uqT5Di2ywgYt8mvZWRc9zRI+WtsglEE2AnGA9E3aDZeQMPMDMXDW8GEgzcpjwTDeiaJ+pI0pUnmqZimYgGkqF8qkjWJaBa1B0hRRd3WdM1341wzxHRAljnbyRgKhpGRDQ3TSSjjjhNOSTN2LVDu5AeIIl4TbwSkWXnraZqYB0iuTZdRKtqlk7RJFA/0ToFRTBbQNl1o0J3PETQAKLdZzCvfMyBaIhg1x5j6Wgw5wN9Jump8VTdkKIBU/wnsoG/QDeY2RNNpImiWop/oryQgPlSF5loYn3jD38Fm41LS/yB9ks4JJG2mTiraVMVbuOtloi/9NnQxh3oE8GKZbD7rD5Bsm78rSWiUfu5vnFGpEhG4xYzc6F5Y27oiQwxM5fNEgWouyoKMEQxYpmB5l6rOm/TBdv0TQJ62LRDFdkqi7mJwEhIVjmgAt8mIHnTNc2usmqWzRBJ5S3GzgOLbardt3PAx17MQxPpEIB2aLwnKIglIkCbaMD7gjAnwU+gGajMhYjqJqiSXQIaMzuirohE36WoiERr44k6loGuCUBnZqbKunXJA0OcnarYOWBihMxLdGGIcGCzgiyoGLjTUGTkgzI07iSEL3mrYJWgfscDFYtENIU/BSsHNCxATTMVBPZb0Sib+WcSMjAH1U0yCsjEiIiWcKd8WphHFlQwukJW2aLYZOiDkuK7kMwiQCe2CdCEvPisPshBA3KKtXEWheCGFHolYRXJmrnxFgGjD4gbZuaCBAtSLiDcYTBrBuA0YxMNgqadCj1SSH1Kqr5Juqhbh4DkG4X0/UCqtsm7enIGdZcOvzg3/oeaKPTLi5nDTxFzpDM=';
+const ta_off_webp  = 'data:image/webp;base64,UklGRtgBAABXRUJQVlA4TMwBAAAvEgEqEA8waZM2afMf8JAb23oWMU+jQCElUIpKk0rDneBxA/hfgUY3gMX7gB2nEf2fAGnBOmvfPBxgTpKqa5a0urKk5kJStwVp2KKEPan6Ji2+WasvH0x6/4CiDbKM9UVyqIMaBMsG6hRZFwid7KkHk0eDOEimvoumdo0EwbTtZF6vUlzLFSqJ/BlEYv4P6OQzIzEdbLwskoDwjvYKqQLRtQDpEwStwPQZNmD+DA3IHl2jX6W8Y7tUkca7JFWYtN/xAFwm2P7a6kG0/bzCN9tykGxfr/DFth5MtuUK1bYdzK5yCdnaQXZlXydrXKO4Zt9gVr8GrskHkxqE+yVb3W0Q7xdty26FdL9gW3cLTPeTbdtVmG9XfG0nyDfr5KsMys0Gx5fgZrwOT1dPxKdbTqSnW09MT7edmC1B0uKSpGppJ/KtOmWni5RbDfLBgKfjRYdgmJ+gvmoQDdMTLK82SIb0KOup+d/iDTglSLtwsLxpQ9LIOh6Ed7z7QbKrPkhxLSR4gJU0CPfbiINoartk6sTOZBqEzmyC0CieCmrgWUEbREuj7GYLFK1ANDTIWrDPqr5J8iVp2KLUbUFqNkmbq0haXLMkudKum8Ju9WRJ';
+const ta_on_webp   = 'data:image/webp;base64,UklGRtgBAABXRUJQVlA4TMwBAAAvEgEqEA8w//M///Mf8JAb23oWMU+jQCElUIpKk0rDneBxA/hfgUY3gMX7gB2nEf2fAGnBOmvfPBxgTpKqa5a0urKk5kJStwVp2KKEPan6Ji2+WasvH0x6/4CiDbKM9UVyqIMaBMsG6hRZFwid7KkHk0eDOEimvoumdo0EwbTtZF6vUlzLFSqJ/BlEYv4P6OQzIzEdbLwskoDwjvYKqQLRtQDpEwStwPQZNmD+DA3IHl2jX6W8Y7tUkca7JFWYtN/xAFwm2P7a6kG0/bzCN9tykGxfr/DFth5MtuUK1bYdzK5yCdnaQXZlXydrXKO4Zt9gVr8GrskHkxqE+yVb3W0Q7xdty26FdL9gW3cLTPeTbdtVmG9XfG0nyDfr5KsMys0Gx5fgZrwOT1dPxKdbTqSnW09MT7edmC1B0uKSpGppJ/KtOmWni5RbDfLBgKfjRYdgmJ+gvmoQDdMTLK82SIb0KOup+d/iDTglSLtwsLxpQ9LIOh6Ed7z7QbKrPkhxLSR4gJU0CPfbiINoartk6sTOZBqEzmyC0CieCmrgWUEbREuj7GYLFK1ANDTIWrDPqr5J8iVp2KLUbUFqNkmbq0haXLMkudKum8Ju9WRJ';
+const tp_off_webp  = 'data:image/webp;base64,UklGRogBAABXRUJQVlA4THsBAAAvEgEqEA8waZM2afMf8JBb21bcbJdFQKgSKIXSpNIoRSUo9MDiBJI/+75/HoKI/k+A1LFWnW8eLjAXSZurStpdTdLNhaRhS9K0ZQl70eZb1H1Vu69dLPo8sOqAJmN/URyaoBskyw00WGXdIQ2ap18sHkGeFNM8ZdOIUSCZbieZjyira4/QKbQfw0ah/mKIwnLReZ00AdIH9i9kcW6e7YJk6VclQnWUF2sEQuQIJcISoUZohhxqjcBbPVbqUDSB9M550iTpYo+wAdmlEDPCgGK7RTh+HHuQ5des/DwcP44b5O/BiDAh2QiwReiAXEeADVhNlyFahBph+U6UCDlCCrAqQIuwRCgRFKBFKAGabEVf/f9D/Q5sbwzqaYP8uU4+aTR97sPfk+bq35HVtVPgO3BQJunbu5En2TROxTTJg8UEaVA9G6Qbq6eDbuA5QAdky2A9VccGq3YgGwY0dexVm2+RfEWatiwNW5JuNkmHa5XUXVWSXOU0TOm0e5okAA==';
+const tp_on_webp   = 'data:image/webp;base64,UklGRogBAABXRUJQVlA4THsBAAAvEgEqEA8w//M///Mf8JBb21bcbJdFQKgSKIXSpNIoRSUo9MDiBJI/+75/HoKI/k+A1LFWnW8eLjAXSZurStpdTdLNhaRhS9K0ZQl70eZb1H1Vu69dLPo8sOqAJmN/URyaoBskyw00WGXdIQ2ap18sHkGeFNM8ZdOIUSCZbieZjyira4/QKbQfw0ah/mKIwnLReZ00AdIH9i9kcW6e7YJk6VclQnWUF2sEQuQIJcISoUZohhxqjcBbPVbqUDSB9M550iTpYo+wAdmlEDPCgGK7RTh+HHuQ5des/DwcP44b5O/BiDAh2QiwReiAXEeADVhNlyFahBph+U6UCDlCCrAqQIuwRCgRFKBFKAGabEVf/f9D/Q5sbwzqaYP8uU4+aTR97sPfk+bq35HVtVPgO3BQJunbu5En2TROxTTJg8UEaVA9G6Qbq6eDbuA5QAdky2A9VccGq3YgGwY0dexVm2+RfEWatiwNW5JuNkmHa5XUXVWSXOU0TOm0e5okAA==';
+
+async function setupTextSocket() {
+  if (TextSocket && TextSocket.readyState !== WebSocket.CLOSED) {
+    return;
+  }
+
+  try {
+    TextSocket = await window.socketPromise;
+
+    TextSocket.addEventListener("open", () => {
+      logInfo("TextSocket connected.");
+    });
+
+    TextSocket.addEventListener("message", (event) => {
+      const message = JSON.parse(event.data);
+      handleTextSocketMessage(message);
+    });
+
+    TextSocket.addEventListener("error", (error) => {
+      logError("TextSocket error:", error);
+    });
+
+    TextSocket.addEventListener("close", () => {
+      logInfo("TextSocket closed.");
+      setTimeout(setupTextSocket, 5000);
+    });
+  } catch (error) {
+    logError("Failed to setup TextSocket:", error);
+    setTimeout(setupTextSocket, 5000);
+  }
+}
+
+function handleTextSocketMessage(message) {
+  // HF-Level
+  if (message.sig !== undefined) {
+    levels.hf = Math.round((message.sig - 7) * 10) / 10;
+  }
+
+  // --- PTY ---
+  if (message.pty !== undefined) {
+    let ptyIndex = Number(message.pty);
+    if (Number.isNaN(ptyIndex) || ptyIndex < 0 || ptyIndex >= PTY_TABLE.length) {
+      ptyIndex = 0;
+    }
+    const ptyText = PTY_TABLE[ptyIndex];
+
+    const ptyLabel = document.getElementById('ptyLabel');
+    if (ptyLabel) {
+      ptyLabel.textContent = ptyText;
+      if (ptyText === "PTY") {
+        ptyLabel.style.color = "#696969";
+        ptyLabel.style.borderColor = "#696969";
+        ptyLabel.style.fontWeight = "bold";
+      } else {
+        ptyLabel.style.color = "#fff";
+        ptyLabel.style.borderColor = "#fff";
+        ptyLabel.style.fontWeight = "600";
+      }
+    }
+
+    // Background color of the signal panel depending on PTY presence
+    const panel = document.getElementById('signalPanel');
+    if (panel) {
+      if (ptyText !== "PTY") {
+        panel.style.setProperty('background-color', 'var(--color-2-transparent)', 'important');
+      } else {
+        panel.style.setProperty('background-color', 'var(--color-1-transparent)', 'important');
+      }
+    }
+  }
+
+  // --- ECC ---
+  const eccWrapper = document.getElementById('eccWrapper');
+  if (eccWrapper) {
+    // Clear previous content each update
+    eccWrapper.innerHTML = "";
+
+    const hasEcc = message.ecc !== undefined && message.ecc !== null && message.ecc !== "";
+
+    if (!hasEcc) {
+      // No ECC ? small "No ECC" badge
+      const noEcc = document.createElement('span');
+      noEcc.textContent = 'ECC';
+      noEcc.style.color = '#696969';
+      noEcc.style.fontSize = '13px';
+      noEcc.style.fontWeight = 'bold';
+      noEcc.style.border = "1px solid #696969";
+      noEcc.style.borderRadius = "3px";
+      noEcc.style.padding = '0 3px 0 3px';
+      noEcc.style.display = 'inline-flex';
+      noEcc.style.alignItems = 'center';
+      noEcc.style.height = '17px';
+      noEcc.style.paddingBottom = /firefox/i.test(navigator.userAgent) ? '1px' : '0'; // Firefox
+      eccWrapper.appendChild(noEcc);
+    } else {
+      // ECC present ? try to reuse existing ECC flag (if available)
+      const eccSpan = document.querySelector('.data-flag');
+      if (eccSpan && eccSpan.innerHTML.trim() !== "") {
+        const newSpan = eccSpan.cloneNode(true);
+        newSpan.style.marginLeft = "5.5px"; // Reduce margin to align flag icons
+        eccWrapper.appendChild(newSpan);
+      } else {
+        // Fallback: simple grey "ECC"
+        const noEcc = document.createElement('span');
+        noEcc.textContent = 'ECC';
+        noEcc.style.color = '#696969';
+        noEcc.style.fontSize = '13px';
+        eccWrapper.appendChild(noEcc);
+      }
+    }
+  }
+
+  // --- Stereo ---
+  const stereoIcon = document.getElementById('stereoIcon');
+  if (stereoIcon) {
+    if (message.st === true) {
+      stereoIcon.classList.add('stereo-on');
+      stereoIcon.classList.remove('stereo-off');
+    } else {
+      stereoIcon.classList.add('stereo-off');
+      stereoIcon.classList.remove('stereo-on');
+    }
+  }
+
+  // --- RDS ---
+  const rdsIcon = document.getElementById('rdsIcon');
+  if (rdsIcon) {
+    if (message.rds === true) {
+      rdsIcon.src = rds_on_webp;
+      if (LED_GLOW_EFFECT_ICONS) rdsIcon.classList.add('icon-glow-on');
+    } else {
+      rdsIcon.src = rds_off_webp;
+      rdsIcon.classList.remove('icon-glow-on');
+    }
+  }
+
+  // --- TP ---
+  const tpIcon = document.getElementById('tpIcon');
+  if (tpIcon) {
+    const tpOn = message.tp === 1;
+    tpIcon.src = tpOn ? tp_on_webp : tp_off_webp;
+    if (LED_GLOW_EFFECT_ICONS && tpOn) {
+      tpIcon.classList.add('icon-glow-on');
+    } else {
+      tpIcon.classList.remove('icon-glow-on');
+    }
+  }
+
+  // --- TA ---
+  const taIcon = document.getElementById('taIcon');
+  if (taIcon) {
+    const taOn = message.ta === 1;
+    taIcon.src = taOn ? ta_on_webp : ta_off_webp;
+    if (LED_GLOW_EFFECT_ICONS && taOn) {
+      taIcon.classList.add('icon-glow-on');
+    } else {
+      taIcon.classList.remove('icon-glow-on');
+    }
+  }
+}
+
+//
+// --------------------------------------------------------------
+//  Panel (Icons + MPX-Canvas)
+// --------------------------------------------------------------
+//
+function insertSignalPanel() {
+  const signalPanelElement = document.querySelector('#flags-container-desktop');
+  if (!signalPanelElement) {
+    console.error('Signal panel container not found.');
+    return;
+  }
+
+  signalPanelElement.id = 'signalPanel';
+  signalPanelElement.innerHTML = '';
+
+  signalPanelElement.style.cssText = `
+    min-height: 90px;
+    width: 32.9%;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: stretch;
+    gap: 6px;
+    overflow: hidden;
+  `;
+
+  // ICON-BAR
+  const iconsBar = document.createElement('div');
+  iconsBar.id = 'signal-icons';
+
+  // Force vertical stacking
+  iconsBar.style.position = 'relative';
+  iconsBar.style.display = 'flex';
+  iconsBar.style.flexDirection = 'column'; // PTY on first line
+  iconsBar.style.width = '100%';
+
+  signalPanelElement.appendChild(iconsBar);
+
+  /* -----------------------------------------
+     First row
+  ----------------------------------------- */
+  const ptyRow = document.createElement('div');
+  ptyRow.style.textAlign = 'center';
+  ptyRow.style.width = '100%';
+  ptyRow.style.marginBottom = '0px';
+  iconsBar.appendChild(ptyRow);
+
+  const ptyLabel = document.createElement('span');
+  ptyLabel.id = 'ptyLabel';
+  ptyLabel.textContent = 'PTY';
+  ptyLabel.style.color = '#696969';
+  ptyLabel.style.fontSize = '14px';
+  ptyLabel.style.fontWeight = 'bold';
+  ptyLabel.style.border = '1px solid #696969';
+  ptyLabel.style.borderRadius = '3px';
+  ptyLabel.style.padding = '0 2px';
+  ptyLabel.style.display = 'inline-flex';
+  ptyLabel.style.alignItems = 'center';
+  ptyLabel.style.justifyContent = 'center';
+  ptyLabel.style.paddingBottom = '1px';
+  ptyLabel.style.height = '20px';
+  ptyRow.appendChild(ptyLabel);
+
+  /* -----------------------------------------
+     Second row
+  ----------------------------------------- */
+  const iconRow = document.createElement('div');
+  iconRow.style.display = 'flex';
+  iconRow.style.alignItems = 'center';
+  iconRow.style.justifyContent = 'center';
+  iconRow.style.gap = '16px';
+  iconRow.style.flexWrap = 'nowrap';
+  iconsBar.appendChild(iconRow);
+
+  // ECC Wrapper
+  const eccWrapper = document.createElement('span');
+  eccWrapper.id = 'eccWrapper';
+  eccWrapper.style.display = 'inline-flex';
+  eccWrapper.style.alignItems = 'center';
+  eccWrapper.style.whiteSpace = 'nowrap';
+  iconRow.appendChild(eccWrapper);
+
+  const eccSpan = document.querySelector('.data-flag');
+  if (eccSpan && eccSpan.innerHTML.trim() !== "") {
+    eccWrapper.appendChild(eccSpan.cloneNode(true));
+  } else {
+    const noEcc = document.createElement('span');
+    noEcc.textContent = 'ECC';
+    noEcc.style.color = '#696969';
+    noEcc.style.fontSize = '13px';
+    eccWrapper.appendChild(noEcc);
+  }
+
+  // Stereo Icon
+  const stereoSource = document.querySelector('.stereo-container');
+  if (stereoSource) {
+    const stereoClone = stereoSource.cloneNode(true);
+    stereoClone.id = 'stereoIcon';
+    stereoClone.removeAttribute('style');
+    stereoClone.classList.add("tooltip");
+    stereoClone.setAttribute("data-tooltip", "Stereo / Mono toggle. Click to toggle.");
+    iconRow.appendChild(stereoClone);
+  }
+
+  // TP / TA / RDS Icons
+  const iconMap = [
+    { id: 'tpIcon',  off: tp_off_webp },
+    { id: 'taIcon',  off: ta_off_webp },
+    { id: 'rdsIcon', off: rds_off_webp }
+  ];
+
+  iconMap.forEach(({ id, off }) => {
+    const img = document.createElement('img');
+    img.className = 'status-icon';
+    img.id = id;
+    img.alt = id;
+    img.src = off;
+    iconRow.appendChild(img);
+  });
+}
+
+//
+// --------------------------------------------------------------
+//  Init
+// --------------------------------------------------------------
+//
+function initMetricsMonitor() {
+  if (RDS_ICON_STYLE) insertSignalPanel();
+  setupTextSocket();
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initMetricsMonitor);
+} else {
+  if (RDS_ICON_STYLE) initMetricsMonitor();
+}
+
 }
 
 }
