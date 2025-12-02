@@ -161,20 +161,30 @@ const DIM_INCOMPLETE_PI_CODE = false;
 const STEREO_ICON_COLOR = "default";
 const STEREO_ICON_COLOR_OFF = "";
 
-// RDS icon styling (Highpoint2000)
+// #################### RDS ICON STYLING (Highpoint2000) #################### //
+
+// Enables RDS icons.
 const RDS_ICON_STYLE = false;
 const RDS_ICON_STYLE_MOBILE = false;
-const RDS_ICON_STYLE_MS_OFF_AS_LETTERS = false;
-const RDS_ICON_STYLE_REMOVE_RDS_ICON = false;
-const LED_GLOW_EFFECT_ICONS_RDS_ICON_STYLE_PTY = false;
-const LED_GLOW_EFFECT_ICONS_RDS_ICON_STYLE_MS = false;
-const LED_GLOW_EFFECT_ICONS_METRICS_MONITOR_PLUGIN = false;
 
-// === Select preset ===
-// Options: 0 = user-defined, 1 = preset 1, 2 = preset 2, 3 = preset 3
+// RDS icon style presets. See below to configure user preset.
+// Options: 0 = user-defined, 1 = preset 1, 2 = preset 2, 3 = preset 3.
 const RDS_ICON_PRESET = 1;
 
-// #################### RDS ICON ORDER CONFIGURATION #################### //
+// Uses "MS" letters instead of icons for dimmed Music/Speech icons.
+const RDS_ICON_STYLE_MS_OFF_AS_LETTERS = false;
+
+// Removes RDS indicator icon. Could be useful when using the multipath icon with Metrics Monitor plugin.
+const RDS_ICON_STYLE_REMOVE_RDS_ICON = false;
+
+// Enables glow effect for RDS icons.
+const LED_GLOW_EFFECT_ICONS_RDS_ICON_STYLE_PTY = false;
+const LED_GLOW_EFFECT_ICONS_RDS_ICON_STYLE_MS = false;
+
+// Enables glow effect for Metrics Monitor plugin icons.
+const LED_GLOW_EFFECT_ICONS_METRICS_MONITOR_PLUGIN = false;
+
+// RDS icon order configuration.
 
 //
 //   PTY    = Programme Type
@@ -184,7 +194,6 @@ const RDS_ICON_PRESET = 1;
 //   TP     = Traffic Programme
 //   TA     = Traffic Announcement
 //   RDS    = RDS signal indicator
-//
 //
 
 // === Preset definitions ===
@@ -2684,11 +2693,11 @@ document.head.appendChild(style);
 // --------------------------------------------------------------
 //
 function logInfo(...msg) {
-  console.log("[MetricsMonitor]", ...msg);
+  console.log("[UIAddonPack (MetricsMonitor)]", ...msg);
 }
 
 function logError(...msg) {
-  console.error("[MetricsMonitor]", ...msg);
+  console.error("[UIAddonPack (MetricsMonitor)]", ...msg);
 }
 
 //
@@ -2754,7 +2763,9 @@ async function setupTextSocket() {
     });
 
     TextSocket.addEventListener("close", () => {
-      logInfo("TextSocket closed.");
+      setTimeout(() => {
+          logInfo("TextSocket closed.");
+      }, 800);
       setTimeout(setupTextSocket, 5000);
     });
   } catch (error) {
@@ -2851,7 +2862,10 @@ function handleTextSocketMessage(message) {
             </span>
           `;
         } else {
-          ptyIcon.innerHTML = `<i class="fa-solid fa-question" style="opacity: 0.15; min-width: 12px; min-height: 13px;"></i>`;
+          ptyIcon.innerHTML = `
+            <span style="position: relative; display: inline-block; min-width: 12px; min-height: 13px;">
+              <i class="fa-solid fa-question" style="font-size: 10px; position: absolute; top: ${isFirefox ? '0.5' : '1'}px; left: 0; opacity: 0.33; min-width: 12px; min-height: 13px;"></i>
+            </span>`;
         }
         ptyIcon.style.border = "1px solid #696969";
         if (LED_GLOW_EFFECT_ICONS_RDS_ICON_STYLE_MS)
@@ -2966,7 +2980,11 @@ function handleTextSocketMessage(message) {
       if (REDUCE_HALF_OPACITY) tpIcon.style.opacity = '0.9';
     } else {
       tpIcon.classList.remove('icon-glow-on');
-      if (REDUCE_HALF_OPACITY) tpIcon.style.opacity = off_opacity;
+      if (REDUCE_HALF_OPACITY && !tpOn) {
+          tpIcon.style.opacity = off_opacity;
+      } else {
+          tpIcon.style.opacity = '0.9';
+      }
     }
   }
 
@@ -2980,7 +2998,11 @@ function handleTextSocketMessage(message) {
       if (REDUCE_HALF_OPACITY) taIcon.style.opacity = '0.9';
     } else {
       taIcon.classList.remove('icon-glow-on');
-      if (REDUCE_HALF_OPACITY) taIcon.style.opacity = off_opacity;
+      if (REDUCE_HALF_OPACITY && !taOn) {
+          taIcon.style.opacity = off_opacity;
+      } else {
+          taIcon.style.opacity = '0.9';
+      }
     }
   }
 }
@@ -3029,7 +3051,10 @@ function createIconElement(iconType) {
       msIcon.style.height = "17px";
       msIcon.style.minWidth = "30px";
       // Initial state, question mark
-      msIcon.innerHTML = `<i class="fa-solid fa-question" style="opacity: 0.15; min-width: 13px; min-height: 13px;"></i>`;
+      msIcon.innerHTML = `
+        <span style="position: relative; display: inline-block; min-width: 12px; min-height: 13px;">
+          <i class="fa-solid fa-question" style="font-size: 10px; position: absolute; top: ${isFirefox ? '0.5' : '1'}px; left: 0; opacity: 0.33; min-width: 12px; min-height: 13px;"></i>
+        </span>`;
       return msIcon;
     }
     case 'ECC': {
