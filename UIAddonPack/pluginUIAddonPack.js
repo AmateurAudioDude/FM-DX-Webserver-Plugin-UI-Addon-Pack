@@ -1,5 +1,5 @@
 /*
-    UI Add-on Pack v1.1.3 by AAD
+    UI Add-on Pack v1.1.4 by AAD
     ----------------------------
     https://github.com/AmateurAudioDude/FM-DX-Webserver-Plugin-UI-Addon-Pack
 */
@@ -8,7 +8,7 @@
 
 (() => {
 
-const pluginVersion = '1.1.3';
+const pluginVersion = '1.1.4';
 const pluginName = "UI Add-on Pack";
 const pluginHomepageUrl = "https://github.com/AmateurAudioDude/FM-DX-Webserver-Plugin-UI-Addon-Pack";
 const pluginUpdateUrl = "https://raw.githubusercontent.com/AmateurAudioDude/FM-DX-Webserver-Plugin-UI-Addon-Pack/refs/heads/main/UIAddonPack/pluginUIAddonPack.js";
@@ -152,10 +152,12 @@ const DIM_INCOMPLETE_PI_CODE = false;
 const STEREO_ICON_COLOR = "default";
 const STEREO_ICON_COLOR_OFF = "";
 
-// RDS icon styling (Highpoint)
+// RDS icon styling (Highpoint2000)
 const RDS_ICON_STYLE = false;
 const RDS_ICON_STYLE_MOBILE = false;
 const RDS_ICON_STYLE_REMOVE_RDS_ICON = false;
+const LED_GLOW_EFFECT_ICONS_RDS_ICON_STYLE_PTY = false;
+const LED_GLOW_EFFECT_ICONS_RDS_ICON_STYLE_MS = false;
 const LED_GLOW_EFFECT_ICONS_METRICS_MONITOR_PLUGIN = false;
 
 // #################### PLUGIN BUTTON ORDER #################### //
@@ -606,7 +608,7 @@ if (STEREO_ICON_COLOR !== "default") {
         document.head.appendChild(existingStyle);
       }
 
-      const circles = document.querySelectorAll('.wrapper-outer #wrapper #flags-container-desktop.panel-33.user-select-none h3 .circle-container .circle.data-st');
+      const circles = document.querySelectorAll('.wrapper-outer #wrapper h3 .circle-container .circle.data-st');
 
       circles.forEach(el => {
         if (el.classList.contains('opacity-half') || el.closest('.opacity-half')) {
@@ -1952,7 +1954,7 @@ function addRandomIcon(result) {
       iconSpan.style.color = 'var(--color-text)';
     } else {
       if (result === 'half') {
-          iconSpan.style.opacity = '0.55';
+          iconSpan.style.opacity = '0.5';
       } else {
           iconSpan.style.opacity = '1';
       }
@@ -2510,7 +2512,7 @@ ${LED_GLOW_EFFECT_ICONS && (RDS_ICON_STYLE || LED_GLOW_EFFECT_ICONS_METRICS_MONI
 
 #signal-icons #stereoIcon.stereo-off .circle-container .circle,
 #signal-icons #stereoIcon.stereo-off .circle-container {
-  opacity: 0.9;
+  ${REDUCE_HALF_OPACITY === true ? "opacity: 0.9;" : ""}
   box-shadow: none;
   background-color: inherit;
 }
@@ -2652,6 +2654,36 @@ async function setupTextSocket() {
   }
 }
 
+// Music/Speech
+function ensurePtyOverlayIcon() {
+    let icon = document.getElementById("ptyIconOverlay");
+    if (!icon) {
+        icon = document.createElement("span");
+        icon.id = "ptyIconOverlay";
+
+        // Absolute overlay next to PTY label
+        icon.style.position = "absolute";
+        icon.style.top = "50%";
+        icon.style.transform = "translateY(-50%)";
+        icon.style.color = "#fff";
+        icon.style.fontSize = "13px";
+        icon.style.lineHeight = "1.4";
+        icon.style.border = "1px solid #696969";
+        icon.style.borderRadius = "3px";
+        icon.style.padding = "0 8px";
+        icon.style.marginTop = "1px";
+        icon.style.opacity = "0.9";
+        //icon.style.marginLeft = MULTIPATH_INDICATOR === true ? "32px" : "18px";
+
+        const ptyLabel = document.getElementById("ptyLabel");
+        if (ptyLabel && ptyLabel.parentNode) {
+            ptyLabel.parentNode.style.position = "relative";
+            if (RDS_ICON_STYLE) ptyLabel.parentNode.appendChild(icon);
+        }
+    }
+    return icon;
+}
+
 function handleTextSocketMessage(message) {
   // HF-Level
   if (message.sig !== undefined) {
@@ -2666,18 +2698,60 @@ function handleTextSocketMessage(message) {
     }
     const ptyText = PTY_TABLE[ptyIndex];
 
-    const ptyLabel = document.getElementById('ptyLabel');
+    const ptyLabel = document.getElementById("ptyLabel");
+    const ptyIcon = ensurePtyOverlayIcon();
+
     if (ptyLabel) {
       ptyLabel.textContent = ptyText;
+
+      // --- message.ms ---
+      ptyIcon.innerHTML = "";
+
+      if (message.ms === 0) {
+        ptyIcon.innerHTML = `<i class="fa-solid fa-microphone" style="min-width: 13px;"></i>`;
+        ptyIcon.style.border = "1px solid #fff";
+        if (LED_GLOW_EFFECT_ICONS_RDS_ICON_STYLE_MS) ptyIcon.style.filter = `drop-shadow(0 0 3px rgba(255, 255, 255, 0.5))
+          drop-shadow(0 0 6px rgba(255, 255, 255, 0.4))
+          drop-shadow(0 0 9px rgba(238, 238, 238, 0.3))`;
+        ptyIcon.style.opacity = "0.9";
+      } else if (message.ms === 1) {
+        ptyIcon.innerHTML = `<i class="fa-solid fa-music" style="min-width: 13px;"></i>`;
+        ptyIcon.style.border = "1px solid #fff";
+        if (LED_GLOW_EFFECT_ICONS_RDS_ICON_STYLE_MS) ptyIcon.style.filter = `drop-shadow(0 0 3px rgba(255, 255, 255, 0.5))
+          drop-shadow(0 0 6px rgba(255, 255, 255, 0.4))
+          drop-shadow(0 0 9px rgba(238, 238, 238, 0.3))`;
+        ptyIcon.style.opacity = "0.9";
+      } else {
+        if (ptyText === "PTY") {
+          ptyIcon.innerHTML = `
+            <span style="position: relative; display: inline-block; min-width: 13px; min-height: 13px;">
+              <i class="fa-solid fa-music" style="position: absolute; top: 1.5px; left: 0; opacity: 0.15;"></i>
+              <i class="fa-solid fa-microphone" style="position: absolute; top: 1.5px; left: 2px; opacity: 0.125;"></i>
+            </span>
+          `;
+        } else {
+          ptyIcon.innerHTML = `<i class="fa-solid fa-question" style="opacity: 0.15; min-width: 13px; min-height: 13px;"></i>`;
+        }
+        ptyIcon.style.border = "1px solid #696969";
+        if (LED_GLOW_EFFECT_ICONS_RDS_ICON_STYLE_MS)
+            ptyIcon.style.filter = "none";
+        ptyIcon.style.opacity = off_opacity;
+      }
+
+      // PTY label styling
       if (ptyText === "PTY") {
         ptyLabel.style.color = "#696969";
         ptyLabel.style.borderColor = "#696969";
         ptyLabel.style.fontWeight = "bold";
+        if (LED_GLOW_EFFECT_ICONS_RDS_ICON_STYLE_PTY) ptyLabel.style.filter = 'none';
         if (REDUCE_HALF_OPACITY) ptyLabel.style.opacity = off_opacity;
       } else {
         ptyLabel.style.color = "#fff";
         ptyLabel.style.borderColor = "#fff";
         ptyLabel.style.fontWeight = "600";
+        if (LED_GLOW_EFFECT_ICONS_RDS_ICON_STYLE_PTY) ptyLabel.style.filter = `drop-shadow(0 0 3px rgba(255, 255, 255, 0.5))
+          drop-shadow(0 0 6px rgba(255, 255, 255, 0.4))
+          drop-shadow(0 0 9px rgba(238, 238, 238, 0.3))`;
         if (REDUCE_HALF_OPACITY) ptyLabel.style.opacity = '1';
       }
     }
@@ -2702,7 +2776,6 @@ function handleTextSocketMessage(message) {
     const hasEcc = message.ecc !== undefined && message.ecc !== null && message.ecc !== "";
 
     if (!hasEcc) {
-      // No ECC ? small "No ECC" badge
       const noEcc = document.createElement('span');
       noEcc.textContent = 'ECC';
       noEcc.style.color = '#696969';
@@ -2718,14 +2791,13 @@ function handleTextSocketMessage(message) {
       if (REDUCE_HALF_OPACITY) noEcc.style.opacity = off_opacity;
       eccWrapper.appendChild(noEcc);
     } else {
-      // ECC present ? try to reuse existing ECC flag (if available)
       const eccSpan = document.querySelector('.data-flag');
       if (eccSpan && eccSpan.innerHTML.trim() !== "") {
         const newSpan = eccSpan.cloneNode(true);
         newSpan.style.marginLeft = "5.5px"; // Reduce margin to align flag icons
         eccWrapper.appendChild(newSpan);
       } else {
-        // Fallback: simple grey "ECC"
+        // Fallback
         const noEcc = document.createElement('span');
         noEcc.textContent = 'ECC';
         noEcc.style.color = '#696969';
@@ -2852,6 +2924,7 @@ function insertSignalPanel() {
   ptyLabel.style.justifyContent = 'center';
   ptyLabel.style.paddingBottom = '1px';
   ptyLabel.style.height = '20px';
+  ptyLabel.style.margin = '0 8px 0 -30px'; // Added for Music/Speech icons
   if (REDUCE_HALF_OPACITY) ptyLabel.style.opacity = off_opacity;
   ptyRow.appendChild(ptyLabel);
 
@@ -2892,7 +2965,7 @@ function insertSignalPanel() {
     stereoClone.id = 'stereoIcon';
     stereoClone.removeAttribute('style');
     stereoClone.classList.add("tooltip");
-    stereoClone.setAttribute("data-tooltip", "Stereo / Mono toggle. Click to toggle.");
+    stereoClone.setAttribute("data-tooltip", "Stereo / Mono toggle.<br><strong>Click to toggle.</strong>");
     iconRow.appendChild(stereoClone);
   }
 

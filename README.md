@@ -12,6 +12,13 @@ A collection of visual enhancements for FM-DX Webserver. Features may be added/r
 
 #### Configuration options found in `pluginUIAddonPack.js`
 
+###### Includes code and assistance from LLMs, and Highpoint2000.
+
+v1.1.4
+------
+* Added Music/Speech icons to `RDS_ICON_STYLE`
+* Minor fixes
+
 v1.1.3
 ------
 * Added options `RDS_ICON_STYLE`, `RDS_ICON_STYLE_MOBILE`, `LED_GLOW_EFFECT_ICONS_METRICS_MONITOR_PLUGIN`
