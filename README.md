@@ -14,6 +14,10 @@ A collection of visual enhancements for FM-DX Webserver. Features may be added/r
 
 ###### Includes code and assistance from LLMs, and Highpoint2000.
 
+v1.1.5
+------
+* Added more configurable options for `RDS_ICON_STYLE`
+
 v1.1.4
 ------
 * Added Music/Speech icons to `RDS_ICON_STYLE`

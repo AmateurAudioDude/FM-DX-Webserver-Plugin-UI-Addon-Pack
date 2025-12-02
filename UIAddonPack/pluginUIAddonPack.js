@@ -1,5 +1,5 @@
 /*
-    UI Add-on Pack v1.1.4 by AAD
+    UI Add-on Pack v1.1.5 by AAD
     ----------------------------
     https://github.com/AmateurAudioDude/FM-DX-Webserver-Plugin-UI-Addon-Pack
 */
@@ -8,7 +8,7 @@
 
 (() => {
 
-const pluginVersion = '1.1.4';
+const pluginVersion = '1.1.5';
 const pluginName = "UI Add-on Pack";
 const pluginHomepageUrl = "https://github.com/AmateurAudioDude/FM-DX-Webserver-Plugin-UI-Addon-Pack";
 const pluginUpdateUrl = "https://raw.githubusercontent.com/AmateurAudioDude/FM-DX-Webserver-Plugin-UI-Addon-Pack/refs/heads/main/UIAddonPack/pluginUIAddonPack.js";
@@ -159,6 +159,66 @@ const RDS_ICON_STYLE_REMOVE_RDS_ICON = false;
 const LED_GLOW_EFFECT_ICONS_RDS_ICON_STYLE_PTY = false;
 const LED_GLOW_EFFECT_ICONS_RDS_ICON_STYLE_MS = false;
 const LED_GLOW_EFFECT_ICONS_METRICS_MONITOR_PLUGIN = false;
+
+// === Select preset ===
+// Options: 0 = user-defined, 1 = preset 1, 2 = preset 2
+const RDS_ICON_PRESET = 1;
+
+// #################### RDS ICON ORDER CONFIGURATION #################### //
+
+//
+//   PTY    = Programme Type
+//   MS     = Music/Speech indicator
+//   ECC    = Extended Country Code
+//   STEREO = Stereo/Mono indicator
+//   TP     = Traffic Programme
+//   TA     = Traffic Announcement
+//   RDS    = RDS signal indicator
+//
+//
+
+// === Preset definitions ===
+const RDS_ICON_STYLE_PRESETS = {
+    user: {
+        FIRST_ROW: ["PTY", "MS"],
+        SECOND_ROW: ["ECC", "STEREO", "TP", "TA", "RDS"],
+        FIRST_ROW_GAP: 8,
+        SECOND_ROW_GAP: 16,
+        TP_TA_GAP: 8,
+        MS_TOP_PX: 4.5, // Consider both Firefox and Chrome
+        MS_TOP_PADDING: 9,
+        STEREO_ICON_SPACING: 1,
+        PTY_HEIGHT: 20,
+        GAP_ROW_1: 1,
+        GAP_ROW_2: 6
+    },
+    1: {
+        FIRST_ROW: ["PTY", "MS"],
+        SECOND_ROW: ["ECC", "STEREO", "TP", "TA", "RDS"],
+        FIRST_ROW_GAP: 8,
+        SECOND_ROW_GAP: 16,
+        TP_TA_GAP: 8,
+        MS_TOP_PX: 4.5,
+        MS_TOP_PADDING: 9,
+        STEREO_ICON_SPACING: 1,
+        PTY_HEIGHT: 20,
+        GAP_ROW_1: 1,
+        GAP_ROW_2: 6
+    },
+    2: {
+        FIRST_ROW: ["STEREO", "RDS"],
+        SECOND_ROW: ["ECC", "MS", "PTY", "TP", "TA"],
+        FIRST_ROW_GAP: 8,
+        SECOND_ROW_GAP: 8,
+        TP_TA_GAP: 8,
+        MS_TOP_PX: 2.8,
+        MS_TOP_PADDING: 7,
+        STEREO_ICON_SPACING: 6,
+        PTY_HEIGHT: 17,
+        GAP_ROW_1: -6,
+        GAP_ROW_2: 0
+    }
+};
 
 // #################### PLUGIN BUTTON ORDER #################### //
 
@@ -2381,6 +2441,25 @@ if (SORT_PLUGIN_BUTTONS) {
 
 if (RDS_ICON_STYLE || LED_GLOW_EFFECT_ICONS_METRICS_MONITOR_PLUGIN || RDS_ICON_STYLE_REMOVE_RDS_ICON) {
 
+const getActivePreset = (preset) => {
+    if (preset === 0) return RDS_ICON_STYLE_PRESETS.user;
+    return RDS_ICON_STYLE_PRESETS[preset] || RDS_ICON_STYLE_PRESETS[1];
+};
+
+const ACTIVE_PRESET = getActivePreset(RDS_ICON_PRESET);
+
+const RDS_ICON_STYLE_FIRST_ROW = [...ACTIVE_PRESET.FIRST_ROW];
+const RDS_ICON_STYLE_SECOND_ROW = [...ACTIVE_PRESET.SECOND_ROW];
+const RDS_ICON_STYLE_FIRST_ROW_GAP = ACTIVE_PRESET.FIRST_ROW_GAP;
+const RDS_ICON_STYLE_SECOND_ROW_GAP = ACTIVE_PRESET.SECOND_ROW_GAP;
+const RDS_ICON_STYLE_TP_TA_GAP = ACTIVE_PRESET.TP_TA_GAP;
+const RDS_ICON_STYLE_MS_TOP_PX = ACTIVE_PRESET.MS_TOP_PX;
+const RDS_ICON_STYLE_MS_TOP_PADDING = ACTIVE_PRESET.MS_TOP_PADDING;
+const RDS_ICON_STYLE_STEREO_ICON_SPACING = ACTIVE_PRESET.STEREO_ICON_SPACING;
+const RDS_ICON_STYLE_PTY_HEIGHT = ACTIVE_PRESET.PTY_HEIGHT;
+const RDS_ICON_STYLE_GAP_ROW_1 = ACTIVE_PRESET.GAP_ROW_1;
+const RDS_ICON_STYLE_GAP_ROW_2 = ACTIVE_PRESET.GAP_ROW_2;
+
 /////////////////////////////////////////////////////////////////
 ///                                                           ///
 ///  METRICSMONITOR CLIENT SCRIPT FOR FM-DX-WEBSERVER (V1.0a) ///
@@ -2426,8 +2505,8 @@ ${RDS_ICON_STYLE_REMOVE_RDS_ICON === true ?
   }
 
   #signal-icons {
-    justify-content: center;
-    gap: 6px;
+    flex-direction: column;
+    align-items: center;
   }
 }
 
@@ -2441,12 +2520,12 @@ ${RDS_ICON_STYLE_REMOVE_RDS_ICON === true ?
 
 #signal-icons {
   display: flex;
-  gap: 8px;
+  flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  height: 18px;
-  margin: 4px 10px 0 0;
+  margin: 0;
   position: relative;
+  width: 100%;
 }
 
 #signal-icons img.status-icon {
@@ -2529,18 +2608,14 @@ ${LED_GLOW_EFFECT_ICONS && (RDS_ICON_STYLE || LED_GLOW_EFFECT_ICONS_METRICS_MONI
 
 /* TP / TA / RDS */
 #tpIcon {
-  margin-left: 2px;
-  margin-right: -8px;
   height: 17px !important;
 }
 
 #taIcon {
-  margin-right: -4px;
   height: 17px !important;
 }
 
 #rdsIcon {
-  margin-left: 8px;
   height: 13px !important;
   width: auto !important;
 }
@@ -2556,7 +2631,8 @@ ${LED_GLOW_EFFECT_ICONS && (RDS_ICON_STYLE || LED_GLOW_EFFECT_ICONS_METRICS_MONI
   border-radius: 3px;
   padding: 0 4px;
   box-sizing: border-box;
-  margin: 0 auto;
+  margin: 0;
+  flex-shrink: 0;
 }
 
 /* ECC Wrapper */
@@ -2597,7 +2673,7 @@ const WEBSOCKET_URL  = `${protocol}//${WebserverURL}:${WebserverPORT}${Webserver
 
 //
 // --------------------------------------------------------------
-//  TextSocket (RDS / PTY / ECC / TP / TA / RDS) – über /text
+//  TextSocket (RDS / PTY / ECC / TP / TA / RDS)
 // --------------------------------------------------------------
 //
 let TextSocket;
@@ -2656,24 +2732,32 @@ async function setupTextSocket() {
 
 // Music/Speech
 function ensurePtyOverlayIcon() {
+    // Check if MS icon already exists
     let icon = document.getElementById("ptyIconOverlay");
+
     if (!icon) {
+        //  Ccreate MS if not in the configured rows it with absolute positioning next to PTY
         icon = document.createElement("span");
         icon.id = "ptyIconOverlay";
 
-        // Absolute overlay next to PTY label
-        icon.style.position = "absolute";
-        icon.style.top = "50%";
-        icon.style.transform = "translateY(-50%)";
         icon.style.color = "#fff";
         icon.style.fontSize = "13px";
         icon.style.lineHeight = "1.4";
         icon.style.border = "1px solid #696969";
         icon.style.borderRadius = "3px";
         icon.style.padding = "0 8px";
-        icon.style.marginTop = "1px";
         icon.style.opacity = "0.9";
-        //icon.style.marginLeft = MULTIPATH_INDICATOR === true ? "32px" : "18px";
+        icon.style.display = "inline-flex";
+        icon.style.alignItems = "center";
+        icon.style.justifyContent = "center";
+        icon.style.height = "17px";
+        icon.style.minWidth = "30px";
+
+        // Use absolute positioning next to PTY
+        icon.style.position = "absolute";
+        icon.style.top = "50%";
+        icon.style.transform = "translateY(-50%)";
+        icon.style.marginTop = "1px";
 
         const ptyLabel = document.getElementById("ptyLabel");
         if (ptyLabel && ptyLabel.parentNode) {
@@ -2708,14 +2792,14 @@ function handleTextSocketMessage(message) {
       ptyIcon.innerHTML = "";
 
       if (message.ms === 0) {
-        ptyIcon.innerHTML = `<i class="fa-solid fa-microphone" style="min-width: 13px;"></i>`;
+        ptyIcon.innerHTML = `<i class="fa-solid fa-microphone" style="position: absolute; top: ${LED_GLOW_EFFECT_ICONS_RDS_ICON_STYLE_MS === true ? RDS_ICON_STYLE_MS_TOP_PX - 1 : RDS_ICON_STYLE_MS_TOP_PX}px; min-width: 12px;"></i>`;
         ptyIcon.style.border = "1px solid #fff";
         if (LED_GLOW_EFFECT_ICONS_RDS_ICON_STYLE_MS) ptyIcon.style.filter = `drop-shadow(0 0 3px rgba(255, 255, 255, 0.5))
           drop-shadow(0 0 6px rgba(255, 255, 255, 0.4))
           drop-shadow(0 0 9px rgba(238, 238, 238, 0.3))`;
         ptyIcon.style.opacity = "0.9";
       } else if (message.ms === 1) {
-        ptyIcon.innerHTML = `<i class="fa-solid fa-music" style="min-width: 13px;"></i>`;
+        ptyIcon.innerHTML = `<i class="fa-solid fa-music" style="position: absolute; top: ${LED_GLOW_EFFECT_ICONS_RDS_ICON_STYLE_MS === true ? RDS_ICON_STYLE_MS_TOP_PX - 1 : RDS_ICON_STYLE_MS_TOP_PX}px; min-width: 12px;"></i>`;
         ptyIcon.style.border = "1px solid #fff";
         if (LED_GLOW_EFFECT_ICONS_RDS_ICON_STYLE_MS) ptyIcon.style.filter = `drop-shadow(0 0 3px rgba(255, 255, 255, 0.5))
           drop-shadow(0 0 6px rgba(255, 255, 255, 0.4))
@@ -2724,13 +2808,13 @@ function handleTextSocketMessage(message) {
       } else {
         if (ptyText === "PTY") {
           ptyIcon.innerHTML = `
-            <span style="position: relative; display: inline-block; min-width: 13px; min-height: 13px;">
-              <i class="fa-solid fa-music" style="position: absolute; top: 1.5px; left: 0; opacity: 0.15;"></i>
-              <i class="fa-solid fa-microphone" style="position: absolute; top: 1.5px; left: 2px; opacity: 0.125;"></i>
+            <span style="position: relative; display: inline-block; min-width: 12px; min-height: 13px;">
+              <i class="fa-solid fa-music" style="position: absolute; top: 0.8px; left: 0; opacity: 0.15;"></i>
+              <i class="fa-solid fa-microphone" style="position: absolute; top: 0.8px; left: 1.5px; opacity: 0.1;"></i>
             </span>
           `;
         } else {
-          ptyIcon.innerHTML = `<i class="fa-solid fa-question" style="opacity: 0.15; min-width: 13px; min-height: 13px;"></i>`;
+          ptyIcon.innerHTML = `<i class="fa-solid fa-question" style="opacity: 0.15; min-width: 12px; min-height: 13px;"></i>`;
         }
         ptyIcon.style.border = "1px solid #696969";
         if (LED_GLOW_EFFECT_ICONS_RDS_ICON_STYLE_MS)
@@ -2794,7 +2878,9 @@ function handleTextSocketMessage(message) {
       const eccSpan = document.querySelector('.data-flag');
       if (eccSpan && eccSpan.innerHTML.trim() !== "") {
         const newSpan = eccSpan.cloneNode(true);
-        newSpan.style.marginLeft = "5.5px"; // Reduce margin to align flag icons
+        newSpan.style.marginLeft = "5.1px"; // Reduce margin to align flag icons
+        newSpan.style.marginTop = "-7px";
+        newSpan.style.transform = "translateY(5px)";
         eccWrapper.appendChild(newSpan);
       } else {
         // Fallback
@@ -2867,6 +2953,171 @@ function handleTextSocketMessage(message) {
 //  Panel (Icons + MPX-Canvas)
 // --------------------------------------------------------------
 //
+
+// Helper function to create individual icon elements
+function createIconElement(iconType) {
+  switch (iconType.toUpperCase()) {
+    case 'PTY': {
+      const ptyLabel = document.createElement('span');
+      ptyLabel.id = 'ptyLabel';
+      ptyLabel.textContent = 'PTY';
+      ptyLabel.style.color = '#696969';
+      ptyLabel.style.fontSize = '14px';
+      ptyLabel.style.fontWeight = 'bold';
+      ptyLabel.style.border = '1px solid #696969';
+      ptyLabel.style.borderRadius = '3px';
+      ptyLabel.style.padding = '0 2px';
+      ptyLabel.style.display = 'inline-flex';
+      ptyLabel.style.alignItems = 'center';
+      ptyLabel.style.justifyContent = 'center';
+      ptyLabel.style.paddingBottom = /firefox/i.test(navigator.userAgent) ? '2px' : '1px'; // Firefox
+      ptyLabel.style.height = RDS_ICON_STYLE_PTY_HEIGHT + 'px';
+      if (REDUCE_HALF_OPACITY) ptyLabel.style.opacity = off_opacity;
+      return ptyLabel;
+    }
+    case 'MS': {
+      // Music/Speech icon
+      const msIcon = document.createElement('span');
+      msIcon.id = 'ptyIconOverlay';
+      msIcon.style.color = "#fff";
+      msIcon.style.fontSize = "12px";
+      msIcon.style.lineHeight = "1.4";
+      msIcon.style.border = "1px solid #696969";
+      msIcon.style.borderRadius = "3px";
+      msIcon.style.padding = `${RDS_ICON_STYLE_MS_TOP_PADDING}px 8px`;
+      msIcon.style.opacity = off_opacity;
+      msIcon.style.display = "inline-flex";
+      msIcon.style.alignItems = "center";
+      msIcon.style.justifyContent = "center";
+      msIcon.style.height = "17px";
+      msIcon.style.minWidth = "30px";
+      // Initial state, question mark
+      msIcon.innerHTML = `<i class="fa-solid fa-question" style="opacity: 0.15; min-width: 13px; min-height: 13px;"></i>`;
+      return msIcon;
+    }
+    case 'ECC': {
+      const eccWrapper = document.createElement('span');
+      eccWrapper.id = 'eccWrapper';
+      eccWrapper.style.display = 'inline-flex';
+      eccWrapper.style.alignItems = 'center';
+      eccWrapper.style.whiteSpace = 'nowrap';
+      const eccSpan = document.querySelector('.data-flag');
+      if (eccSpan && eccSpan.innerHTML.trim() !== "") {
+        eccWrapper.appendChild(eccSpan.cloneNode(true));
+      } else {
+        const noEcc = document.createElement('span');
+        noEcc.textContent = 'ECC';
+        noEcc.style.color = '#696969';
+        noEcc.style.fontSize = '13px';
+        noEcc.style.fontWeight = 'bold';
+        noEcc.style.border = "1px solid #696969";
+        noEcc.style.borderRadius = "3px";
+        noEcc.style.padding = '0 3px 0 3px';
+        noEcc.style.display = 'inline-flex';
+        noEcc.style.alignItems = 'center';
+        noEcc.style.height = '17px';
+        noEcc.style.paddingBottom = /firefox/i.test(navigator.userAgent) ? '1px' : '0';
+        if (REDUCE_HALF_OPACITY) noEcc.style.opacity = off_opacity;
+        eccWrapper.appendChild(noEcc);
+      }
+      return eccWrapper;
+    }
+    case 'STEREO': {
+      const stereoSource = document.querySelector('.stereo-container');
+      if (stereoSource) {
+        const stereoClone = stereoSource.cloneNode(true);
+        stereoClone.id = 'stereoIcon';
+        stereoClone.removeAttribute('style');
+        stereoClone.classList.add("tooltip");
+        stereoClone.setAttribute("data-tooltip", "Stereo / Mono toggle.<br><strong>Click to toggle.</strong>");
+        stereoClone.style.marginRight = RDS_ICON_STYLE_STEREO_ICON_SPACING + 'px';
+        return stereoClone;
+      }
+      return null;
+    }
+    case 'TP': {
+      const img = document.createElement('img');
+      img.className = 'status-icon';
+      img.id = 'tpIcon';
+      img.alt = 'tpIcon';
+      img.src = tp_off_webp;
+      return img;
+    }
+    case 'TA': {
+      const img = document.createElement('img');
+      img.className = 'status-icon';
+      img.id = 'taIcon';
+      img.alt = 'taIcon';
+      img.src = ta_off_webp;
+      return img;
+    }
+    case 'RDS': {
+      const img = document.createElement('img');
+      img.className = 'status-icon';
+      img.id = 'rdsIcon';
+      img.alt = 'rdsIcon';
+      img.src = rds_off_webp;
+      return img;
+    }
+    default:
+      console.warn(`[UI Add-on Pack] Unknown icon type: ${iconType}`);
+      return null;
+  }
+}
+
+// Helper function to create a row of icons
+function createIconRow(iconList, isFirstRow = false) {
+  const row = document.createElement('div');
+  row.style.display = 'flex';
+  row.style.alignItems = 'center';
+  row.style.justifyContent = 'center';
+  row.style.width = '100%';
+  row.style.flexWrap = 'nowrap';
+
+  if (isFirstRow) {
+    row.style.gap = RDS_ICON_STYLE_FIRST_ROW_GAP + 'px';
+    row.style.transform = `translateY(${RDS_ICON_STYLE_GAP_ROW_1}px)`;
+  } else {
+    row.style.gap = RDS_ICON_STYLE_SECOND_ROW_GAP + 'px';
+    row.style.transform = `translateY(${RDS_ICON_STYLE_GAP_ROW_2}px)`;
+  }
+
+  // Filter out empty strings from the icon list
+  const filteredList = iconList.filter(iconType => iconType && iconType.trim() !== '');
+
+  // Check if TP and TA are adjacent in the list
+  let i = 0;
+  while (i < filteredList.length) {
+    const iconType = filteredList[i].toUpperCase();
+    const nextIconType = i + 1 < filteredList.length ? filteredList[i + 1].toUpperCase() : null;
+
+    // Check if TP and TA are adjacent (in either order)
+    if ((iconType === 'TP' && nextIconType === 'TA') || (iconType === 'TA' && nextIconType === 'TP')) {
+      // Create a wrapper for TP-TA pair with smaller gap
+      const tpTaWrapper = document.createElement('span');
+      tpTaWrapper.style.display = 'inline-flex';
+      tpTaWrapper.style.alignItems = 'center';
+      tpTaWrapper.style.gap = RDS_ICON_STYLE_TP_TA_GAP + 'px';
+
+      const firstIcon = createIconElement(filteredList[i]);
+      const secondIcon = createIconElement(filteredList[i + 1]);
+      if (firstIcon) tpTaWrapper.appendChild(firstIcon);
+      if (secondIcon) tpTaWrapper.appendChild(secondIcon);
+
+      row.appendChild(tpTaWrapper);
+      i += 2; // Skip both TP and TA
+    } else {
+      const iconElement = createIconElement(iconType);
+      if (iconElement) {
+        row.appendChild(iconElement);
+      }
+      i++;
+    }
+  }
+
+  return row;
+}
+
 function insertSignalPanel() {
   const signalPanelElement = document.querySelector('#flags-container-desktop');
   if (!signalPanelElement) {
@@ -2883,9 +3134,8 @@ function insertSignalPanel() {
     padding: 10px;
     display: flex;
     flex-direction: column;
-    justify-content: flex-start;
-    align-items: stretch;
-    gap: 6px;
+    justify-content: center;
+    align-items: center;
     overflow: hidden;
   `;
 
@@ -2893,97 +3143,27 @@ function insertSignalPanel() {
   const iconsBar = document.createElement('div');
   iconsBar.id = 'signal-icons';
 
-  // Force vertical stacking
+  // Force vertical stacking with centered content
   iconsBar.style.position = 'relative';
   iconsBar.style.display = 'flex';
-  iconsBar.style.flexDirection = 'column'; // PTY on first line
+  iconsBar.style.flexDirection = 'column';
+  iconsBar.style.alignItems = 'center';
+  iconsBar.style.gap = '4px';
   iconsBar.style.width = '100%';
 
   signalPanelElement.appendChild(iconsBar);
 
-  /* -----------------------------------------
-     First row
-  ----------------------------------------- */
-  const ptyRow = document.createElement('div');
-  ptyRow.style.textAlign = 'center';
-  ptyRow.style.width = '100%';
-  ptyRow.style.marginBottom = '0px';
-  iconsBar.appendChild(ptyRow);
-
-  const ptyLabel = document.createElement('span');
-  ptyLabel.id = 'ptyLabel';
-  ptyLabel.textContent = 'PTY';
-  ptyLabel.style.color = '#696969';
-  ptyLabel.style.fontSize = '14px';
-  ptyLabel.style.fontWeight = 'bold';
-  ptyLabel.style.border = '1px solid #696969';
-  ptyLabel.style.borderRadius = '3px';
-  ptyLabel.style.padding = '0 2px';
-  ptyLabel.style.display = 'inline-flex';
-  ptyLabel.style.alignItems = 'center';
-  ptyLabel.style.justifyContent = 'center';
-  ptyLabel.style.paddingBottom = '1px';
-  ptyLabel.style.height = '20px';
-  ptyLabel.style.margin = '0 8px 0 -30px'; // Added for Music/Speech icons
-  if (REDUCE_HALF_OPACITY) ptyLabel.style.opacity = off_opacity;
-  ptyRow.appendChild(ptyLabel);
-
-  /* -----------------------------------------
-     Second row
-  ----------------------------------------- */
-  const iconRow = document.createElement('div');
-  iconRow.style.display = 'flex';
-  iconRow.style.alignItems = 'center';
-  iconRow.style.justifyContent = 'center';
-  iconRow.style.gap = '16px';
-  iconRow.style.flexWrap = 'nowrap';
-  iconsBar.appendChild(iconRow);
-
-  // ECC Wrapper
-  const eccWrapper = document.createElement('span');
-  eccWrapper.id = 'eccWrapper';
-  eccWrapper.style.display = 'inline-flex';
-  eccWrapper.style.alignItems = 'center';
-  eccWrapper.style.whiteSpace = 'nowrap';
-  iconRow.appendChild(eccWrapper);
-
-  const eccSpan = document.querySelector('.data-flag');
-  if (eccSpan && eccSpan.innerHTML.trim() !== "") {
-    eccWrapper.appendChild(eccSpan.cloneNode(true));
-  } else {
-    const noEcc = document.createElement('span');
-    noEcc.textContent = 'ECC';
-    noEcc.style.color = '#696969';
-    noEcc.style.fontSize = '13px';
-    eccWrapper.appendChild(noEcc);
+  // Create first row using configurable array
+  if (RDS_ICON_STYLE_FIRST_ROW && RDS_ICON_STYLE_FIRST_ROW.length > 0) {
+    const firstRow = createIconRow(RDS_ICON_STYLE_FIRST_ROW, true);
+    iconsBar.appendChild(firstRow);
   }
 
-  // Stereo Icon
-  const stereoSource = document.querySelector('.stereo-container');
-  if (stereoSource) {
-    const stereoClone = stereoSource.cloneNode(true);
-    stereoClone.id = 'stereoIcon';
-    stereoClone.removeAttribute('style');
-    stereoClone.classList.add("tooltip");
-    stereoClone.setAttribute("data-tooltip", "Stereo / Mono toggle.<br><strong>Click to toggle.</strong>");
-    iconRow.appendChild(stereoClone);
+  // Create second row using configurable array
+  if (RDS_ICON_STYLE_SECOND_ROW && RDS_ICON_STYLE_SECOND_ROW.length > 0) {
+    const secondRow = createIconRow(RDS_ICON_STYLE_SECOND_ROW, false);
+    iconsBar.appendChild(secondRow);
   }
-
-  // TP / TA / RDS Icons
-  const iconMap = [
-    { id: 'tpIcon',  off: tp_off_webp },
-    { id: 'taIcon',  off: ta_off_webp },
-    { id: 'rdsIcon', off: rds_off_webp }
-  ];
-
-  iconMap.forEach(({ id, off }) => {
-    const img = document.createElement('img');
-    img.className = 'status-icon';
-    img.id = id;
-    img.alt = id;
-    img.src = off;
-    iconRow.appendChild(img);
-  });
 }
 
 //

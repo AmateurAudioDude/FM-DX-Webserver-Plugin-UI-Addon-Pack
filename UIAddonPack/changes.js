@@ -15,6 +15,7 @@ const ignoredVariables = {
     'PLUGINS_USER_ORDER': '"1"',
     'STEREO_ICON_COLOR': '"default"',
     'STEREO_ICON_COLOR_OFF': '""',
+    'RDS_ICON_PRESET': '1',
 };
 
 fs.readFile(filePath, 'utf8', (err, data) => {
