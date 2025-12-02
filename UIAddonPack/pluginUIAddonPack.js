@@ -2893,7 +2893,7 @@ function handleTextSocketMessage(message) {
       noEcc.style.display = 'inline-flex';
       noEcc.style.alignItems = 'center';
       noEcc.style.height = '17px';
-      noEcc.style.paddingBottom = /firefox/i.test(navigator.userAgent) ? '1px' : '0'; // Firefox
+      noEcc.style.paddingBottom = '0.5px'; // Value that aligns for both Firefox and Chrome
       if (REDUCE_HALF_OPACITY) noEcc.style.opacity = off_opacity;
       eccWrapper.appendChild(noEcc);
     } else {
