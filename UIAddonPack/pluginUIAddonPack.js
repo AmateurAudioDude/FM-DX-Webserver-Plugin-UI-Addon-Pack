@@ -164,13 +164,14 @@ const STEREO_ICON_COLOR_OFF = "";
 // RDS icon styling (Highpoint2000)
 const RDS_ICON_STYLE = false;
 const RDS_ICON_STYLE_MOBILE = false;
+const RDS_ICON_STYLE_MS_OFF_AS_LETTERS = false;
 const RDS_ICON_STYLE_REMOVE_RDS_ICON = false;
 const LED_GLOW_EFFECT_ICONS_RDS_ICON_STYLE_PTY = false;
 const LED_GLOW_EFFECT_ICONS_RDS_ICON_STYLE_MS = false;
 const LED_GLOW_EFFECT_ICONS_METRICS_MONITOR_PLUGIN = false;
 
 // === Select preset ===
-// Options: 0 = user-defined, 1 = preset 1, 2 = preset 2
+// Options: 0 = user-defined, 1 = preset 1, 2 = preset 2, 3 = preset 3
 const RDS_ICON_PRESET = 1;
 
 // #################### RDS ICON ORDER CONFIGURATION #################### //
@@ -226,6 +227,19 @@ const RDS_ICON_STYLE_PRESETS = {
         PTY_HEIGHT: 17,
         GAP_ROW_1: -6,
         GAP_ROW_2: 0
+    },
+    3: {
+        FIRST_ROW: ["PTY"],
+        SECOND_ROW: ["TP", "TA", "ECC", "STEREO", "MS"],
+        FIRST_ROW_GAP: 8,
+        SECOND_ROW_GAP: 16,
+        TP_TA_GAP: 8,
+        MS_TOP_PX: 11.5, // Consider both Firefox and Chrome
+        MS_TOP_PADDING: 8,
+        STEREO_ICON_SPACING: 1,
+        PTY_HEIGHT: 20,
+        GAP_ROW_1: 1,
+        GAP_ROW_2: 6
     }
 };
 
@@ -2831,8 +2845,12 @@ function handleTextSocketMessage(message) {
         if (ptyText === "PTY") {
           ptyIcon.innerHTML = `
             <span style="position: relative; display: inline-block; min-width: 12px; min-height: 13px;">
-              <i class="fa-solid fa-music" style="position: absolute; top: 0.8px; left: 0; opacity: 0.15;"></i>
-              <i class="fa-solid fa-microphone" style="position: absolute; top: 0.8px; left: 1.5px; opacity: 0.1;"></i>
+              ${RDS_ICON_STYLE_MS_OFF_AS_LETTERS === false ?
+              `<i class="fa-solid fa-music" style="position: absolute; top: 0.8px; left: 0; opacity: 0.15;"></i>
+              <i class="fa-solid fa-microphone" style="position: absolute; top: 0.8px; left: 1.5px; opacity: 0.1;"></i>`
+              :
+              `<i class="fa-solid fa-m" style="font-size: 10px; position: absolute; top: 1.8px; left: -2.5px; opacity: 0.25;"></i>
+              <i class="fa-solid fa-s" style="font-size: 10px; position: absolute; top: 1.8px; left: 8.5px; opacity: 0.25;"></i>`}
             </span>
           `;
         } else {
