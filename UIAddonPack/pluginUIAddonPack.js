@@ -190,26 +190,24 @@ const RDS_ICON_PRESET = 1;
 // === Preset definitions ===
 const RDS_ICON_STYLE_PRESETS = {
     user: {
-        FIRST_ROW: ["PTY", "MS"],
-        SECOND_ROW: ["ECC", "STEREO", "TP", "TA", "RDS"],
+        FIRST_ROW: ["PTY"],
+        SECOND_ROW: ["TP", "TA", "ECC", "STEREO", "MS"],
         FIRST_ROW_GAP: 8,
         SECOND_ROW_GAP: 16,
         TP_TA_GAP: 8,
-        MS_TOP_PX: 4.5, // Consider both Firefox and Chrome
-        MS_TOP_PADDING: 9,
+        MS_TOP_PADDING: 7,
         STEREO_ICON_SPACING: 1,
         PTY_HEIGHT: 20,
         GAP_ROW_1: 1,
         GAP_ROW_2: 6
     },
     1: {
-        FIRST_ROW: ["PTY", "MS"],
-        SECOND_ROW: ["ECC", "STEREO", "TP", "TA", "RDS"],
+        FIRST_ROW: ["PTY"],
+        SECOND_ROW: ["TP", "TA", "ECC", "STEREO", "MS"],
         FIRST_ROW_GAP: 8,
         SECOND_ROW_GAP: 16,
         TP_TA_GAP: 8,
-        MS_TOP_PX: 4.5,
-        MS_TOP_PADDING: 9,
+        MS_TOP_PADDING: 7,
         STEREO_ICON_SPACING: 1,
         PTY_HEIGHT: 20,
         GAP_ROW_1: 1,
@@ -221,7 +219,6 @@ const RDS_ICON_STYLE_PRESETS = {
         FIRST_ROW_GAP: 8,
         SECOND_ROW_GAP: 8,
         TP_TA_GAP: 8,
-        MS_TOP_PX: 2.8,
         MS_TOP_PADDING: 7,
         STEREO_ICON_SPACING: 6,
         PTY_HEIGHT: 17,
@@ -229,13 +226,12 @@ const RDS_ICON_STYLE_PRESETS = {
         GAP_ROW_2: 0
     },
     3: {
-        FIRST_ROW: ["PTY"],
-        SECOND_ROW: ["TP", "TA", "ECC", "STEREO", "MS"],
+        FIRST_ROW: ["PTY", "MS"],
+        SECOND_ROW: ["ECC", "STEREO", "TP", "TA", "RDS"],
         FIRST_ROW_GAP: 8,
         SECOND_ROW_GAP: 16,
         TP_TA_GAP: 8,
-        MS_TOP_PX: 11.5, // Consider both Firefox and Chrome
-        MS_TOP_PADDING: 8,
+        MS_TOP_PADDING: 9,
         STEREO_ICON_SPACING: 1,
         PTY_HEIGHT: 20,
         GAP_ROW_1: 1,
@@ -2477,6 +2473,8 @@ if (SORT_PLUGIN_BUTTONS) {
 
 if (RDS_ICON_STYLE || LED_GLOW_EFFECT_ICONS_METRICS_MONITOR_PLUGIN || RDS_ICON_STYLE_REMOVE_RDS_ICON) {
 
+const isFirefox = /firefox/i.test(navigator.userAgent);
+
 const getActivePreset = (preset) => {
     if (preset === 0) return RDS_ICON_STYLE_PRESETS.user;
     return RDS_ICON_STYLE_PRESETS[preset] || RDS_ICON_STYLE_PRESETS[1];
@@ -2489,7 +2487,6 @@ const RDS_ICON_STYLE_SECOND_ROW = [...ACTIVE_PRESET.SECOND_ROW];
 const RDS_ICON_STYLE_FIRST_ROW_GAP = ACTIVE_PRESET.FIRST_ROW_GAP;
 const RDS_ICON_STYLE_SECOND_ROW_GAP = ACTIVE_PRESET.SECOND_ROW_GAP;
 const RDS_ICON_STYLE_TP_TA_GAP = ACTIVE_PRESET.TP_TA_GAP;
-const RDS_ICON_STYLE_MS_TOP_PX = ACTIVE_PRESET.MS_TOP_PX;
 const RDS_ICON_STYLE_MS_TOP_PADDING = ACTIVE_PRESET.MS_TOP_PADDING;
 const RDS_ICON_STYLE_STEREO_ICON_SPACING = ACTIVE_PRESET.STEREO_ICON_SPACING;
 const RDS_ICON_STYLE_PTY_HEIGHT = ACTIVE_PRESET.PTY_HEIGHT;
@@ -2828,14 +2825,14 @@ function handleTextSocketMessage(message) {
       ptyIcon.innerHTML = "";
 
       if (message.ms === 0) {
-        ptyIcon.innerHTML = `<i class="fa-solid fa-microphone" style="position: absolute; top: ${LED_GLOW_EFFECT_ICONS_RDS_ICON_STYLE_MS === true ? RDS_ICON_STYLE_MS_TOP_PX - 1 : RDS_ICON_STYLE_MS_TOP_PX}px; min-width: 12px;"></i>`;
+        ptyIcon.innerHTML = `<i class="fa-solid fa-microphone" style="position: relative; top: ${isFirefox ? '0' : '1'}px; min-width: 12px;"></i>`;
         ptyIcon.style.border = "1px solid #fff";
         if (LED_GLOW_EFFECT_ICONS_RDS_ICON_STYLE_MS) ptyIcon.style.filter = `drop-shadow(0 0 3px rgba(255, 255, 255, 0.5))
           drop-shadow(0 0 6px rgba(255, 255, 255, 0.4))
           drop-shadow(0 0 9px rgba(238, 238, 238, 0.3))`;
         ptyIcon.style.opacity = "0.9";
       } else if (message.ms === 1) {
-        ptyIcon.innerHTML = `<i class="fa-solid fa-music" style="position: absolute; top: ${LED_GLOW_EFFECT_ICONS_RDS_ICON_STYLE_MS === true ? RDS_ICON_STYLE_MS_TOP_PX - 1 : RDS_ICON_STYLE_MS_TOP_PX}px; min-width: 12px;"></i>`;
+        ptyIcon.innerHTML = `<i class="fa-solid fa-music" style="position: relative; top: ${isFirefox ? '0' : '1'}px; min-width: 12px;"></i>`;
         ptyIcon.style.border = "1px solid #fff";
         if (LED_GLOW_EFFECT_ICONS_RDS_ICON_STYLE_MS) ptyIcon.style.filter = `drop-shadow(0 0 3px rgba(255, 255, 255, 0.5))
           drop-shadow(0 0 6px rgba(255, 255, 255, 0.4))
@@ -2846,11 +2843,11 @@ function handleTextSocketMessage(message) {
           ptyIcon.innerHTML = `
             <span style="position: relative; display: inline-block; min-width: 12px; min-height: 13px;">
               ${RDS_ICON_STYLE_MS_OFF_AS_LETTERS === false ?
-              `<i class="fa-solid fa-music" style="position: absolute; top: 0.8px; left: 0; opacity: 0.15;"></i>
-              <i class="fa-solid fa-microphone" style="position: absolute; top: 0.8px; left: 1.5px; opacity: 0.1;"></i>`
+              `<i class="fa-solid fa-music" style="position: absolute; top: ${isFirefox ? '0.5' : '1'}px; left: 0; opacity: 0.15;"></i>
+              <i class="fa-solid fa-microphone" style="position: absolute; top: ${isFirefox ? '0.5' : '1'}px; left: 1.5px; opacity: 0.1;"></i>`
               :
-              `<i class="fa-solid fa-m" style="font-size: 10px; position: absolute; top: 1.8px; left: -2.5px; opacity: 0.25;"></i>
-              <i class="fa-solid fa-s" style="font-size: 10px; position: absolute; top: 1.8px; left: 8.5px; opacity: 0.25;"></i>`}
+              `<i class="fa-solid fa-m" style="font-size: 10px; position: absolute; top: ${isFirefox ? '1' : '1'}px; left: -2.5px; opacity: 0.33;"></i>
+              <i class="fa-solid fa-s" style="font-size: 10px; position: absolute; top: ${isFirefox ? '1' : '1'}px; left: 8.5px; opacity: 0.33;"></i>`}
             </span>
           `;
         } else {
@@ -3010,7 +3007,7 @@ function createIconElement(iconType) {
       ptyLabel.style.display = 'inline-flex';
       ptyLabel.style.alignItems = 'center';
       ptyLabel.style.justifyContent = 'center';
-      ptyLabel.style.paddingBottom = /firefox/i.test(navigator.userAgent) ? '2px' : '1px'; // Firefox
+      ptyLabel.style.paddingBottom = isFirefox ? '2px' : '1px'; // Firefox
       ptyLabel.style.height = RDS_ICON_STYLE_PTY_HEIGHT + 'px';
       if (REDUCE_HALF_OPACITY) ptyLabel.style.opacity = off_opacity;
       return ptyLabel;
@@ -3056,7 +3053,7 @@ function createIconElement(iconType) {
         noEcc.style.display = 'inline-flex';
         noEcc.style.alignItems = 'center';
         noEcc.style.height = '17px';
-        noEcc.style.paddingBottom = /firefox/i.test(navigator.userAgent) ? '1px' : '0';
+        noEcc.style.paddingBottom = isFirefox ? '1px' : '0';
         if (REDUCE_HALF_OPACITY) noEcc.style.opacity = off_opacity;
         eccWrapper.appendChild(noEcc);
       }
