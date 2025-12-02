@@ -9,6 +9,8 @@ const ignoredVariables = {
     'BUTTON_FM_LIST_MOD_MINIMUM_HIDE_DISTANCE': '200',
     'MULTIPLE_USERS_NOTICE_MESSAGE_1': '`This receiver is currently in use.`',
     'MULTIPLE_USERS_NOTICE_MESSAGE_2': '`Please be considerate and mindful of other users before tuning.`',
+    'MULTIPATH_ATTACH_TO': '"STEREO"',
+    'MULTIPATH_LEFT_PADDING': '-8',
     'TUNE_DELAY': '2',
     'TUNE_DELAY_IF_MORE_THAN_ONE_USER': '45',
     'DEFAULT_SIGNAL_UNIT': '0',

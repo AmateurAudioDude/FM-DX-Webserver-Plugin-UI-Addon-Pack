@@ -80,6 +80,15 @@ const RDS_FLAG_INDICATOR = false;
 
 // Adds a multipath icon alongside the stereo/mono icon.
 const MULTIPATH_INDICATOR = false;
+
+// When RDS_ICON_STYLE is enabled, choose which icon the multipath indicator attaches to.
+// The multipath icon will appear to the right of the selected icon.
+// Options: "STEREO", "PTY", "MS", "ECC", "TP", "TA", "RDS"
+const MULTIPATH_ATTACH_TO = "STEREO";
+
+// Adjustable multipath icon spacing when not attached to Stereo/Mono icon.
+const MULTIPATH_LEFT_PADDING = -8;
+
 // Set to true if using a TEF radio or false if using a TEF module. Based on the assumption TEF radio MP peaks around 40%.
 const IS_TEF_RADIO = false;
 
@@ -1990,8 +1999,21 @@ function addRandomIcon(result) {
     // Check if RDS_ICON_STYLE mode is active
     const isRdsStyleMode = !!document.querySelector('#signalPanel #signal-icons');
 
+    // Map icon names to their element IDs/selectors
+    const iconIdMap = {
+        'STEREO': '#stereoIcon',
+        'PTY': '#ptyLabel',
+        'MS': '#msIcon',
+        'ECC': '#eccWrapper',
+        'TP': '#tpIcon',
+        'TA': '#taIcon',
+        'RDS': '#rdsIcon'
+    };
+
+    const attachToId = iconIdMap[MULTIPATH_ATTACH_TO.toUpperCase()] || '#stereoIcon';
+
     const targetSpan = isRdsStyleMode
-        ? document.querySelector('#signalPanel #signal-icons #stereoIcon')
+        ? document.querySelector(`#signalPanel #signal-icons ${attachToId}`)
         : document.querySelector('.wrapper-outer #wrapper .flex-container .flex-container #flags-container-desktop.panel-33.user-select-none span.pointer.stereo-container');
 
   if (targetSpan) {
@@ -2002,7 +2024,7 @@ function addRandomIcon(result) {
 
     const iconSpan = document.createElement('span');
     iconSpan.classList.add('multipath-container');
-    iconSpan.style.marginLeft = `${RDS_ICON_STYLE || isRdsStyleMode ? -8 : 8}px`;
+    iconSpan.style.marginLeft = `${RDS_ICON_STYLE || isRdsStyleMode ? MULTIPATH_LEFT_PADDING : 8}px`;
     iconSpan.style.verticalAlign = 'middle';
     iconSpan.style.marginTop = `${RDS_ICON_STYLE || isRdsStyleMode ? 0 : 2}px`;
     iconSpan.style.fontSize = '16px';
