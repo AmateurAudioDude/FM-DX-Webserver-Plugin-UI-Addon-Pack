@@ -2744,10 +2744,12 @@ const off_opacity = REDUCE_HALF_OPACITY === true ? '0.6' : '0.9';
 async function setupTextSocket() {
   if (TextSocket && TextSocket.readyState !== WebSocket.CLOSED) {
     return;
+  } else {
+      setTimeout(setupTextSocket, 10000);
   }
 
   try {
-    TextSocket = await window.socketPromise;
+    TextSocket = await window.socket;
 
     TextSocket.addEventListener("open", () => {
       logInfo("TextSocket connected.");
