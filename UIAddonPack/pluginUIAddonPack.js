@@ -2261,6 +2261,8 @@ window.addEventListener('DOMContentLoaded', (event) => {
             userUnlockTuning(0);
         }
 
+        let isTimerMinimized = false;
+
         function createTimer() {
             const wrapper = document.createElement('div');
             wrapper.id = "ui-addon-countdown-wrapper";
@@ -2277,6 +2279,17 @@ window.addEventListener('DOMContentLoaded', (event) => {
             wrapper.style.borderRadius = '14px';
             wrapper.style.boxShadow = '0 0 14px var(--color-2)';
             wrapper.style.opacity = '0.9';
+            wrapper.style.cursor = 'pointer';
+            wrapper.style.transition = 'transform 0.3s ease';
+
+            wrapper.addEventListener('click', () => {
+                isTimerMinimized = !isTimerMinimized;
+                if (isTimerMinimized) {
+                    wrapper.style.transform = 'translate(-50%, -50%) scale(0.5)';
+                } else {
+                    wrapper.style.transform = 'translate(-50%, -50%) scale(1)';
+                }
+            });
 
             const timerText = document.createElement('div');
             timerText.id = 'timer';
