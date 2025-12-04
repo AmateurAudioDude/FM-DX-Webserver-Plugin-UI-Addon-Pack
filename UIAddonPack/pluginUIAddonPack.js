@@ -2281,6 +2281,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
             wrapper.style.opacity = '0.9';
             wrapper.style.cursor = 'pointer';
             wrapper.style.transition = 'transform 0.3s ease';
+            wrapper.style.userSelect = 'none';
 
             wrapper.addEventListener('click', () => {
                 isTimerMinimized = !isTimerMinimized;
