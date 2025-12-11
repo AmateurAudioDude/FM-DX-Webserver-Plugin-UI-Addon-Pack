@@ -696,7 +696,7 @@ if (STEREO_ICON_COLOR !== "default") {
         document.head.appendChild(existingStyle);
       }
 
-      const circles = document.querySelectorAll('.wrapper-outer #wrapper h3 .circle-container .circle.data-st');
+      const circles = document.querySelectorAll('.wrapper-outer #wrapper .circle-container .circle.data-st');
 
       circles.forEach(el => {
         if (el.classList.contains('opacity-half') || el.closest('.opacity-half')) {
