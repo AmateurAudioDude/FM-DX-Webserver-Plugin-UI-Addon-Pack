@@ -18,6 +18,12 @@ const ignoredVariables = {
     'STEREO_ICON_COLOR': '"default"',
     'STEREO_ICON_COLOR_OFF': '""',
     'RDS_ICON_PRESET': '1',
+    'RDS_ICON_SCALE': '"100%"',
+    'STEREO_ICON_WIDTH': '2',
+    'RDS_INDICATOR_ICON_TYPE': '1',
+    'RDS_INDICATOR_ICON_COLOR': '""',
+    'RDS_INDICATOR_ICON_COLOR_OFF': '""',
+    'RDS_INDICATOR_ICON_GLOW_INTENSITY': '0.25',
 };
 
 fs.readFile(filePath, 'utf8', (err, data) => {
