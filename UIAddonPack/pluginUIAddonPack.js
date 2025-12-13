@@ -192,9 +192,13 @@ const RDS_INDICATOR_ICON_GLOW_INTENSITY = 0.25;
 // Removes RDS indicator icon. Could be useful when using the multipath icon with Metrics Monitor plugin.
 const RDS_ICON_STYLE_REMOVE_RDS_ICON = false;
 
+// Bandwidth update interval in milliseconds.
+const BANDWIDTH_UPDATE_INTERVAL = 500;
+
 // Enables glow effect for RDS icons.
 const LED_GLOW_EFFECT_ICONS_RDS_ICON_STYLE_PTY = false;
 const LED_GLOW_EFFECT_ICONS_RDS_ICON_STYLE_MS = false;
+const LED_GLOW_EFFECT_ICONS_BANDWIDTH = false;
 
 // Enables glow effect for Metrics Monitor plugin icons.
 const LED_GLOW_EFFECT_ICONS_METRICS_MONITOR_PLUGIN = false;
@@ -209,6 +213,7 @@ const LED_GLOW_EFFECT_ICONS_METRICS_MONITOR_PLUGIN = false;
 //   TP     = Traffic Programme
 //   TA     = Traffic Announcement
 //   RDS    = RDS signal indicator
+//   BW     = Current bandwidth
 //
 
 // === Preset definitions ===
@@ -312,8 +317,6 @@ const HIDE_CONSOLE_LOGS = false;
 
 
 
-
-const LED_GLOW_EFFECT_ICONS_BANDWIDTH_CURRENT = false; // Custom firmware
 
 if (ENABLE_PLUGIN) {
 
@@ -2530,7 +2533,7 @@ const RDS_ICON_STYLE_TP_TA_GAP = ACTIVE_PRESET.TP_TA_GAP;
 const RDS_ICON_STYLE_MS_TOP_PADDING = ACTIVE_PRESET.MS_TOP_PADDING;
 const RDS_ICON_STYLE_STEREO_ICON_SPACING = ACTIVE_PRESET.STEREO_ICON_SPACING;
 const RDS_ICON_STYLE_PTY_HEIGHT = ACTIVE_PRESET.PTY_HEIGHT;
-const RDS_ICON_STYLE_BWC_MARGIN_LEFT = ACTIVE_PRESET.BWC_MARGIN_LEFT; // Custom firmware
+const RDS_ICON_STYLE_BW_MARGIN_LEFT = ACTIVE_PRESET.BW_MARGIN_LEFT;
 const RDS_ICON_STYLE_GAP_ROW_1 = ACTIVE_PRESET.GAP_ROW_1;
 const RDS_ICON_STYLE_GAP_ROW_2 = ACTIVE_PRESET.GAP_ROW_2;
 
@@ -2738,8 +2741,8 @@ ${LED_GLOW_EFFECT_ICONS && (RDS_ICON_STYLE || LED_GLOW_EFFECT_ICONS_METRICS_MONI
   flex-shrink: 0;
 }
 
-/* BWC Label // Custom firmware */
-#bwcLabel {
+/* BW Label */
+#bwLabel {
   font-size: 13px;
   color: #fff;
   text-align: center;
@@ -2897,6 +2900,8 @@ function ensurePtyOverlayIcon() {
     }
     return icon;
 }
+
+let lastBwUpdate = 0; // Used for bandwidth
 
 function handleTextSocketMessage(message) {
   // HF-Level
@@ -3201,33 +3206,51 @@ function handleTextSocketMessage(message) {
     }
   }
 
-  // --- BWC (Bandwidth Current) // Custom firmware ---
-  const bwcLabel = document.getElementById('bwcLabel');
-  if (bwcLabel) {
-    const hasBwc = message.bwCurrent !== undefined && message.bwCurrent !== null && message.bwCurrent !== "";
+  // --- BW (Bandwidth) ---
+  function updateBwFromSigRaw(message) {
+    const now = Date.now();
+    if (now - lastBwUpdate < BANDWIDTH_UPDATE_INTERVAL) return;
+    lastBwUpdate = now;
 
-    if (hasBwc) {
-        let bandwidthText = Math.floor(message.bwCurrent / 1000);
-        bwcLabel.textContent = bandwidthText;
+    const bwLabel = document.getElementById('bwLabel');
+    if (!bwLabel) return;
 
-        if (Number(bwcLabel.textContent.trim()) > 64) {
-            bwcLabel.style.color = "#fff";
-            bwcLabel.style.borderColor = "#fff";
-            bwcLabel.style.fontWeight = "600";
-            if (REDUCE_HALF_OPACITY) bwcLabel.style.opacity = '0.9';
-            if (LED_GLOW_EFFECT_ICONS_BANDWIDTH_CURRENT) bwcLabel.style.filter = `drop-shadow(0 0 3px rgba(255, 255, 255, 0.5))
-              drop-shadow(0 0 6px rgba(255, 255, 255, 0.4))
-              drop-shadow(0 0 9px rgba(238, 238, 238, 0.3))`;
-        } else {
-            bwcLabel.style.color = "#696969";
-            bwcLabel.style.borderColor = "#696969";
-            bwcLabel.style.fontWeight = "bold";
-            if (REDUCE_HALF_OPACITY) bwcLabel.style.opacity = off_opacity;
-            if (LED_GLOW_EFFECT_ICONS_BANDWIDTH_CURRENT) bwcLabel.style.filter = 'none';
+    let sigValue = 0;
+
+    if (typeof message.sigRaw === "string") {
+        const parts = message.sigRaw.split(',');
+        if (parts.length >= 4) {
+            const parsed = Number(parts[3]);
+            if (!isNaN(parsed)) {
+                sigValue = Math.floor(parsed);
+            }
         }
-        bwcLabel.textContent += ' kHz';
     }
+
+    bwLabel.textContent = sigValue;
+
+    if (sigValue > 64) {
+        bwLabel.style.color = "#fff";
+        bwLabel.style.borderColor = "#fff";
+        bwLabel.style.fontWeight = "600";
+        if (REDUCE_HALF_OPACITY) bwLabel.style.opacity = '0.9';
+        if (LED_GLOW_EFFECT_ICONS_BANDWIDTH) {
+            bwLabel.style.filter = `drop-shadow(0 0 3px rgba(255, 255, 255, 0.5))
+                                     drop-shadow(0 0 6px rgba(255, 255, 255, 0.4))
+                                     drop-shadow(0 0 9px rgba(238, 238, 238, 0.3))`;
+        }
+    } else {
+        bwLabel.style.color = "#696969";
+        bwLabel.style.borderColor = "#696969";
+        bwLabel.style.fontWeight = "bold";
+        if (REDUCE_HALF_OPACITY) bwLabel.style.opacity = off_opacity;
+        if (LED_GLOW_EFFECT_ICONS_BANDWIDTH) bwLabel.style.filter = 'none';
+    }
+
+    bwLabel.textContent += ' kHz';
   }
+
+  updateBwFromSigRaw(message);
 }
 
 //
@@ -3257,24 +3280,24 @@ function createIconElement(iconType) {
       if (REDUCE_HALF_OPACITY) ptyLabel.style.opacity = off_opacity;
       return ptyLabel;
     }
-    case 'BWC': { // Custom firmware
-      const bwcLabel = document.createElement('span');
-      bwcLabel.id = 'bwcLabel';
-      bwcLabel.textContent = 'BW';
-      bwcLabel.style.color = '#696969';
-      bwcLabel.style.fontSize = '16px';
-      bwcLabel.style.fontWeight = 'bold';
-      bwcLabel.style.border = '0px solid #696969';
-      bwcLabel.style.borderRadius = '3px';
-      bwcLabel.style.padding = '0 2px';
-      bwcLabel.style.marginLeft = RDS_ICON_STYLE_BWC_MARGIN_LEFT + 'px';
-      bwcLabel.style.display = 'inline-flex';
-      bwcLabel.style.alignItems = 'center';
-      bwcLabel.style.justifyContent = 'right';
-      bwcLabel.style.paddingBottom = isFirefox ? '1px' : '1px'; // Firefox
-      bwcLabel.style.height = RDS_ICON_STYLE_PTY_HEIGHT + 'px';
-      if (REDUCE_HALF_OPACITY) bwcLabel.style.opacity = off_opacity;
-      return bwcLabel;
+    case 'BW': {
+      const bwLabel = document.createElement('span');
+      bwLabel.id = 'bwLabel';
+      bwLabel.textContent = 'BW';
+      bwLabel.style.color = '#696969';
+      bwLabel.style.fontSize = '16px';
+      bwLabel.style.fontWeight = 'bold';
+      bwLabel.style.border = '0px solid #696969';
+      bwLabel.style.borderRadius = '3px';
+      bwLabel.style.padding = '0 2px';
+      bwLabel.style.marginLeft = RDS_ICON_STYLE_BW_MARGIN_LEFT + 'px';
+      bwLabel.style.display = 'inline-flex';
+      bwLabel.style.alignItems = 'center';
+      bwLabel.style.justifyContent = 'right';
+      bwLabel.style.paddingBottom = isFirefox ? '1px' : '1px'; // Firefox
+      bwLabel.style.height = RDS_ICON_STYLE_PTY_HEIGHT + 'px';
+      if (REDUCE_HALF_OPACITY) bwLabel.style.opacity = off_opacity;
+      return bwLabel;
     }
     case 'MS': {
       // Music/Speech icon
