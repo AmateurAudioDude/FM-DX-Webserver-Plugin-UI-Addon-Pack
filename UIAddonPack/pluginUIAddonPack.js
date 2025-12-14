@@ -227,6 +227,7 @@ const RDS_ICON_STYLE_PRESETS = {
         MS_TOP_PADDING: 7,
         STEREO_ICON_SPACING: 1,
         PTY_HEIGHT: 20,
+        BW_MARGIN_LEFT: -6,
         GAP_ROW_1: 1,
         GAP_ROW_2: 6
     },
@@ -239,6 +240,7 @@ const RDS_ICON_STYLE_PRESETS = {
         MS_TOP_PADDING: 7,
         STEREO_ICON_SPACING: 1,
         PTY_HEIGHT: 20,
+        BW_MARGIN_LEFT: -6,
         GAP_ROW_1: 1,
         GAP_ROW_2: 6
     },
@@ -251,6 +253,7 @@ const RDS_ICON_STYLE_PRESETS = {
         MS_TOP_PADDING: 7,
         STEREO_ICON_SPACING: 6,
         PTY_HEIGHT: 17,
+        BW_MARGIN_LEFT: -6,
         GAP_ROW_1: -6,
         GAP_ROW_2: 0
     },
