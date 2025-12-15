@@ -3164,12 +3164,20 @@ function handleTextSocketMessage(message) {
       rdsIcon.src = rds_on_webp;
       if (REDUCE_HALF_OPACITY) rdsIcon.style.opacity = '0.9';
       if (LED_GLOW_EFFECT_ICONS) rdsIcon.classList.add('icon-glow-on');
-      if (RDS_INDICATOR_ICON_COLOR || RDS_INDICATOR_ICON_COLOR_OFF) rdsIcon.style.filter = colorToFilter(RDS_INDICATOR_ICON_COLOR, LED_GLOW_EFFECT_ICONS, RDS_INDICATOR_ICON_GLOW_INTENSITY);
+      if (RDS_INDICATOR_ICON_COLOR) {
+          rdsIcon.style.filter = colorToFilter(RDS_INDICATOR_ICON_COLOR, LED_GLOW_EFFECT_ICONS, RDS_INDICATOR_ICON_GLOW_INTENSITY);
+      } else if (RDS_INDICATOR_ICON_COLOR_OFF) {
+          rdsIcon.style.filter = '';
+      }
     } else {
       rdsIcon.src = rds_off_webp;
       if (REDUCE_HALF_OPACITY) rdsIcon.style.opacity = off_opacity;
       rdsIcon.classList.remove('icon-glow-on');
-      if (RDS_INDICATOR_ICON_COLOR || RDS_INDICATOR_ICON_COLOR_OFF) rdsIcon.style.filter = colorToFilter(RDS_INDICATOR_ICON_COLOR_OFF, false, 0);
+      if (RDS_INDICATOR_ICON_COLOR_OFF) {
+          rdsIcon.style.filter = colorToFilter(RDS_INDICATOR_ICON_COLOR_OFF, false, 0);
+      } else if (RDS_INDICATOR_ICON_COLOR) {
+          rdsIcon.style.filter = '';
+      }
     }
   }
 
