@@ -27,13 +27,50 @@ const ignoredVariables = {
     'RDS_INDICATOR_ICON_GLOW_INTENSITY': '0.25',
 };
 
+// Extract 'user' preset from RDS_ICON_STYLE_PRESETS
+function extractUserPreset(lines, startIndex) {
+    let insideUser = false;
+    let braceDepth = 0;
+    const result = [];
+
+    for (let i = startIndex; i < lines.length; i++) {
+        const line = lines[i];
+
+        if (!insideUser) {
+            if (line.includes('user: {')) {
+                insideUser = true;
+                braceDepth = 1;
+                result.push('const RDS_ICON_STYLE_PRESETS = {');
+                result.push(line);
+            }
+            continue;
+        }
+
+        // Count braces safely
+        braceDepth += (line.match(/{/g) || []).length;
+        braceDepth -= (line.match(/}/g) || []).length;
+
+        if (result[result.length - 1] !== line) {
+            result.push(line);
+        }
+
+        if (insideUser && braceDepth === 0) {
+            result.push('};');
+            break;
+        }
+    }
+
+    return result;
+}
+
 fs.readFile(filePath, 'utf8', (err, data) => {
     if (err) {
-        if (err.code === 'ENOENT') {
-            console.error(` File not found: ${filePath}`);
-        } else {
-            console.error(' Error reading file:', err);
-        }
+        console.error(
+            err.code === 'ENOENT'
+                ? `File not found: ${filePath}`
+                : 'Error reading file:',
+            err
+        );
         return;
     }
 
@@ -53,24 +90,38 @@ fs.readFile(filePath, 'utf8', (err, data) => {
                     results.push(originalLine);
                 }
             }
-        } else {
-            if (line.startsWith('if (ENABLE_PLUGIN)')) {
-                break;
+            continue;
+        }
+
+        if (line.startsWith('if (ENABLE_PLUGIN)')) {
+            break;
+        }
+
+        if (line.startsWith('const RDS_ICON_STYLE_PRESETS')) {
+            const userPreset = extractUserPreset(lines, i);
+
+            if (userPreset.length) {
+                results.push(...userPreset);
             }
 
-            const varAssignment = line.match(/^const\s+(\w+)\s*=\s*(.+);/);
-            if (varAssignment) {
-                const varName = varAssignment[1];
-                const value = varAssignment[2].trim();
-
-                if (ignoredVariables[varName] === value) {
-                    continue;
-                }
-
-                if (value !== 'false') {
-                    results.push(originalLine);
-                }
+            while (i < lines.length && !lines[i].trim().endsWith('};')) {
+                i++;
             }
+            continue;
+        }
+
+        const varMatch = line.match(/^const\s+(\w+)\s*=\s*(.+);/);
+        if (!varMatch) continue;
+
+        const varName = varMatch[1];
+        const value = varMatch[2].trim();
+
+        if (ignoredVariables[varName] === value) {
+            continue;
+        }
+
+        if (value !== 'false') {
+            results.push(originalLine);
         }
     }
 
@@ -85,11 +136,11 @@ fs.readFile(filePath, 'utf8', (err, data) => {
     const outputPath = path.join(__dirname, 'changes.txt');
     const outputContent = results.join('\n') + '\n';
 
-    fs.writeFile(outputPath, outputContent, 'utf8', (writeErr) => {
+    fs.writeFile(outputPath, outputContent, 'utf8', writeErr => {
         if (writeErr) {
             console.error('Error writing to changes.txt:', writeErr);
         } else {
-            console.log(`\n Changes written to changes.txt`);
+            console.log('\n Changes written to changes.txt');
         }
     });
 });
