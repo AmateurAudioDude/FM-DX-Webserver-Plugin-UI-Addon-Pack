@@ -2572,8 +2572,8 @@ ${RDS_ICON_STYLE_REMOVE_RDS_ICON === true ?
 #eccWrapper {
   margin-left: 24px !important;
 }
-
 `: ""}
+
 @media (max-width: 768px) {
   #signalPanel {
     margin-top: 0px !important;
@@ -2607,6 +2607,7 @@ ${RDS_ICON_SCALE !== "100%" ?
   box-sizing: border-box;
 }
 
+${LED_GLOW_EFFECT_ICONS_METRICS_MONITOR_PLUGIN === false ?`
 #signal-icons {
   display: flex;
   flex-direction: column;
@@ -2616,6 +2617,7 @@ ${RDS_ICON_SCALE !== "100%" ?
   position: relative;
   width: 100%;
 }
+`: ""}
 
 #signal-icons img.status-icon {
   height: 14px;
@@ -3264,6 +3266,23 @@ function handleTextSocketMessage(message) {
   }
 
   updateBwFromSigRaw(message);
+
+  // --- Stereo (MPX plugin) ---
+  const stereoIconPlugin = document.getElementById('stereoIcon');
+  if (stereoIconPlugin) {
+    const stOn = (message.st && !message.stForced) || (message.rds && stereoIconPlugin.getAttribute('data-current-src').includes('mpx_on'));
+    if (LED_GLOW_EFFECT_ICONS && stOn) {
+      stereoIconPlugin.classList.add('icon-glow-on');
+      if (REDUCE_HALF_OPACITY) stereoIconPlugin.style.opacity = '0.9';
+    } else {
+      stereoIconPlugin.classList.remove('icon-glow-on');
+      if (REDUCE_HALF_OPACITY && !stOn) {
+          stereoIconPlugin.style.opacity = off_opacity;
+      } else {
+          stereoIconPlugin.style.opacity = '0.9';
+      }
+    }
+  }
 }
 
 //
