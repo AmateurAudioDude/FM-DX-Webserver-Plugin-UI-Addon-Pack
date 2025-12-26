@@ -3029,7 +3029,7 @@ function handleTextSocketMessage(message) {
         const newSpan = eccSpan.cloneNode(true);
         newSpan.style.marginLeft = "5.25px"; // Reduce margin to align flag icons
         newSpan.style.marginTop = "-7px";
-        newSpan.style.transform = "translateY(5px)";
+        newSpan.style.transform = "translateY(1px)";
         eccWrapper.appendChild(newSpan);
       } else {
         // Fallback
