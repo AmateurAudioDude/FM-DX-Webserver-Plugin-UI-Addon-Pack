@@ -3270,7 +3270,7 @@ function handleTextSocketMessage(message) {
   // --- Stereo (MPX plugin) ---
   const stereoIconPlugin = document.getElementById('stereoIcon');
   if (stereoIconPlugin) {
-    const stOn = (message.st && !message.stForced) || (message.rds && stereoIconPlugin.getAttribute('data-current-src').includes('mpx_on'));
+    const stOn = (message.st && !message.stForced) || (message.rds && stereoIconPlugin.getAttribute('data-current-src')?.includes('mpx_on'));
     if (LED_GLOW_EFFECT_ICONS && stOn) {
       stereoIconPlugin.classList.add('icon-glow-on');
       if (REDUCE_HALF_OPACITY) stereoIconPlugin.style.opacity = '0.9';
