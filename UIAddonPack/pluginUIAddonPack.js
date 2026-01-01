@@ -296,6 +296,7 @@ const PLUGINS_USER_ORDER = "1";
 //   12:       STREAM
 //   13:       NYE Countdown
 //   14:       MPX/Signal
+//   15:       RDS Expert
 //
 
 // #################### CONSOLE LOG SETTINGS #################### //
@@ -2486,6 +2487,7 @@ if (SORT_PLUGIN_BUTTONS) {
    12: 'Stream-on-off',              // STREAM
    13: 'countdown-button',           // NYE Countdown
    14: 'mpx-signal-toggle-button',   // MPX/Signal
+   15: 'rds-expert-button',          // RDS Expert
   };
 
   const orderArray = PLUGINS_USER_ORDER
