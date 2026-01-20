@@ -1,5 +1,5 @@
 /*
-    UI Add-on Pack v1.1.6 by AAD
+    UI Add-on Pack v1.1.7 by AAD
     ----------------------------
     https://github.com/AmateurAudioDude/FM-DX-Webserver-Plugin-UI-Addon-Pack
 */
@@ -8,7 +8,7 @@
 
 (() => {
 
-const pluginVersion = '1.1.6';
+const pluginVersion = '1.1.7';
 const pluginName = "UI Add-on Pack";
 const pluginHomepageUrl = "https://github.com/AmateurAudioDude/FM-DX-Webserver-Plugin-UI-Addon-Pack";
 const pluginUpdateUrl = "https://raw.githubusercontent.com/AmateurAudioDude/FM-DX-Webserver-Plugin-UI-Addon-Pack/refs/heads/main/UIAddonPack/pluginUIAddonPack.js";
@@ -203,6 +203,9 @@ const LED_GLOW_EFFECT_ICONS_BANDWIDTH = false;
 // Enables glow effect for Metrics Monitor plugin icons.
 const LED_GLOW_EFFECT_ICONS_METRICS_MONITOR_PLUGIN = false;
 
+// Replaces Metrics Monitor plugin MPX indicator icon with stereo icon.
+const REPLACE_MPX_LOGO_WITH_STEREO_LOGO_METRICS_MONITOR_PLUGIN = true;
+  
 // RDS icon order configuration.
 
 //
@@ -1874,7 +1877,7 @@ connectWebSocket();
 
 // #################### MULTIPATH INDICATOR #################### //
 
-if (MULTIPATH_INDICATOR) {
+if (MULTIPATH_INDICATOR && innerWidth > 768) {
 // PTY padding
 const flagsContainer = document.querySelector('#flags-container-desktop.panel-33.user-select-none');
 if (flagsContainer) {
@@ -2132,48 +2135,22 @@ let lockTuning;
 window.addEventListener('DOMContentLoaded', (event) => {
     if (isTuneAuthenticated) return;
 
-    function userLockTuning() {
-      // Lock
-      lockTuning = true;
-      // Select the elements with IDs 'scanner-down' and 'scanner-up'
-      const elementScannerDown = document.getElementById('scanner-down');
-      const elementScannerUp = document.getElementById('scanner-up');
-      const elementSearchDown = document.getElementById('search-down');
-      const elementSearchUp = document.getElementById('search-up');
-      if (elementScannerDown && elementScannerUp) {
-        elementScannerDown.disabled = true;
-        elementScannerUp.disabled = true;
-      } else if (elementSearchDown && elementSearchUp) {
-        elementSearchDown.disabled = true;
-        elementSearchUp.disabled = true;
-      }
-
-      const originalSend = socket.send;
-      // 'freq-down' and 'freq-up' buttons
-      socket.send = function (message) {
-        if (lockTuning) {
-          return;
-        }
-        return originalSend.apply(this, arguments);
-      };
-    }
-
     function lockIconStatus() {
       if (showIcon) {
-          // Hide icon
-          const tunerName = document.querySelector('.dashboard-panel-plugin-content');
-          const panel = document.querySelector('.dashboard-panel .panel-100-real');
-          const lockIcon = panel?.querySelector('.user-requests-lock');
-          if (lockIcon) {
-              panel.removeChild(lockIcon);
-          }
-          // Show icon
-          const lockIconHTML = '<i style="padding: 10px 6px 12px 6px; font-size: 18px; color: var(--color-4);" class="fa-solid fa-lock pointer user-requests-lock" aria-label="Tuner is currently locked."></i>';
-          tunerName.insertAdjacentHTML('afterend', lockIconHTML);
+        // Hide icon
+        const tunerName = document.querySelector('.dashboard-panel-plugin-content');
+        const panel = document.querySelector('.dashboard-panel .panel-100-real');
+        const lockIcon = panel?.querySelector('.user-requests-lock');
+        if (lockIcon) {
+          panel.removeChild(lockIcon);
+        }
+        // Show icon
+        const lockIconHTML = '<i style="padding: 10px 6px 12px 6px; font-size: 18px; color: var(--color-4);" class="fa-solid fa-lock pointer user-requests-lock" aria-label="Tuner is currently locked."></i>';
+        tunerName.insertAdjacentHTML('afterend', lockIconHTML);
 
-          const isMobilePortrait = window.innerWidth <= 768 && window.innerHeight > window.innerWidth;
+        const isMobilePortrait = window.innerWidth <= 768 && window.innerHeight > window.innerWidth;
 
-          if (isMobilePortrait) {
+        if (isMobilePortrait) {
           const lockIcon = panel?.querySelector('.user-requests-lock');
           if (lockIcon) {
             lockIcon.style.position = 'absolute';
@@ -2184,20 +2161,107 @@ window.addEventListener('DOMContentLoaded', (event) => {
       }
     }
 
+    // Intercept keybinds while locked, but allow keys inside #popup-panel-chat
+    document.addEventListener('keydown', (e) => {
+      if (!lockTuning) return; // no lock, do nothing
+
+      const chatPanel = document.getElementById('popup-panel-chat');
+      if (chatPanel && chatPanel.contains(e.target)) {
+        // allow key events inside the chat
+        return;
+      }
+
+      const loginForm = document.getElementById('login-form');
+      if (loginForm && loginForm.contains(e.target)) {
+        // allow key events inside
+        return;
+      }
+
+      // block everything else
+      e.stopImmediatePropagation();
+      e.preventDefault();
+    }, true); // capture phase ensures we catch all events
+
+    function lockIconStatus() {
+      if (showIcon) {
+        const tunerName = document.querySelector('.dashboard-panel-plugin-content');
+        const panel = document.querySelector('.dashboard-panel .panel-100-real');
+        const lockIcon = panel?.querySelector('.user-requests-lock');
+        if (lockIcon) panel.removeChild(lockIcon);
+
+        const lockIconHTML = '<i style="padding: 10px 6px 12px 6px; font-size: 18px; color: var(--color-4);" class="fa-solid fa-lock pointer user-requests-lock" aria-label="Tuner is currently locked."></i>';
+        tunerName.insertAdjacentHTML('afterend', lockIconHTML);
+
+        const isMobilePortrait = window.innerWidth <= 768 && window.innerHeight > window.innerWidth;
+        if (isMobilePortrait) {
+          const lockIcon = panel?.querySelector('.user-requests-lock');
+          if (lockIcon) {
+            lockIcon.style.position = 'absolute';
+            lockIcon.style.bottom = '10px';
+            lockIcon.style.right = '12px';          
+          }
+        }
+      }
+    }
+
+    function userLockTuning() {
+      lockTuning = true;
+
+      // Buttons
+      const elementScannerDown = document.getElementById('scanner-down');
+      const elementScannerUp = document.getElementById('scanner-up');
+      const elementSearchDown = document.getElementById('search-down');
+      const elementSearchUp = document.getElementById('search-up');
+      const elementFreqDown = document.getElementById('freq-down');
+      const elementFreqUp = document.getElementById('freq-up');
+
+      // Disable scanner/search buttons
+      if (elementScannerDown && elementScannerUp) {
+        elementScannerDown.disabled = true;
+        elementScannerUp.disabled = true;
+      } else if (elementSearchDown && elementSearchUp) {
+        elementSearchDown.disabled = true;
+        elementSearchUp.disabled = true;
+      }
+
+      // Disable freq buttons
+      if (elementFreqDown) elementFreqDown.disabled = true;
+      if (elementFreqUp) elementFreqUp.disabled = true;
+
+      // Disable click on containers
+      const containers = [
+        document.querySelector('.data-eq'),
+        document.querySelector('.data-ims'),
+        document.getElementById('data-ant'),
+        document.getElementById('data-ant-phone'),
+        document.getElementById('data-bw'),
+        document.getElementById('freq-container'),
+        document.getElementById('tune-buttons'),
+        document.getElementById('plugin-button-presets')
+      ];
+
+      containers.forEach(el => {
+        if (el) el.style.pointerEvents = 'none';
+      });
+
+      lockIconStatus();
+    }
+
     userLockTuning();
 
     function userUnlockTuning(tuneDelay) {
-      // Unlock
       setTimeout(() => {
         lockTuning = false;
-        document.getElementById("tune-buttons").style.pointerEvents = "auto";
-        document.querySelectorAll(".dashboard-panel-plugin-list").forEach(el => {
-            el.style.pointerEvents = "auto";
-        });
+
+        // Buttons
         const elementScannerDown = document.getElementById('scanner-down');
         const elementScannerUp = document.getElementById('scanner-up');
         const elementSearchDown = document.getElementById('search-down');
         const elementSearchUp = document.getElementById('search-up');
+        const elementFreqDown = document.getElementById('freq-down');
+        const elementFreqUp = document.getElementById('freq-up');
+
+        // Re-enable scanner/search buttons
         if (elementScannerDown && elementScannerUp) {
           elementScannerDown.disabled = false;
           elementScannerUp.disabled = false;
@@ -2205,14 +2269,35 @@ window.addEventListener('DOMContentLoaded', (event) => {
           elementSearchDown.disabled = false;
           elementSearchUp.disabled = false;
         }
+
+        // Re-enable freq buttons
+        if (elementFreqDown) elementFreqDown.disabled = false;
+        if (elementFreqUp) elementFreqUp.disabled = false;
+
+        // Re-enable click on containers
+        const containers = [
+          document.querySelector('.data-eq'),
+          document.querySelector('.data-ims'),
+          document.getElementById('data-ant'),
+          document.getElementById('data-ant-phone'),
+          document.getElementById('data-bw'),
+          document.getElementById('freq-container'),
+          document.getElementById('tune-buttons'),
+          document.getElementById('plugin-button-presets')
+        ];
+
+        containers.forEach(el => {
+          if (el) el.style.pointerEvents = 'auto';
+        });
+
+        // Remove lock icon
         if (showIcon) {
-            // Hide icon
-            const tunerName = document.querySelector('.dashboard-panel .panel-100-real');
-            const lockIcon = tunerName?.querySelector('.user-requests-lock');
-            if (lockIcon) {
-                const panel = lockIcon.closest('.panel-100-real');
-                panel?.removeChild(lockIcon);
-            }
+          const tunerName = document.querySelector('.dashboard-panel .panel-100-real');
+          const lockIcon = tunerName?.querySelector('.user-requests-lock');
+          if (lockIcon) {
+            const panel = lockIcon.closest('.panel-100-real');
+            panel?.removeChild(lockIcon);
+          }
         }
       }, tuneDelay);
     }
@@ -2521,7 +2606,7 @@ if (SORT_PLUGIN_BUTTONS) {
   }
 }
 
-if (RDS_ICON_STYLE || LED_GLOW_EFFECT_ICONS_METRICS_MONITOR_PLUGIN || RDS_ICON_STYLE_REMOVE_RDS_ICON) {
+if ((RDS_ICON_STYLE || LED_GLOW_EFFECT_ICONS_METRICS_MONITOR_PLUGIN || RDS_ICON_STYLE_REMOVE_RDS_ICON) && innerWidth > 768) {
 
 const isFirefox = /firefox/i.test(navigator.userAgent);
 
@@ -3543,6 +3628,32 @@ if (document.readyState === "loading") {
   if (RDS_ICON_STYLE) initMetricsMonitor();
 }
 
+}
+
+if (REPLACE_MPX_LOGO_WITH_STEREO_LOGO_METRICS_MONITOR_PLUGIN) {
+document.addEventListener("DOMContentLoaded", function () {
+    setTimeout(() => {
+      const stereoIcon = document.getElementById("stereoIcon");
+
+      function updateStereoIcon() {
+        if (stereoIcon.classList.contains("stereo-off")) {
+          stereoIcon.src = "./js/plugins/MetricsMonitor/images/stereo_off.png";
+          stereoIcon.style.filter = "none";
+        } else if (stereoIcon.classList.contains("stereo-on")) {
+          stereoIcon.src = "./js/plugins/MetricsMonitor/images/stereo_on.png";
+          stereoIcon.style.filter = "";
+          stereoIcon.style.opacity = "0.9";
+        }
+      }
+
+      // Run once on page load
+      updateStereoIcon();
+
+      // Watch for class changes
+      const observer = new MutationObserver(updateStereoIcon);
+      observer.observe(stereoIcon, { attributes: true, attributeFilter: ["class"] });
+    }, 3000);
+});
 }
 
 }
