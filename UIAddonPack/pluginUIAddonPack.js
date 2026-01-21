@@ -2130,36 +2130,11 @@ if (TUNE_DELAY || TUNE_DELAY_IF_MORE_THAN_ONE_USER) {
 const tuneDelay = TUNE_DELAY * 1000;
 let onScreenTimerDelay = TUNE_DELAY_IF_MORE_THAN_ONE_USER;
 let showIcon = !!onScreenTimerDelay;
+let displayIcon = true;
 let lockTuning;
 
 window.addEventListener('DOMContentLoaded', (event) => {
     if (isTuneAuthenticated) return;
-
-    function lockIconStatus() {
-      if (showIcon) {
-        // Hide icon
-        const tunerName = document.querySelector('.dashboard-panel-plugin-content');
-        const panel = document.querySelector('.dashboard-panel .panel-100-real');
-        const lockIcon = panel?.querySelector('.user-requests-lock');
-        if (lockIcon) {
-          panel.removeChild(lockIcon);
-        }
-        // Show icon
-        const lockIconHTML = '<i style="padding: 10px 6px 12px 6px; font-size: 18px; color: var(--color-4);" class="fa-solid fa-lock pointer user-requests-lock" aria-label="Tuner is currently locked."></i>';
-        tunerName.insertAdjacentHTML('afterend', lockIconHTML);
-
-        const isMobilePortrait = window.innerWidth <= 768 && window.innerHeight > window.innerWidth;
-
-        if (isMobilePortrait) {
-          const lockIcon = panel?.querySelector('.user-requests-lock');
-          if (lockIcon) {
-            lockIcon.style.position = 'absolute';
-            lockIcon.style.bottom = '10px';
-            lockIcon.style.right = '12px';          
-          }
-        }
-      }
-    }
 
     // Intercept keybinds while locked, but allow keys inside #popup-panel-chat
     document.addEventListener('keydown', (e) => {
@@ -2180,7 +2155,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
       // block everything else
       e.stopImmediatePropagation();
       e.preventDefault();
-    }, true); // capture phase ensures we catch all events
+    }, true);
 
     function lockIconStatus() {
       if (showIcon) {
@@ -2190,7 +2165,10 @@ window.addEventListener('DOMContentLoaded', (event) => {
         if (lockIcon) panel.removeChild(lockIcon);
 
         const lockIconHTML = '<i style="padding: 10px 6px 12px 6px; font-size: 18px; color: var(--color-4);" class="fa-solid fa-lock pointer user-requests-lock" aria-label="Tuner is currently locked."></i>';
-        tunerName.insertAdjacentHTML('afterend', lockIconHTML);
+        setTimeout(() => {
+            if (displayIcon) tunerName.insertAdjacentHTML('afterend', lockIconHTML);
+            displayIcon = false; // prevent double display
+        }, 1000);
 
         const isMobilePortrait = window.innerWidth <= 768 && window.innerHeight > window.innerWidth;
         if (isMobilePortrait) {
@@ -2292,6 +2270,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
 
         // Remove lock icon
         if (showIcon) {
+          displayIcon = false;
           const tunerName = document.querySelector('.dashboard-panel .panel-100-real');
           const lockIcon = tunerName?.querySelector('.user-requests-lock');
           if (lockIcon) {
@@ -2415,13 +2394,13 @@ window.addEventListener('DOMContentLoaded', (event) => {
             if (timerElement) {
                 timerElement.innerHTML = `
                   <div style="text-align: center;">
-                    <div style="font-size: 24px; text-transform: uppercase; margin-bottom: 0;">
+                    <div style="font-size: 20px; text-transform: uppercase; margin-bottom: 0;">
                       Tuner in use
                     </div>
-                    <div style="font-size: 20px; text-transform: uppercase; margin-bottom: -12px;">
+                    <div style="font-size: 18px; text-transform: uppercase; margin-bottom: -12px;">
                       Time remaining before tuning is unlocked
                     </div>
-                    <div style="font-size: 40px;">${seconds}</div>
+                    <div style="font-size: 36px;">${seconds}</div>
                   </div>
                 `;
             }
