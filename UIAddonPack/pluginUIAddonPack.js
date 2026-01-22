@@ -2168,7 +2168,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
         setTimeout(() => {
             if (displayIcon) tunerName.insertAdjacentHTML('afterend', lockIconHTML);
             displayIcon = false; // prevent double display
-        }, 1000);
+        }, (TUNE_DELAY * 1000) + 1000);
 
         const isMobilePortrait = window.innerWidth <= 768 && window.innerHeight > window.innerWidth;
         if (isMobilePortrait) {
