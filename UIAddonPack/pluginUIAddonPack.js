@@ -166,6 +166,7 @@ const STEREO_ICON_COLOR_OFF = "";
 // Enables RDS icons.
 const RDS_ICON_STYLE = false;
 const RDS_ICON_STYLE_MOBILE = false;
+const METRICS_MONITOR_PLUGIN_IS_INSTALLED = false;
 
 // RDS icon style presets. See below to configure user preset.
 // Options: 0 = user-defined, 1 = preset 1, 2 = preset 2, 3 = preset 3.
@@ -1877,7 +1878,7 @@ connectWebSocket();
 
 // #################### MULTIPATH INDICATOR #################### //
 
-if (MULTIPATH_INDICATOR && innerWidth > 768) {
+if (MULTIPATH_INDICATOR && innerWidth > 360) {
 // PTY padding
 const flagsContainer = document.querySelector('#flags-container-desktop.panel-33.user-select-none');
 if (flagsContainer) {
@@ -2585,7 +2586,7 @@ if (SORT_PLUGIN_BUTTONS) {
   }
 }
 
-if ((RDS_ICON_STYLE || LED_GLOW_EFFECT_ICONS_METRICS_MONITOR_PLUGIN || RDS_ICON_STYLE_REMOVE_RDS_ICON) && innerWidth > 768) {
+if ((RDS_ICON_STYLE || LED_GLOW_EFFECT_ICONS_METRICS_MONITOR_PLUGIN || RDS_ICON_STYLE_REMOVE_RDS_ICON) && innerWidth > 360) {
 
 const isFirefox = /firefox/i.test(navigator.userAgent);
 
@@ -2640,6 +2641,7 @@ ${RDS_ICON_STYLE_REMOVE_RDS_ICON === true ?
 }
 `: ""}
 
+${METRICS_MONITOR_PLUGIN_IS_INSTALLED === false ? `
 @media (max-width: 768px) {
   #signalPanel {
     margin-top: 0px !important;
@@ -2656,7 +2658,7 @@ ${RDS_ICON_STYLE_REMOVE_RDS_ICON === true ?
     flex-direction: column;
     align-items: center;
   }
-}
+}` : ""}
 
 ${RDS_ICON_SCALE !== "100%" ?
 `#signalPanel > * {
@@ -3136,7 +3138,7 @@ function handleTextSocketMessage(message) {
         // Helper: hex --> RGB
         const { r, g, b } = hexToRgb(hexColor);
 
-        // Convert to 0–1 range
+        // Convert to 0-1 range
         const rNorm = r / 255;
         const gNorm = g / 255;
         const bNorm = b / 255;
