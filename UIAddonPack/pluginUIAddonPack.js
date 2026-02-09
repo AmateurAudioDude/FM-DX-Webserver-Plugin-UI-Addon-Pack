@@ -205,7 +205,7 @@ const LED_GLOW_EFFECT_ICONS_BANDWIDTH = false;
 const LED_GLOW_EFFECT_ICONS_METRICS_MONITOR_PLUGIN = false;
 
 // Replaces Metrics Monitor plugin MPX indicator icon with stereo icon.
-const REPLACE_MPX_LOGO_WITH_STEREO_LOGO_METRICS_MONITOR_PLUGIN = true;
+const REPLACE_MPX_LOGO_WITH_STEREO_LOGO_METRICS_MONITOR_PLUGIN = false;
   
 // RDS icon order configuration.
 
@@ -3617,10 +3617,10 @@ document.addEventListener("DOMContentLoaded", function () {
       const stereoIcon = document.getElementById("stereoIcon");
 
       function updateStereoIcon() {
-        if (stereoIcon.classList.contains("stereo-off")) {
+        if (stereoIcon?.classList.contains("stereo-off")) {
           stereoIcon.src = "./js/plugins/MetricsMonitor/images/stereo_off.png";
           stereoIcon.style.filter = "none";
-        } else if (stereoIcon.classList.contains("stereo-on")) {
+        } else if (stereoIcon?.classList.contains("stereo-on")) {
           stereoIcon.src = "./js/plugins/MetricsMonitor/images/stereo_on.png";
           stereoIcon.style.filter = "";
           stereoIcon.style.opacity = "0.9";
@@ -3632,7 +3632,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       // Watch for class changes
       const observer = new MutationObserver(updateStereoIcon);
-      observer.observe(stereoIcon, { attributes: true, attributeFilter: ["class"] });
+      if (stereoIcon) observer.observe(stereoIcon, { attributes: true, attributeFilter: ["class"] });
     }, 3000);
 });
 }
