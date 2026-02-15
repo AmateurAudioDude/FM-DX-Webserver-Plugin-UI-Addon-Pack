@@ -2269,6 +2269,10 @@ window.addEventListener('DOMContentLoaded', (event) => {
           if (el) el.style.pointerEvents = 'auto';
         });
 
+        document.querySelectorAll(".dashboard-panel-plugin-list").forEach(el => {
+            el.style.pointerEvents = "auto";
+        });
+
         // Remove lock icon
         if (showIcon) {
           displayIcon = false;
@@ -2329,6 +2333,11 @@ window.addEventListener('DOMContentLoaded', (event) => {
                     userUnlockTuning(0);
                 }
                 document.getElementById("ui-addon-countdown-wrapper")?.remove();
+
+                document.querySelectorAll(".dashboard-panel-plugin-list").forEach(el => {
+                    el.style.pointerEvents = "auto";
+                });
+
                 socket.removeEventListener("message", handleMessage);
             }
 
