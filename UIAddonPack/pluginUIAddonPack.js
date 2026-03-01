@@ -301,6 +301,7 @@ const PLUGINS_USER_ORDER = "1";
 //   13:       NYE Countdown
 //   14:       MPX/Signal
 //   15:       RDS Expert
+//   16:       Tropo
 //
 
 // #################### CONSOLE LOG SETTINGS #################### //
@@ -1111,6 +1112,7 @@ if (SIDEBAR_ADDITIONS_EXPAND_CANVAS) {
                         newHeight = Math.max(minHeight, Math.min(newHeight, maxHeight));
 
                         canvasContainer.style.height = newHeight + 'px';
+                        canvasContainer.style.transition = 'height 0.5s ease';
                         updateHeightDisplayBox(newHeight); // Update the height value in the box
                     }
                 }
@@ -2562,6 +2564,7 @@ if (SORT_PLUGIN_BUTTONS) {
    13: 'countdown-button',           // NYE Countdown
    14: 'mpx-signal-toggle-button',   // MPX/Signal
    15: 'rds-expert-button',          // RDS Expert
+   16: 'TROPO-BTN',                  // Tropo
   };
 
   const orderArray = PLUGINS_USER_ORDER
