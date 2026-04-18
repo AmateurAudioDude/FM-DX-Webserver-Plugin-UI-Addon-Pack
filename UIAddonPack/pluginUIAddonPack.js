@@ -302,6 +302,13 @@ const PLUGINS_USER_ORDER = "1";
 //   14:       MPX/Signal
 //   15:       RDS Expert
 //   16:       Tropo
+//   17:       DX Map
+//   18:       RDS Decoder
+//   19:       Scatter
+//   20:       LightFX
+//   21:       SysInfo
+//   22:       Scatter
+//   23:       Denoiser
 //
 
 // #################### CONSOLE LOG SETTINGS #################### //
@@ -897,7 +904,7 @@ const updateDistance = () => {
 
       if (numberMatch) {
         if (distanceNumber > BUTTON_FM_LIST_MOD_MINIMUM_HIDE_DISTANCE) {
-          FmListElement.style.display = 'block';
+          if (FmListElement) FmListElement.style.display = 'block';
         }
       }
     }
@@ -2565,6 +2572,13 @@ if (SORT_PLUGIN_BUTTONS) {
    14: 'mpx-signal-toggle-button',   // MPX/Signal
    15: 'rds-expert-button',          // RDS Expert
    16: 'TROPO-BTN',                  // Tropo
+   17: 'visual-logbook-map',         // DX Map
+   18: 'rdsm-btn',                   // RDS Decoder
+   19: 'METEORSCATTER-on-off',       // Scatter
+   20: 'lfx-header-btn',             // LightFX
+   21: 'SysInfo-on-off',             // SysInfo
+   22: 'AIRPLANESCATTER-on-off',     // Scatter
+   23: 'Denoiser-on-off',            // Denoiser
   };
 
   const orderArray = PLUGINS_USER_ORDER
