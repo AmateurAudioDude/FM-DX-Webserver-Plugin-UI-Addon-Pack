@@ -1,6 +1,6 @@
 /*
-    UI Add-on Pack v1.1.7 by AAD
-    ----------------------------
+    UI Add-on Pack v1.1.7a by AAD
+    -----------------------------
     https://github.com/AmateurAudioDude/FM-DX-Webserver-Plugin-UI-Addon-Pack
 */
 
@@ -167,6 +167,7 @@ const STEREO_ICON_COLOR_OFF = "";
 const RDS_ICON_STYLE = false;
 const RDS_ICON_STYLE_MOBILE = false;
 const METRICS_MONITOR_PLUGIN_IS_INSTALLED = false;
+const IS_VISUALEQ_PLUGIN_ENALBED = localStorage.getItem("visualeq_enabled_state") === "true";
 
 // RDS icon style presets. See below to configure user preset.
 // Options: 0 = user-defined, 1 = preset 1, 2 = preset 2, 3 = preset 3.
@@ -206,6 +207,7 @@ const LED_GLOW_EFFECT_ICONS_METRICS_MONITOR_PLUGIN = false;
 
 // Replaces Metrics Monitor plugin MPX indicator icon with stereo icon.
 const REPLACE_MPX_LOGO_WITH_STEREO_LOGO_METRICS_MONITOR_PLUGIN = false;
+const APPLY_STEREO_ICON_GLOW_WITH_MISSING_RDS = false;
   
 // RDS icon order configuration.
 
@@ -2081,9 +2083,9 @@ function addRandomIcon(result) {
 
     const iconSpan = document.createElement('span');
     iconSpan.classList.add('multipath-container');
-    iconSpan.style.marginLeft = `${RDS_ICON_STYLE || isRdsStyleMode ? MULTIPATH_LEFT_PADDING : 8}px`;
+    iconSpan.style.marginLeft = `${!IS_VISUALEQ_PLUGIN_ENALBED && (RDS_ICON_STYLE || isRdsStyleMode) ? MULTIPATH_LEFT_PADDING : 8}px`;
     iconSpan.style.verticalAlign = 'middle';
-    iconSpan.style.marginTop = `${RDS_ICON_STYLE || isRdsStyleMode ? 0 : 2}px`;
+    iconSpan.style.marginTop = `${!IS_VISUALEQ_PLUGIN_ENALBED && (RDS_ICON_STYLE || isRdsStyleMode) ? 0 : 2}px`;
     iconSpan.style.fontSize = '16px';
     iconSpan.style.position = 'relative';
 
@@ -2612,7 +2614,7 @@ if (SORT_PLUGIN_BUTTONS) {
   }
 }
 
-if ((RDS_ICON_STYLE || LED_GLOW_EFFECT_ICONS_METRICS_MONITOR_PLUGIN || RDS_ICON_STYLE_REMOVE_RDS_ICON) && innerWidth > 360) {
+if (!IS_VISUALEQ_PLUGIN_ENALBED && (RDS_ICON_STYLE || LED_GLOW_EFFECT_ICONS_METRICS_MONITOR_PLUGIN || RDS_ICON_STYLE_REMOVE_RDS_ICON) && innerWidth > 360) {
 
 const isFirefox = /firefox/i.test(navigator.userAgent);
 
@@ -2722,8 +2724,9 @@ ${LED_GLOW_EFFECT_ICONS_METRICS_MONITOR_PLUGIN === false ?`
   pointer-events: none;
 }
 
-${LED_GLOW_EFFECT_ICONS && (RDS_ICON_STYLE || LED_GLOW_EFFECT_ICONS_METRICS_MONITOR_PLUGIN) ? `
+${!IS_VISUALEQ_PLUGIN_ENALBED && (LED_GLOW_EFFECT_ICONS && (RDS_ICON_STYLE || LED_GLOW_EFFECT_ICONS_METRICS_MONITOR_PLUGIN)) ? `
 /* Glow effect for RDS_ICON_STYLE */
+${REPLACE_MPX_LOGO_WITH_STEREO_LOGO_METRICS_MONITOR_PLUGIN && APPLY_STEREO_ICON_GLOW_WITH_MISSING_RDS ? '#stereoIcon[src*="stereo_on"],' : ''}
 #signal-icons img.status-icon.icon-glow-on {
   filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.6))
           drop-shadow(0 0 6px rgba(255, 255, 255, 0.4))
@@ -2762,7 +2765,7 @@ ${LED_GLOW_EFFECT_ICONS && (RDS_ICON_STYLE || LED_GLOW_EFFECT_ICONS_METRICS_MONI
   gap: 2px;
 }
 
-${LED_GLOW_EFFECT_ICONS && (RDS_ICON_STYLE || LED_GLOW_EFFECT_ICONS_METRICS_MONITOR_PLUGIN) ? `
+${!IS_VISUALEQ_PLUGIN_ENALBED && (LED_GLOW_EFFECT_ICONS && (RDS_ICON_STYLE || LED_GLOW_EFFECT_ICONS_METRICS_MONITOR_PLUGIN)) ? `
 /* Stereo icon glow effect for RDS_ICON_STYLE */
 #signal-icons #stereoIcon.stereo-on .circle-container .circle {
   background-color: rgba(255, 255, 255, 0.2);

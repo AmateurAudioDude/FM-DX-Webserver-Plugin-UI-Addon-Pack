@@ -25,6 +25,7 @@ const ignoredVariables = {
     'RDS_INDICATOR_ICON_COLOR_OFF': '""',
     'BANDWIDTH_UPDATE_INTERVAL': '500',
     'RDS_INDICATOR_ICON_GLOW_INTENSITY': '0.25',
+    'IS_VISUALEQ_PLUGIN_ENALBED': 'localStorage.getItem("visualeq_enabled_state") === "true"',
 };
 
 // Extract 'user' preset from RDS_ICON_STYLE_PRESETS
@@ -98,6 +99,7 @@ fs.readFile(filePath, 'utf8', (err, data) => {
         }
 
         if (line.startsWith('const RDS_ICON_STYLE_PRESETS')) {
+            /*
             const userPreset = extractUserPreset(lines, i);
 
             if (userPreset.length) {
@@ -107,6 +109,7 @@ fs.readFile(filePath, 'utf8', (err, data) => {
             while (i < lines.length && !lines[i].trim().endsWith('};')) {
                 i++;
             }
+            */
             continue;
         }
 
@@ -125,7 +128,7 @@ fs.readFile(filePath, 'utf8', (err, data) => {
         }
     }
 
-    console.log(' Variables changed:\n');
+    console.log(' Variables changed (RDS_ICON_STYLE_PRESETS ignored):\n');
     results.forEach(line => console.log(line));
 
     if (results.length === 0) {
