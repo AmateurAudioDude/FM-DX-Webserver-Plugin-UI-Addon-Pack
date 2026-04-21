@@ -304,13 +304,22 @@ const PLUGINS_USER_ORDER = "1";
 //   14:       MPX/Signal
 //   15:       RDS Expert
 //   16:       Tropo
-//   17:       DX Map
+//   17:       DX Logbook
 //   18:       RDS Decoder
-//   19:       Scatter
+//   19:       Scatter (Meteor)
 //   20:       LightFX
 //   21:       SysInfo
-//   22:       Scatter
+//   22:       Scatter (Airplane)
 //   23:       Denoiser
+//   24:       Mapviewer
+//   25:       Validator
+//   26:       FM Scale
+//   27:       My Logs
+//   28:       Video
+//   29:       DX-Watchdog
+//   30:       Custom Links (1)
+//   31:       Custom Links (2)
+//   32:       Custom Links (3)
 //
 
 // #################### CONSOLE LOG SETTINGS #################### //
@@ -2574,13 +2583,22 @@ if (SORT_PLUGIN_BUTTONS) {
    14: 'mpx-signal-toggle-button',   // MPX/Signal
    15: 'rds-expert-button',          // RDS Expert
    16: 'TROPO-BTN',                  // Tropo
-   17: 'visual-logbook-map',         // DX Map
+   17: 'visual-logbook-map',         // DX Logbook
    18: 'rdsm-btn',                   // RDS Decoder
-   19: 'METEORSCATTER-on-off',       // Scatter
+   19: 'METEORSCATTER-on-off',       // Scatter (Meteor)
    20: 'lfx-header-btn',             // LightFX
    21: 'SysInfo-on-off',             // SysInfo
-   22: 'AIRPLANESCATTER-on-off',     // Scatter
+   22: 'AIRPLANESCATTER-on-off',     // Scatter (Airplane)
    23: 'Denoiser-on-off',            // Denoiser
+   24: 'Mapviewer',                  // Mapviewer
+   25: 'URDSValidator',              // Validator
+   26: 'analog-scale-btn',           // FM Scale
+   27: 'btn-mylogs-link',            // My Logs
+   28: 'social-record-btn',          // Video
+   29: 'btn-DX-Watchdog-link',       // DX-Watchdog
+   30: 'custom-links-btn-0',         // Custom Links (1)
+   31: 'custom-links-btn-1',         // Custom Links (2)
+   32: 'custom-links-btn-2',         // Custom Links (3)
   };
 
   const orderArray = PLUGINS_USER_ORDER
