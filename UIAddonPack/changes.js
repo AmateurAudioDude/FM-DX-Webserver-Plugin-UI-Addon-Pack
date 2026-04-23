@@ -17,6 +17,7 @@ const ignoredVariables = {
     'PLUGINS_USER_ORDER': '"1"',
     'STEREO_ICON_COLOR': '"default"',
     'STEREO_ICON_COLOR_OFF': '""',
+    'PANEL_STYLE_EFFECT': '0',
     'RDS_ICON_PRESET': '1',
     'RDS_ICON_SCALE': '"100%"',
     'STEREO_ICON_WIDTH': '2',
@@ -99,7 +100,6 @@ fs.readFile(filePath, 'utf8', (err, data) => {
         }
 
         if (line.startsWith('const RDS_ICON_STYLE_PRESETS')) {
-            /*
             const userPreset = extractUserPreset(lines, i);
 
             if (userPreset.length) {
@@ -109,7 +109,6 @@ fs.readFile(filePath, 'utf8', (err, data) => {
             while (i < lines.length && !lines[i].trim().endsWith('};')) {
                 i++;
             }
-            */
             continue;
         }
 
@@ -128,7 +127,7 @@ fs.readFile(filePath, 'utf8', (err, data) => {
         }
     }
 
-    console.log(' Variables changed (RDS_ICON_STYLE_PRESETS ignored):\n');
+    console.log(' Variables changed:\n');
     results.forEach(line => console.log(line));
 
     if (results.length === 0) {

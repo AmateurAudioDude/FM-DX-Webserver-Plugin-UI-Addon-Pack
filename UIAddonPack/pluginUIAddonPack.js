@@ -1,6 +1,6 @@
 /*
-    UI Add-on Pack v1.1.7a by AAD
-    -----------------------------
+    UI Add-on Pack v1.1.8 by AAD
+    ----------------------------
     https://github.com/AmateurAudioDude/FM-DX-Webserver-Plugin-UI-Addon-Pack
 */
 
@@ -8,7 +8,7 @@
 
 (() => {
 
-const pluginVersion = '1.1.7';
+const pluginVersion = '1.1.8';
 const pluginName = "UI Add-on Pack";
 const pluginHomepageUrl = "https://github.com/AmateurAudioDude/FM-DX-Webserver-Plugin-UI-Addon-Pack";
 const pluginUpdateUrl = "https://raw.githubusercontent.com/AmateurAudioDude/FM-DX-Webserver-Plugin-UI-Addon-Pack/refs/heads/main/UIAddonPack/pluginUIAddonPack.js";
@@ -17,7 +17,7 @@ const CHECK_FOR_UPDATES = true;
 
 // #################### CONFIGURATION #################### //
 
-const ENABLE_PLUGIN = false;
+const ENABLE_PLUGIN = true;
 
 // #################### CANVAS GRAPH FADE IN #################### //
 
@@ -161,6 +161,11 @@ const DIM_INCOMPLETE_PI_CODE = false;
 const STEREO_ICON_COLOR = "default";
 const STEREO_ICON_COLOR_OFF = "";
 
+// Panel edge style effect.
+// Valid options are 0 (disabled), 1, 2, or 3,
+const PANEL_STYLE_EFFECT = 0;
+const PANEL_STYLE_EFFECT_SIGNAL_PANEL = false;
+
 // #################### RDS ICON STYLING (Highpoint2000) #################### //
 
 // Enables RDS icons.
@@ -272,6 +277,7 @@ const RDS_ICON_STYLE_PRESETS = {
         MS_TOP_PADDING: 9,
         STEREO_ICON_SPACING: 1,
         PTY_HEIGHT: 20,
+        BW_MARGIN_LEFT: -6,
         GAP_ROW_1: 1,
         GAP_ROW_2: 6
     }
@@ -3638,6 +3644,75 @@ function insertSignalPanel() {
     const secondRow = createIconRow(RDS_ICON_STYLE_SECOND_ROW, false);
     iconsBar.appendChild(secondRow);
   }
+}
+
+if (PANEL_STYLE_EFFECT) {
+    if (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) && window.innerHeight > window.innerWidth) return;
+    const createStyleElement = (background, boxShadow, border) => {
+        let styleFixesElement = document.createElement('style');
+        styleFixesElement.textContent = `
+            .chatbutton,
+            .settings,
+            .panel-100-real.m-0.flex-container.bg-phone.flex-phone-column,
+            ${PANEL_STYLE_EFFECT_SIGNAL_PANEL ? '.panel-33.no-bg-phone,' : ''}
+            .panel-25.m-0.hide-phone,
+            .panel-30.m-0.hide-phone,
+            .panel-33.hover-brighten,
+            .panel-100.no-bg-phone,
+            #volumeSlider,
+            #ps-container,
+            #flags-container-desktop,
+            #pi-code-container,
+            #freq-container,
+            #rt-container,
+            #signalPanel {
+                border-radius: 10px;
+                background: ${background};
+                box-shadow: ${boxShadow};
+                ${border ? `border: ${border};` : ''}
+                transition: box-shadow 0.2s ease;
+            }
+
+            .chatbutton:hover,
+            .settings:hover,
+            .panel-100-real.m-0.flex-container.bg-phone.flex-phone-column:hover,
+            ${PANEL_STYLE_EFFECT_SIGNAL_PANEL ? '.panel-33.no-bg-phone:hover,' : ''}
+            .panel-25.m-0.hide-phone:hover,
+            .panel-30.m-0.hide-phone:hover,
+            .panel-33.hover-brighten:hover,
+            .panel-100.no-bg-phone:hover,
+            #volumeSlider:hover,
+            #ps-container:hover,
+            #flags-container-desktop:hover,
+            #pi-code-container:hover,
+            #freq-container:hover,
+            #rt-container:hover,
+            #signalPanel:hover {
+                box-shadow: -1px -1px 1px var(--color-1-transparent),
+                             1px 1px 1px var(--color-3-transparent);
+            }
+        `;
+        document.head.appendChild(styleFixesElement);
+    };
+
+    if (PANEL_STYLE_EFFECT === 1) {
+        createStyleElement(
+            'linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.05) 100%), var(--color-1-transparent)',
+            '1px 1px 1px var(--color-1-transparent), -1px -1px 1px var(--color-3-transparent)'
+        );
+    } else if (PANEL_STYLE_EFFECT === 2) {
+        createStyleElement(
+            'linear-gradient(to bottom, rgba(0, 0, 0, 0.06) 0%, rgba(0, 0, 0, 0) 100%), var(--color-1-transparent)',
+            'inset 2px 2px 6px var(--color-1-transparent), inset -2px -2px 6px var(--color-3-transparent), 1px 1px 2px rgba(0,0,0,0.15)',
+            'none'
+        );
+    } else if (PANEL_STYLE_EFFECT === 3) {
+        createStyleElement(
+            'linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.03) 100%), var(--color-1-transparent)',
+            '1px 1px 3px var(--color-1-transparent), -1px -1px 3px var(--color-3-transparent)',
+            '1px solid rgba(255,255,255,0.18)'
+        );
+    }
 }
 
 //

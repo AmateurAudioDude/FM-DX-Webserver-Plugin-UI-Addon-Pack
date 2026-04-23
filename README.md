@@ -3,7 +3,17 @@
 A collection of visual enhancements for FM-DX Webserver. Features may be added/removed in future. By default, all options are disabled.
 
 > [!TIP]
-> To keep a record of changed settings in a text file, run `node changes` from the `UIAddonPack` folder before transfering the latest `pluginUIAddonPack.js`. Changes are still required to be manually entered after each update.
+> ### Instructions to keep a record of changed settings in a text file, to migrate settings after each update.
+>
+> ## Before updating:
+>
+> * Open a Terminal window within the `UIAddonPack` folder.
+> * Run `node changes` to create a `changes.txt` file with your saved preferences.
+>
+> ## After updating:
+>
+> * Open a Terminal window within the `UIAddonPack` folder.
+> * Run `node update` to migrate your changes from `changes.txt` to the latest version.
 
 * [Download the latest zip file](https://github.com/AmateurAudioDude/FM-DX-Webserver-Plugin-UI-Addon-Pack/archive/refs/heads/main.zip)
 * Transfer `UIAddonPack` folder, and `-UIAddonPack.js` to FM-DX-Webserver `plugins` folder
@@ -13,6 +23,12 @@ A collection of visual enhancements for FM-DX Webserver. Features may be added/r
 #### Configuration options found in `pluginUIAddonPack.js`
 
 ###### Includes code and assistance from LLMs, and Highpoint2000.
+
+v1.1.8
+------
+* Added `PANEL_STYLE_EFFECT`, `PANEL_STYLE_EFFECT_SIGNAL_PANEL`, `METRICS_MONITOR_PLUGIN_IS_INSTALLED`, `IS_VISUALEQ_PLUGIN_ENALBED`, `APPLY_STEREO_ICON_GLOW_WITH_MISSING_RDS`, several options for `PLUGINS_USER_ORDER`
+* Smooth animation while adjusting canvas height
+* Minor fixes
 
 v1.1.7
 ------
