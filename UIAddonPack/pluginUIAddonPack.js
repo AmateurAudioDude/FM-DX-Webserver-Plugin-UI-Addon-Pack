@@ -1000,6 +1000,19 @@ if (SIDEBAR_ADDITIONS_EXPAND_CANVAS) {
         }
     });
 
+    let canvasCenteringObserver = null;
+
+    function centerMetricsMonitorPanels() {
+        const cc = document.querySelector('.canvas-container');
+        if (!cc) return;
+        const h = cc.offsetHeight;
+        const translateY = Math.floor((h - 160) / 2);
+        ['mm-mpx-combo-flex', 'mm-signal-analyzer-flex', 'mm-scope-flex'].forEach(function(id) {
+            const el = document.getElementById(id);
+            if (el) el.style.transform = 'translate(10px, ' + translateY + 'px)';
+        });
+    }
+
     function expandCanvasHeight() {
         const style = document.createElement('style');
         style.id = "expandCanvasStyle";
@@ -1041,6 +1054,7 @@ if (SIDEBAR_ADDITIONS_EXPAND_CANVAS) {
                 canvasContainer.style.height = "140px"; // Set to default height when disabled
             }
         }
+        centerMetricsMonitorPanels();
     }
 
     // Function to enable height adjustment via mouse dragging
@@ -1138,6 +1152,7 @@ if (SIDEBAR_ADDITIONS_EXPAND_CANVAS) {
                         canvasContainer.style.height = newHeight + 'px';
                         canvasContainer.style.transition = 'height 0.5s ease';
                         updateHeightDisplayBox(newHeight); // Update the height value in the box
+                        centerMetricsMonitorPanels();
                     }
                 }
 
@@ -1208,6 +1223,7 @@ if (SIDEBAR_ADDITIONS_EXPAND_CANVAS) {
                 canvasContainer.style.height = `${maxHeight}px`;
             }
 
+            centerMetricsMonitorPanels();
             clearTimeout(hideTimeout);
             updateHeightDisplayBox(canvasContainer.offsetHeight);
             heightDisplayBox.style.display = 'block';
@@ -1250,7 +1266,22 @@ if (SIDEBAR_ADDITIONS_EXPAND_CANVAS) {
         handleDoubleClick = null;
     }
 
+    function setupCanvasCenteringObserver() {
+        const cc = document.querySelector('.canvas-container');
+        if (!cc) return;
+        canvasCenteringObserver = new MutationObserver(function(mutations) {
+            for (var i = 0; i < mutations.length; i++) {
+                if (mutations[i].addedNodes.length > 0) {
+                    centerMetricsMonitorPanels();
+                    return;
+                }
+            }
+        });
+        canvasCenteringObserver.observe(cc, { childList: true });
+    }
+
     expandCanvasHeight();
+    setupCanvasCenteringObserver();
 }
 
 if (SIDEBAR_ADDITIONS_HIDE_BACKGROUND) {
