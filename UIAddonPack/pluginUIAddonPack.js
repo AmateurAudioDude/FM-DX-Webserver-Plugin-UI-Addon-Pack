@@ -1150,7 +1150,7 @@ if (SIDEBAR_ADDITIONS_EXPAND_CANVAS) {
                         newHeight = Math.max(minHeight, Math.min(newHeight, maxHeight));
 
                         canvasContainer.style.height = newHeight + 'px';
-                        canvasContainer.style.transition = 'height 0.5s ease';
+                        //canvasContainer.style.transition = 'height 0.5s ease';
                         updateHeightDisplayBox(newHeight); // Update the height value in the box
                         centerMetricsMonitorPanels();
                     }
