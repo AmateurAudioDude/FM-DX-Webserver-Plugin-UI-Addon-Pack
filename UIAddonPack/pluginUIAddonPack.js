@@ -851,7 +851,7 @@ if (CANVAS_FADE_EFFECT) {
 const canvasGraph = document.querySelector('.wrapper-outer #wrapper .canvas-container #signal-canvas');
 canvasGraph.style.opacity = 0;
 setTimeout(() => {
-    canvasGraph.style.transition = 'opacity 0.3s ease-in';
+    canvasGraph.style.transition = 'opacity 0.4s ease-in';
     canvasGraph.style.opacity = 1;
 }, 100);
 }
@@ -3678,49 +3678,51 @@ function insertSignalPanel() {
 }
 
 if (PANEL_STYLE_EFFECT) {
-    if (/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) && window.innerHeight > window.innerWidth) return;
     const createStyleElement = (background, boxShadow, border) => {
         let styleFixesElement = document.createElement('style');
         styleFixesElement.textContent = `
-            .chatbutton,
-            .settings,
-            .panel-100-real.m-0.flex-container.bg-phone.flex-phone-column,
-            ${PANEL_STYLE_EFFECT_SIGNAL_PANEL ? '.panel-33.no-bg-phone,' : ''}
-            .panel-25.m-0.hide-phone,
-            .panel-30.m-0.hide-phone,
-            .panel-33.hover-brighten,
-            .panel-100.no-bg-phone,
-            #volumeSlider,
-            #ps-container,
-            #flags-container-desktop,
-            #pi-code-container,
-            #freq-container,
-            #rt-container,
-            #signalPanel {
-                border-radius: 10px;
-                background: ${background};
-                box-shadow: ${boxShadow};
-                ${border ? `border: ${border};` : ''}
-                transition: box-shadow 0.2s ease;
-            }
+            /* Apply styles only for landscape orientation */
+            @media (orientation: landscape) {
+                .chatbutton,
+                .settings,
+                .panel-100-real.m-0.flex-container.bg-phone.flex-phone-column,
+                ${PANEL_STYLE_EFFECT_SIGNAL_PANEL ? '.panel-33.no-bg-phone,' : ''}
+                .panel-25.m-0.hide-phone,
+                .panel-30.m-0.hide-phone,
+                .panel-33.hover-brighten,
+                .panel-100.no-bg-phone,
+                #volumeSlider,
+                #ps-container,
+                #flags-container-desktop,
+                #pi-code-container,
+                #freq-container,
+                #rt-container,
+                #signalPanel {
+                    border-radius: 10px;
+                    background: ${background};
+                    box-shadow: ${boxShadow};
+                    ${border ? `border: ${border};` : ''}
+                    transition: box-shadow 0.2s ease;
+                }
 
-            .chatbutton:hover,
-            .settings:hover,
-            .panel-100-real.m-0.flex-container.bg-phone.flex-phone-column:hover,
-            ${PANEL_STYLE_EFFECT_SIGNAL_PANEL ? '.panel-33.no-bg-phone:hover,' : ''}
-            .panel-25.m-0.hide-phone:hover,
-            .panel-30.m-0.hide-phone:hover,
-            .panel-33.hover-brighten:hover,
-            .panel-100.no-bg-phone:hover,
-            #volumeSlider:hover,
-            #ps-container:hover,
-            #flags-container-desktop:hover,
-            #pi-code-container:hover,
-            #freq-container:hover,
-            #rt-container:hover,
-            #signalPanel:hover {
-                box-shadow: -1px -1px 1px var(--color-1-transparent),
-                             1px 1px 1px var(--color-3-transparent);
+                .chatbutton:hover,
+                .settings:hover,
+                .panel-100-real.m-0.flex-container.bg-phone.flex-phone-column:hover,
+                ${PANEL_STYLE_EFFECT_SIGNAL_PANEL ? '.panel-33.no-bg-phone:hover,' : ''}
+                .panel-25.m-0.hide-phone:hover,
+                .panel-30.m-0.hide-phone:hover,
+                .panel-33.hover-brighten:hover,
+                .panel-100.no-bg-phone:hover,
+                #volumeSlider:hover,
+                #ps-container:hover,
+                #flags-container-desktop:hover,
+                #pi-code-container:hover,
+                #freq-container:hover,
+                #rt-container:hover,
+                #signalPanel:hover {
+                    box-shadow: -1px -1px 1px var(--color-1-transparent),
+                                 1px 1px 1px var(--color-3-transparent);
+                }
             }
         `;
         document.head.appendChild(styleFixesElement);
