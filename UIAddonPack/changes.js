@@ -26,7 +26,6 @@ const ignoredVariables = {
     'RDS_INDICATOR_ICON_COLOR_OFF': '""',
     'BANDWIDTH_UPDATE_INTERVAL': '500',
     'RDS_INDICATOR_ICON_GLOW_INTENSITY': '0.25',
-    'IS_VISUALEQ_PLUGIN_ENALBED': 'localStorage.getItem("visualeq_enabled_state") === "true"',
 };
 
 // Extract 'user' preset from RDS_ICON_STYLE_PRESETS

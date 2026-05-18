@@ -17,7 +17,7 @@ const CHECK_FOR_UPDATES = true;
 
 // #################### CONFIGURATION #################### //
 
-const ENABLE_PLUGIN = true;
+const ENABLE_PLUGIN = false;
 
 // #################### CANVAS GRAPH FADE IN #################### //
 
@@ -172,7 +172,7 @@ const PANEL_STYLE_EFFECT_SIGNAL_PANEL = false;
 const RDS_ICON_STYLE = false;
 const RDS_ICON_STYLE_MOBILE = false;
 const METRICS_MONITOR_PLUGIN_IS_INSTALLED = false;
-const IS_VISUALEQ_PLUGIN_ENALBED = localStorage.getItem("visualeq_enabled_state") === "true";
+const IS_VISUALEQ_PLUGIN_INSTALLED = false;
 
 // RDS icon style presets. See below to configure user preset.
 // Options: 0 = user-defined, 1 = preset 1, 2 = preset 2, 3 = preset 3.
@@ -351,6 +351,15 @@ const HIDE_CONSOLE_LOGS = false;
 
 
 
+
+
+
+let IS_VISUALEQ_PLUGIN_ENABLED;
+
+if (IS_VISUALEQ_PLUGIN_INSTALLED) {
+    if (localStorage.getItem('visualeq_enabled_state') === null) localStorage.setItem('visualeq_enabled_state', 'true');
+    IS_VISUALEQ_PLUGIN_ENABLED = localStorage.getItem("visualeq_enabled_state") === "true";
+}
 
 if (ENABLE_PLUGIN) {
 
@@ -2129,9 +2138,11 @@ function addRandomIcon(result) {
 
     const iconSpan = document.createElement('span');
     iconSpan.classList.add('multipath-container');
-    iconSpan.style.marginLeft = `${!IS_VISUALEQ_PLUGIN_ENALBED && (RDS_ICON_STYLE || isRdsStyleMode) ? MULTIPATH_LEFT_PADDING : 8}px`;
+    if (!METRICS_MONITOR_PLUGIN_IS_INSTALLED) {
+        iconSpan.style.marginLeft = `${!IS_VISUALEQ_PLUGIN_ENABLED && (RDS_ICON_STYLE || isRdsStyleMode) ? MULTIPATH_LEFT_PADDING : 8}px`;
+        iconSpan.style.marginTop = `${!IS_VISUALEQ_PLUGIN_ENABLED && (RDS_ICON_STYLE || isRdsStyleMode) ? 0 : 2}px`;
+    }
     iconSpan.style.verticalAlign = 'middle';
-    iconSpan.style.marginTop = `${!IS_VISUALEQ_PLUGIN_ENALBED && (RDS_ICON_STYLE || isRdsStyleMode) ? 0 : 2}px`;
     iconSpan.style.fontSize = '16px';
     iconSpan.style.position = 'relative';
 
@@ -2669,7 +2680,7 @@ if (SORT_PLUGIN_BUTTONS) {
   }
 }
 
-if (!IS_VISUALEQ_PLUGIN_ENALBED && (RDS_ICON_STYLE || LED_GLOW_EFFECT_ICONS_METRICS_MONITOR_PLUGIN || RDS_ICON_STYLE_REMOVE_RDS_ICON) && innerWidth > 360) {
+if (!IS_VISUALEQ_PLUGIN_ENABLED && (RDS_ICON_STYLE || LED_GLOW_EFFECT_ICONS_METRICS_MONITOR_PLUGIN || RDS_ICON_STYLE_REMOVE_RDS_ICON) && innerWidth > 360) {
 
 const isFirefox = /firefox/i.test(navigator.userAgent);
 
@@ -2779,7 +2790,7 @@ ${LED_GLOW_EFFECT_ICONS_METRICS_MONITOR_PLUGIN === false ?`
   pointer-events: none;
 }
 
-${!IS_VISUALEQ_PLUGIN_ENALBED && (LED_GLOW_EFFECT_ICONS && (RDS_ICON_STYLE || LED_GLOW_EFFECT_ICONS_METRICS_MONITOR_PLUGIN)) ? `
+${!IS_VISUALEQ_PLUGIN_ENABLED && (LED_GLOW_EFFECT_ICONS && (RDS_ICON_STYLE || LED_GLOW_EFFECT_ICONS_METRICS_MONITOR_PLUGIN)) ? `
 /* Glow effect for RDS_ICON_STYLE */
 ${REPLACE_MPX_LOGO_WITH_STEREO_LOGO_METRICS_MONITOR_PLUGIN && APPLY_STEREO_ICON_GLOW_WITH_MISSING_RDS ? '#stereoIcon[src*="stereo_on"],' : ''}
 #signal-icons img.status-icon.icon-glow-on {
@@ -2820,7 +2831,7 @@ ${REPLACE_MPX_LOGO_WITH_STEREO_LOGO_METRICS_MONITOR_PLUGIN && APPLY_STEREO_ICON_
   gap: 2px;
 }
 
-${!IS_VISUALEQ_PLUGIN_ENALBED && (LED_GLOW_EFFECT_ICONS && (RDS_ICON_STYLE || LED_GLOW_EFFECT_ICONS_METRICS_MONITOR_PLUGIN)) ? `
+${!IS_VISUALEQ_PLUGIN_ENABLED && (LED_GLOW_EFFECT_ICONS && (RDS_ICON_STYLE || LED_GLOW_EFFECT_ICONS_METRICS_MONITOR_PLUGIN)) ? `
 /* Stereo icon glow effect for RDS_ICON_STYLE */
 #signal-icons #stereoIcon.stereo-on .circle-container .circle {
   background-color: rgba(255, 255, 255, 0.2);
