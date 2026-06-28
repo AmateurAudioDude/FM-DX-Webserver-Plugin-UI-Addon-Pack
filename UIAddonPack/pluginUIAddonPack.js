@@ -326,6 +326,7 @@ const PLUGINS_USER_ORDER = "1";
 //   30:       Custom Links (1)
 //   31:       Custom Links (2)
 //   32:       Custom Links (3)
+//   33:       Analog Scale
 //
 
 // #################### CONSOLE LOG SETTINGS #################### //
@@ -2221,6 +2222,12 @@ window.addEventListener('DOMContentLoaded', (event) => {
         return;
       }
 
+      // allow exceptions
+      const fKeyMatch = /^F([5-9]|1[0-2])$/.test(e.key);
+      if (e.key === 'Control' || e.ctrlKey || e.key === 'l' || e.key === 'L' || fKeyMatch) {
+        return;
+      }
+
       // block everything else
       e.stopImmediatePropagation();
       e.preventDefault();
@@ -2647,6 +2654,7 @@ if (SORT_PLUGIN_BUTTONS) {
    30: 'custom-links-btn-0',         // Custom Links (1)
    31: 'custom-links-btn-1',         // Custom Links (2)
    32: 'custom-links-btn-2',         // Custom Links (3)
+   33: 'et-analog-scale-btn',        // Analog Scale
   };
 
   const orderArray = PLUGINS_USER_ORDER
