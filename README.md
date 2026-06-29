@@ -24,6 +24,10 @@ A collection of visual enhancements for FM-DX Webserver. Features may be added/r
 
 ###### Includes code and assistance from LLMs, and Highpoint2000.
 
+v1.1.9
+------
+* Minor changes to `TUNE_DELAY_ENABLE`
+
 v1.1.8
 ------
 * Added `PANEL_STYLE_EFFECT`, `PANEL_STYLE_EFFECT_SIGNAL_PANEL`, `METRICS_MONITOR_PLUGIN_IS_INSTALLED`, `IS_VISUALEQ_PLUGIN_ENALBED`, `APPLY_STEREO_ICON_GLOW_WITH_MISSING_RDS`, several options for `PLUGINS_USER_ORDER`
