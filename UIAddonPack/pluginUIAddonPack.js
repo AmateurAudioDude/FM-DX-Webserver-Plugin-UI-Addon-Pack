@@ -1,5 +1,5 @@
 /*
-    UI Add-on Pack v1.1.8 by AAD
+    UI Add-on Pack v1.1.9 by AAD
     ----------------------------
     https://github.com/AmateurAudioDude/FM-DX-Webserver-Plugin-UI-Addon-Pack
 */
@@ -8,7 +8,7 @@
 
 (() => {
 
-const pluginVersion = '1.1.8';
+const pluginVersion = '1.1.9';
 const pluginName = "UI Add-on Pack";
 const pluginHomepageUrl = "https://github.com/AmateurAudioDude/FM-DX-Webserver-Plugin-UI-Addon-Pack";
 const pluginUpdateUrl = "https://raw.githubusercontent.com/AmateurAudioDude/FM-DX-Webserver-Plugin-UI-Addon-Pack/refs/heads/main/UIAddonPack/pluginUIAddonPack.js";
@@ -2222,15 +2222,29 @@ window.addEventListener('DOMContentLoaded', (event) => {
         return;
       }
 
-      // allow exceptions
-      const fKeyMatch = /^F([5-9]|1[0-2])$/.test(e.key);
-      if (e.key === 'Control' || e.ctrlKey || e.key === 'l' || e.key === 'L' || fKeyMatch) {
+      // Modifier-key combos (Ctrl/Alt/Shift/Meta) are never used by Webserver
+      if (e.ctrlKey || e.altKey || e.shiftKey || e.metaKey) {
+        return;
+      }
+
+      // Only block specific bare keys
+      const tuningKeys = ['b', 'r', 's', 'u', 'd', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright', 'delete', 'f1', 'f2', 'f3', 'f4'];
+      if (!tuningKeys.includes(e.key.toLowerCase())) {
         return;
       }
 
       // block everything else
       e.stopImmediatePropagation();
       e.preventDefault();
+    }, true);
+
+    // Intercept stereo/mono toggle clicks
+    document.addEventListener('click', (e) => {
+      if (!lockTuning) return;
+      if (e.target.closest('.stereo-container')) {
+        e.stopImmediatePropagation();
+        e.preventDefault();
+      }
     }, true);
 
     function lockIconStatus() {
@@ -2291,7 +2305,8 @@ window.addEventListener('DOMContentLoaded', (event) => {
         document.getElementById('data-bw'),
         document.getElementById('freq-container'),
         document.getElementById('tune-buttons'),
-        document.getElementById('plugin-button-presets')
+        document.getElementById('plugin-button-presets'),
+        ...document.querySelectorAll('.stereo-container')
       ];
 
       containers.forEach(el => {
@@ -2337,7 +2352,8 @@ window.addEventListener('DOMContentLoaded', (event) => {
           document.getElementById('data-bw'),
           document.getElementById('freq-container'),
           document.getElementById('tune-buttons'),
-          document.getElementById('plugin-button-presets')
+          document.getElementById('plugin-button-presets'),
+          ...document.querySelectorAll('.stereo-container')
         ];
 
         containers.forEach(el => {
@@ -2378,7 +2394,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 timeoutScheduled = true;
                 setTimeout(() => {
                     isFirstTimeRun = false;
-                }, 500);
+                }, 1000);
             }
             return;
         }
